@@ -1,0 +1,26 @@
+public class Caso3{
+
+   public static void main(){
+        
+        int x = 6
+        int primo = 1;
+        int i = 0,
+        int j;
+
+        while ( i + x ){
+           while( primo == 1 ){
+            
+            j = x / i;            
+            j = j * i;
+            j = x - j;
+            if ( j == 0 ) {
+                primo = 0;
+             } else {
+                i++;
+             }
+           
+           }
+        }
+   }
+}
+;

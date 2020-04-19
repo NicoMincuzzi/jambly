@@ -1,0 +1,27 @@
+public class Caso6{
+
+  public static void main(){
+
+     int raggio = 5;
+     int diametro;
+     int raggioQuad;
+     final double pigreco = 3.14;
+     double circonferenza;
+     double area; 
+
+     diametro = 2*raggio;
+     raggioQuad = raggio * raggio;
+
+     if(raggio > 0){
+       
+       circonferenza = pigreco*diametro;
+       
+       area = pigreco * raggioQuad;
+       
+
+     }
+
+
+ }
+}
+;

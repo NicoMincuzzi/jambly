@@ -1,0 +1,29 @@
+public class Caso4{
+
+  public static void main(){
+
+    int max = 0;
+    into i;	
+    int V[] = new int[] { 22, 5, 7, 11, 2, 33, 9},
+
+    i = 0;  
+    while( i < "ciao"){
+      
+      if(max <= V[i]){
+        
+        max = V[i];
+
+      }else{
+
+        max = max;
+
+      }
+        i++;
+    }
+
+  }
+
+
+;
+
+

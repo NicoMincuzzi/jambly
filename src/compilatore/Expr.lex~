@@ -1,0 +1,502 @@
+package newversionproj;
+
+import java_cup.runtime.*;
+import java.io.*;
+
+import newversionproj.sym;
+import static newversionproj.sym.*;
+
+%%
+
+%class ExprLex
+
+%unicode
+%line
+%column
+%ignorecase
+
+// %public
+%final
+// %abstract
+
+%cupsym newversionproj.sym
+%cup
+%cupdebug
+
+%init{
+	// TODO: code that goes to constructor
+%init}
+
+%{
+
+StringBuilder string = new StringBuilder();
+
+	private Symbol sym(int type)
+	{
+		return sym(type, yytext());
+	}
+
+	private Symbol sym(int type, Object value)
+	{
+		return new Symbol(type, yyline, yycolumn, value);
+	}
+
+public int getLine()
+      {
+          return yyline+1;
+      
+
+      }
+     public int getCurrentPos()
+     {
+         return zzCurrentPos;
+      }
+     public int getColumn()
+    {
+         return yycolumn;
+
+     }
+    public int getStart()
+    {
+            return zzStartRead;
+    }
+    public int getMarked()
+    {
+            return zzMarkedPos;
+    }
+     
+      public int findLine(int currPos, int currLine, int column)
+     {
+           int start=currPos-(column+1);
+           int end=currPos-1;
+           int riga=currLine;
+           int f_line=0;
+           int cont=1;
+           boolean firstLine=false;
+         
+           int spazz=0;
+           
+                //System.out.println("stampa linea: "+riga);
+            
+                 while(cont<riga && firstLine==false)
+                     {
+                      while(zzBuffer[f_line]=='\n' || zzBuffer[f_line]=='\r' ||
+                           zzBuffer[f_line]=='\t' || zzBuffer[f_line]==' ')
+                           {
+                                if(zzBuffer[f_line]=='\n')
+                                 cont++;
+                              f_line++;
+                            }
+                       firstLine=true;
+
+                   }
+                
+               
+                if(cont==riga)
+                 {
+                      return cont;                            
+                                        
+                       
+                     }
+               
+                  else
+                  {
+                
+                        while(zzBuffer[start]!=zzBuffer[end] && (zzBuffer[end]==' ' || zzBuffer[end]=='\t'))
+                       end--;
+                     if(zzBuffer[end]==zzBuffer[start])
+                     {
+                        spazz--;
+                        start--;
+                          while(zzBuffer[start]=='\n' || zzBuffer[start]=='\r' ||
+                           zzBuffer[start]=='\t' || zzBuffer[start]==' ')
+                          {
+                              if(zzBuffer[start]=='\n')
+                               spazz--;
+                              start--;
+                           }
+                          return riga+spazz;
+               
+                     }
+                    
+
+                    else{
+                          return riga;
+                         }
+            }
+          
+         
+       }
+       
+
+       public boolean checkBrack()throws FileNotFoundException
+       {
+             UtilScanner util=new UtilScanner();
+             util.getUtil();
+             
+             int start=0;
+             int end=util.getPos();
+             
+             
+             boolean flag=true;
+             
+            int i;
+           
+         
+           while(start<=end)
+           {
+              
+               switch(zzBuffer[start])
+               {
+                case '{': 
+                          UtilParser.addBr();
+                          start++;
+                          break;
+                case '}':
+                         UtilParser.decrBr();
+                         start++;
+                         break;
+                
+                default: 
+                         start++;
+                         break;
+                }
+
+            }
+          if(UtilParser.getcountBrace2()!=0)
+           {
+               
+               
+                                  
+                    if(UtilParser.getcountBrace2()>0)
+                   {
+                    System.out.println("numero di parentesi mancanti: " +UtilParser.getcountBrace2());
+                    System.out.println("Ultima parentesi riga num:\n"+util.getLine());
+                    return true;
+                   }
+                
+                  else{
+                   System.out.println("numero di parentesi  superflue: " +(-UtilParser.getcountBrace2()));
+                   System.out.println("Ultima parentesi riga num:\n"+util.getLine());
+                    return true;
+                    }
+               }
+               else
+                {
+                 return false;    
+                }
+            
+        
+       }
+       public String text()
+        {
+          
+         int start=zzCurrentPos-(yycolumn+1);
+         
+         int end=zzCurrentPos-1;
+         int f_line=0; 
+         int line=getLine(); 
+         int cont=1;
+         
+          
+         StringBuffer load=new StringBuffer("");
+         String wrongStr="";
+         boolean flag=false;
+         boolean firstLine=false;
+
+        
+        try{   
+        flag=checkBrack();
+        }catch(FileNotFoundException f)
+        {
+            System.out.println("errore controllo parentesi");
+         }
+         if(flag)
+         {
+              String s = "parentesi";
+              return s;
+         }
+            else
+            {
+              
+                while(cont<line && firstLine==false)
+                {
+                      while(zzBuffer[f_line]=='\n' || zzBuffer[f_line]=='\r' ||
+                           zzBuffer[f_line]=='\t' || zzBuffer[f_line]==' ')
+                           {
+                                if(zzBuffer[f_line]=='\n')
+                                 cont++;
+                              f_line++;
+                            }
+                       firstLine=true;
+
+                }
+
+                if(cont==line)
+                 {
+                  
+                            
+                                        
+                       while(zzBuffer[f_line]!='\n')
+                      {
+                          
+                        load.append(zzBuffer[f_line]);
+                        f_line++;
+
+                       }
+                   
+                     }
+               
+                  else
+                  {
+                      
+                     
+                    
+                     while(zzBuffer[start]!=zzBuffer[end] && (zzBuffer[end]==' ' || zzBuffer[end]=='\t'))
+                       end--;
+                     if(zzBuffer[end]==zzBuffer[start])
+                     {
+                        start--;
+                          while(zzBuffer[start]=='\n' || zzBuffer[start]=='\r' ||
+                           zzBuffer[start]=='\t' || zzBuffer[start]==' ')
+                           start--;
+             
+                        load.append(zzBuffer[start]);
+                        while(zzBuffer[start]!='\n' && start!=0)
+                        {
+                           start--;
+                           load.append(zzBuffer[start]);
+                        }           
+                        load.reverse();
+               
+                     }
+                    
+
+                    else{
+                          start++;
+                         while(zzBuffer[start]=='\n' || zzBuffer[start]=='\r' ||
+                           zzBuffer[start]=='\t' || zzBuffer[start]==' ')
+                           start++;
+                          while(zzBuffer[start]!='\n')
+                          { 
+                               load.append(zzBuffer[start]);
+                               start++;
+
+                           }
+                         }
+
+                  }
+           
+           wrongStr=load.toString();
+           wrongStr=wrongStr.trim();
+           wrongStr=wrongStr.replaceAll("\n","");
+          
+           return wrongStr;
+          }
+  
+       }
+    
+  
+%}
+
+LineTerminator = \r|\n|\r\n
+InputCharacter = [^\r\n]       // tutti i caratteri fatta eccezione per \n o \r
+
+WhiteSpace = {LineTerminator} | [ \t\f]
+
+/* I 3 differenti tipi di commenti */
+Commento = {TraditionalComment} | {EndOfLineComment} | 
+          {DocumentationComment}
+
+TraditionalComment = "/*" [^*] ~"*/" | "/*" "*"+ "/"
+EndOfLineComment = "//" {InputCharacter}* {LineTerminator}?
+DocumentationComment = "/*" "*"+ [^/*] ~"*/"
+
+/* identificatore */
+Identificatore = [:jletter:][:jletterdigit:]*
+
+
+/* numeri interi */
+DecIntegerLiteral = 0 | [1-9][0-9]*                   // abbiamo 0 o una cifra da 1 a 9 seguita o no da una o più cifre da 0 a 9 
+DecLongLiteral    = {DecIntegerLiteral} [lL]          // per un long int facciamo seguire al numero intero l o L 
+
+    
+/* numeri floating point */        
+FloatLiteral  = ({FLit1}|{FLit2}|{FLit3}) {Exponent}? [fF]     // casi (3.45e5F .34e-4f 4E+7f)
+DoubleLiteral = ({FLit1}|{FLit2}|{FLit3}) {Exponent}?         // casi (3.45e5 .34e-4 4E+7)
+
+FLit1    = [0-9]+ \. [0-9]*            // 1 o più cifre da 0 a 9 seguite da . e da 0 o più cifre da 0 a 9 (i.e.  0.34 3.45 7. 5.0)
+FLit2    = \. [0-9]+                        // . seguito da 1 o più cifre da 0 a 9 (i.e. .34) 
+FLit3    = [0-9]+                           // 1 o più cifre da 0 a 9  (i.e. 4 o 35)
+Exponent = [eE] [+-]? [0-9]+                // (i.e. e5 E6 e-4 E+7)
+
+
+
+/* string and character literals */
+StringCharacter = [^\r\n\"\\]              //qualsiasi carattere escluso \r o \n o " o \
+SingleCharacter = [^\r\n\'\\]              //qualsiasi carattere escluso \r o \n o ' o \
+
+%state STRING, CHARLITERAL  
+
+
+%%
+
+
+<YYINITIAL> {
+
+  /* parole chiave scelte in base ai costrutti scelti*/
+ 
+  "boolean"                      { return sym(BOOLEAN); }
+  
+  
+  "class"                        { return sym(CLASS); }
+  
+  "do"                           { return sym(DO); }
+  "double"                       { return sym(DOUBLE); }
+  "else"                         { return sym(ELSE); }
+  "final"                        { return sym(FINAL); }
+  
+  
+  "for"                          { return sym(FOR); }
+  
+  "import"                       { return sym(IMPORT); }
+  "int"                          { return sym(INT); }
+  
+  "new"                          { return sym(NEW); }
+  "if"                           { return sym(IF); }
+  "public"                       { return sym(PUBLIC); }
+  
+  "package"                      { return sym(PACKAGE); }
+  "private"                      { return sym(PRIVATE); }
+  
+  "void"                         { return sym(VOID); }
+  "static"                       { return sym(STATIC); }
+  "while"                        { return sym(WHILE); }
+  
+  
+    
+  
+  /* valori booleani */
+  "true"                         { return new Symbol(sym.BOOLEAN_LITERAL, true); }
+  "false"                        { return new Symbol(sym.BOOLEAN_LITERAL, false); }
+  
+  /* valore null */
+  "null"                         { return sym(NULL_LITERAL); }
+  
+  
+  /* separatori */
+  "("                            { return sym(TONDA_APERTA); }
+  ")"                            { return sym(TONDA_CHIUSA); }
+  "{"                            { return sym(LBRACE); }
+  "}"                            { return sym(RBRACE); }
+  "["                            { return sym(LBRACK); }
+  "]"                            { return sym(RBRACK); }
+  ";"                            { return sym(PUNTO_E_VIRGOLA); }
+  ","                            { return sym(VIRGOLA); }
+  "."                            { return sym(PUNTO); }
+  
+  /* operatori scelti quelli utili per i nostri costrutti*/
+  "="                            { return sym(EQ); }
+  ">"                            { return sym(GT); }
+  "<"                            { return sym(LT); }
+  "!"                            { return sym(NOT); }
+  "=="                           { return sym(EQEQ); }
+  "<="                           { return sym(LTEQ); }
+  ">="                           { return sym(GTEQ); }
+  "!="                           { return sym(NOTEQ); }
+  "&&"                           { return sym(ANDAND); }
+  "||"                           { return sym(OROR); }
+  "++"                           { return sym(PLUSPLUS); }
+  "--"                           { return sym(MINUSMINUS); }
+  "+"                            { return sym(PIU); }
+  "-"                            { return sym(MENO); }
+  "*"                            { return sym(PER); }
+  "/"                            { return sym(DIVISO); }
+    
+  
+
+
+ /* simbolo che identifica l'inizio di una stringa  */
+  \"                             { yybegin(STRING); string.setLength(0); }       //si passa nello stato STRING
+
+  /* simbolo che identifica l'inizio di un carattere */
+  \'                             { yybegin(CHARLITERAL); }                      //si passa nello stato CHARLITERAL
+
+
+  /* numeri */
+
+  /* This is matched together with the minus, because the number is too big to 
+     be represented by a positive integer. */
+  "-2147483648"                  { return new Symbol(sym.INTEGER_LITERAL, new Integer(Integer.MIN_VALUE)); }
+  
+  {DecIntegerLiteral}            { return new Symbol(sym.INTEGER_LITERAL, new Integer(yytext())); }
+  {DecLongLiteral}               { return new Symbol(sym.INTEGER_LITERAL, new Long(yytext().substring(0,yylength()-1))); } //substring che     
+                                                                                                                   //elimina l o L
+  
+  {FloatLiteral}                 { return new Symbol(sym.FLOATING_POINT_LITERAL, new Float(yytext().substring(0,yylength()-1))); }
+  {DoubleLiteral}                { return new Symbol(sym.FLOATING_POINT_LITERAL, new Double(yytext())); }
+  {DoubleLiteral}[dD]            { return new Symbol(sym.FLOATING_POINT_LITERAL, new Double(yytext().substring(0,yylength()-1))); }
+  
+  /* commenti */
+  {Commento}                      { }            //in caso di commento non viene eseguita alcuna azione
+
+  /* whitespace */
+  {WhiteSpace}                    { }            //in caso di spazio bianco non viene eseguita alcuna azione
+
+  /* identifiers */ 
+  {Identificatore}                   { return new Symbol(sym.IDENTIFICATORE, yytext()); }  //viene passato il il tipo di Token e il lessema letto
+
+}
+
+<STRING> {
+
+  /* individuazione di " dopo aver individuato il primo " nello stato YYINITIAL  */
+  \"                             { yybegin(YYINITIAL); return new Symbol(sym.STRING_LITERAL, string.toString()); }  //passaggio nuovamente nello 
+                                                                                                            //stato YYINITIAL e stampa 
+  
+  
+  /* i singoli caratteri vengono ripetuti 1 o più volte */ 
+  {StringCharacter}+             { string.append( yytext() ); }   //stringa che si viene a creare è posta in append
+  
+  /* escape sequences presenti all'interno di una stringa e posti in append*/
+  "\\b"                          { string.append( '\b' ); }
+  "\\t"                          { string.append( '\t' ); }
+  "\\n"                          { string.append( '\n' ); }
+  "\\f"                          { string.append( '\f' ); }
+  "\\r"                          { string.append( '\r' ); }
+  "\\\""                         { string.append( '\"' ); }
+  "\\'"                          { string.append( '\'' ); }
+  "\\\\"                         { string.append( '\\' ); }
+ 
+  
+  /* casi di errori nelle stringhe */
+  \\.                            { throw new RuntimeException("Illegal escape sequence \""+yytext()+"\""); }
+  {LineTerminator}               { throw new RuntimeException("Unterminated string at end of line"); }
+}
+
+<CHARLITERAL> {
+  {SingleCharacter}\'            { yybegin(YYINITIAL); return new Symbol(sym.CHARACTER_LITERAL, yytext().charAt(0)); }
+  
+  /* escape sequences */
+  "\\b"\'                        { yybegin(YYINITIAL); return new Symbol(sym.CHARACTER_LITERAL, '\b');}
+  "\\t"\'                        { yybegin(YYINITIAL); return new Symbol(sym.CHARACTER_LITERAL, '\t');}
+  "\\n"\'                        { yybegin(YYINITIAL); return new Symbol(sym.CHARACTER_LITERAL, '\n');}
+  "\\f"\'                        { yybegin(YYINITIAL); return new Symbol(sym.CHARACTER_LITERAL, '\f');}
+  "\\r"\'                        { yybegin(YYINITIAL); return new Symbol(sym.CHARACTER_LITERAL, '\r');}
+  "\\\""\'                       { yybegin(YYINITIAL); return new Symbol(sym.CHARACTER_LITERAL, '\"');}
+  "\\'"\'                        { yybegin(YYINITIAL); return new Symbol(sym.CHARACTER_LITERAL, '\'');}
+  "\\\\"\'                       { yybegin(YYINITIAL); return new Symbol(sym.CHARACTER_LITERAL, '\\'); }
+ 
+
+  /* error cases */
+  \\.                            { throw new RuntimeException("Illegal escape sequence \""+yytext()+"\""); }
+  {LineTerminator}               { throw new RuntimeException("Unterminated character literal at end of line"); }
+}
+
+/* error fallback */
+.|\n                             { throw new RuntimeException("Illegal character \""+yytext()+
+                                                              "\" at line "+yyline+", column "+yycolumn); }
+<<EOF>>                          { return new Symbol(sym.EOF); }
+
+
+

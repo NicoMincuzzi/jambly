@@ -1,0 +1,21 @@
+public class Caso8{
+
+  public private static void main(){
+
+    int lavoro = 0,    
+    int i;
+    int j = 1.9;
+	int[] B = new int[] { 22, 5, 7, 11, 2, 33, 9};
+    int V[] = { 22, 5, 7, 11, 2, 33, 9};	
+
+	if(i < 5){
+         //a;
+	V[i] = 6;
+ 	V[i] = j + G[i];
+	i = j + 6;
+	}
+
+	
+}
+}
+;

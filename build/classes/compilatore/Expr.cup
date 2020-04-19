@@ -1,0 +1,2060 @@
+package compilatore;
+import java.io.*;
+import java.util.*;
+import java_cup.runtime.Symbol;
+
+action code{:
+
+String ArrActTStore = "";
+String ArrActTemp = "";
+String TRAD = "";
+String STArr = "";
+static String RegFP;
+boolean flagP1 = true;
+boolean flagP2 = true;
+static boolean flagWarn = false;
+int livP = 0;
+static String Err_War = "";
+static boolean checkFlag = false;
+static boolean FlagSyn = false;
+String typeDeclErr; //variabile che ci permette di recuperare il tipo in caso di errori sintattici
+boolean sintErr = false; // flag che ci permette di capire se si è verificato o meno un errore sintattico
+
+
+static int countReg = 0;
+static int countRegFP = 0;
+static int countRTemp = 0;
+int countCl = 1;
+
+ArrayList <String> vTrad = new ArrayList();
+ArrayList <String> dichRecup = new ArrayList(); //struttura che permette di recuperare una dichiarazione
+                                                //nel caso in cui, in precedenza, ci sia stato un errore sintattico
+                                                //legato alla mancanza del ";"
+HashMap <String,String> TabTrad = new HashMap();
+
+
+public void structProg(int levP, boolean flag, String trad) throws IOException{
+
+   if(levP == 1){
+
+      if(flag == true){
+        Support.writeFile(true,"\n.data\n\n");        
+      }
+        Support.writeFile(true,trad+"\n");
+        ListIterator lsT = dichRecup.listIterator();
+          while(lsT.hasNext()){
+            Support.writeFile(true,lsT.next().toString()+"\n");            
+          } 
+        flagP1 = false;
+        
+   }else if(levP == 2){
+
+      if(flag == true){
+          Support.writeFile(true,"\n.code\n\n");
+              
+          ListIterator lsT = vTrad.listIterator();
+          while(lsT.hasNext()){
+            Support.writeFile(true,lsT.next().toString()+"\n");            
+          }   
+      }
+    Support.writeFile(true,trad);    
+    flagP2 = false;
+   }else{
+    Support.writeFile(false,"\n\nend\n");   
+   }   
+}
+
+:};
+
+
+
+parser code{: 
+             StringBuilder buffer;
+             PrintText output = new PrintText();           
+             public ArrayList<PrintText> error= new ArrayList <PrintText>(); //lista di errori con accesso casuale
+             int cont_errori=0;  //contatore errori
+             boolean fatal=false;  //per un fatal error
+             ExprLex scan = (ExprLex)this.getScanner();  //ottengo lo scanner che stà utilizzando il parser, per usare
+                                                        // alcune funzioni del primo                            
+            
+             
+           
+           public void print_error() throws IOException
+           {
+                Iterator<PrintText> err_list=error.iterator();
+                
+                Support.writeFileErr("ERRORI TROVATI: "+cont_errori+"\n");
+                Support.countExit(cont_errori);
+                 while(err_list.hasNext())
+                {
+                     PrintText stampa=err_list.next();
+                     Support.writeFileErr("\n"+stampa.getMessage()+"OUTPUT ERROR:\n"+stampa.getString()+"\nRiga n."+stampa.getPos()+"\n");
+                                                 
+                 }  
+           }
+          
+         public void ordina_list()
+         {
+             Collections.sort(error);
+         }
+          public boolean find(PrintText A)
+            {
+               Iterator<PrintText> I=error.iterator();
+               while(I.hasNext())
+                {
+                     if(I.next().equals_elem(A))
+                         return true;
+                     
+                 }
+               return false;
+            }
+
+           public int remove()
+          {
+             int pos=scan.getPos_vir();
+              Iterator<PrintText> I=error.iterator();
+               while(I.hasNext())
+                {
+                     if(I.next().getPos()>=pos)
+                      {
+                       I.remove();
+                        return 0;
+                        }
+                 }
+                return 0;
+          }
+
+          public void calcola_par() //viene fatto alla fine della lettura o per un fatal error
+         {
+             int num_par=scan.countBrace2;
+             PrintText pt=new PrintText();
+             
+            if(num_par>0 || num_par<0) //non ci si ritrova con il n di parentesi
+            {
+              if(num_par>0)
+              {
+                pt.setString("Parentesi in difetto");
+                if(scan.get_close_par()!=0)
+                  pt.setPos(scan.get_close_par());
+                else
+                    pt.setPos(scan.get_open_par());
+               error.add(pt); 
+              }
+              else
+              {
+               pt.setString("Parentesi in eccesso");
+               pt.setPos(scan.get_open_par());
+               
+               error.add(pt);
+              }
+            }
+               
+                
+         }
+             public int returnLine()
+             {
+                return ((ExprLex)this.getScanner()).getLine();
+             }
+              
+//tutti i metodi successivi si appoggiano alla seconda report_error passando il mess e il tipo di ogg
+//per stampare la linea di un determinato terminale o non terminale
+             public void report_error(String message, int line)
+            {
+                buffer = new StringBuilder(message);
+                buffer.append("Output: \n");
+                cont_errori++;
+               try { 
+               output = scan.text(line); 
+                
+                output.setMessage(message);
+                 error.add(output);
+                }catch (IOException ex) {
+                        ex.printStackTrace();
+                   }
+
+              }
+
+//chiamata in auto da syntax_error e fatal_error, per il controllo era necessario fare un override
+             public void report_error(String message, Object info) //crea oggetti di tipo PrintText
+             {
+                   buffer = new StringBuilder(message); 
+                buffer.append("Output: \n");
+               cont_errori++; //incremento degli errori
+               int pos = scan.getPos_vir();
+                
+                   
+                if(info==null) //il null serve per la syntax_error e per la fatal_error
+                {
+                 
+                   try {
+                     
+                        output = scan.text(); //ottengo pt della funzione text()
+                       
+                         if(!fatal)
+                         {
+                           output.setMessage(message);
+                            error.add(output);      
+                         }
+                         else
+                         { //caso in cui viene superata la fine del file
+                           output.setMessage(message);
+                          if(output.getPos()>=pos)  //getPos() posizione riferita all'oggetto errato
+                             output.setString("");
+                           fatal=false;
+                           error.add(output);
+
+                           
+                         }
+                        
+                   }catch (IOException ex) {
+                        ex.printStackTrace();
+                   }
+                   
+                }else{
+                   if(info instanceof Obj)
+                   {
+                     
+                     
+                    try {
+                           output = scan.text();
+                      
+                            output.setMessage(message);
+                           error.add(output);   
+                                                 
+                    }catch(IOException ex)
+                       {
+                        ex.printStackTrace();
+                       }
+                    }
+                  
+                      }          
+               
+               
+                    
+             }
+             
+            public void syntax_error(Symbol cur_token)    //chiamata in auto dal CUP, fatto override per passare il msg che vogliamo noi
+            {
+               report_error("ERRORE LESSICALE/SINTATTICO \n",null);              
+            }
+            
+            
+            public void warning(String message,Obj check) throws IOException
+            {
+                  report_error(message,check);
+            }
+
+         public void report_fatal_error(String message, Object info)  //chiamata in auto dalla unrecover_syntax_error, , fatto override per passare il msg che vogliamo noi
+         {
+
+            fatal=true;            
+            report_error("FATAL ERROR: IMPOSSIBILE COMPLETARE L'ESECUZIONE, POICHE' E' STATA RAGGIUNTA LA FINE DEL FILE PREMATURAMENTE!",null);
+            CUP$parser$actions.FlagSyn = true;
+         }
+
+         public void report_fatal_error(String message)
+        {
+           report_error(message,null);
+            
+        }           
+
+:}
+
+
+
+                /* SIMBOLI TERMINALI (token restituiti dallo scanner) */
+terminal BOOLEAN; 
+terminal INT; 
+terminal DOUBLE; 
+terminal LBRACK, RBRACK; 
+terminal PUNTO; 
+terminal PUNTO_E_VIRGOLA, PER,VIRGOLA, LBRACE, RBRACE, EQ, TONDA_APERTA, TONDA_CHIUSA;
+terminal PACKAGE; 
+terminal IMPORT; 
+terminal PUBLIC, PRIVATE; 
+terminal STATIC; 
+terminal FINAL;
+terminal CLASS; 
+terminal VOID; 
+terminal IF, ELSE; 
+terminal DO, WHILE; 
+terminal FOR; 
+terminal NEW; 
+terminal PLUSPLUS; 
+terminal MINUSMINUS; 
+terminal PIU, MENO, DIVISO;
+terminal LT, GT, LTEQ, GTEQ; 
+terminal EQEQ, NOTEQ; 
+terminal ANDAND; 
+terminal OROR;
+
+
+
+terminal java.lang.Number INTEGER_LITERAL;
+terminal java.lang.Number FLOATING_POINT_LITERAL;
+terminal java.lang.Boolean BOOLEAN_LITERAL;
+terminal java.lang.Character CHARACTER_LITERAL;
+terminal java.lang.String STRING_LITERAL;
+terminal java.lang.String IDENTIFICATORE; // name
+terminal NULL_LITERAL;
+
+
+                                 /* NON TERMINALI */
+non terminal Obj goal;
+non terminal Obj literal;
+non terminal Obj type, primitive_type, numeric_type;
+non terminal Obj integral_type, floating_point_type;
+non terminal Obj name, simple_name;
+non terminal Obj compilation_unit;
+non terminal Obj type_declarations_opt, type_declarations;
+non terminal Obj type_declaration;
+non terminal Obj modifiers_opt, modifiers, modifier;
+non terminal Obj class_declaration;
+non terminal Obj class_body;
+non terminal Obj class_body_declarations, class_body_declarations_opt;
+non terminal Obj class_body_declaration, class_member_declaration;
+non terminal Obj variable_declarators, variable_declarator;
+non terminal Obj variable_declarator_id, variable_initializer;
+non terminal Obj method_declaration, method_header, method_declarator;
+non terminal Obj formal_parameter_list_opt;
+non terminal Obj method_body;
+non terminal Obj constructor_declaration;
+non terminal Obj array_initializer;
+non terminal Obj variable_initializers;
+non terminal Obj block;
+non terminal Obj block_statements_opt, block_statements, block_statement;
+non terminal Obj local_variable_declaration_statement, local_variable_declaration;
+non terminal Obj section_two;
+non terminal Obj statement, statement_no_short_if;
+non terminal Obj statement_without_trailing_substatement;
+non terminal Obj empty_statement;
+non terminal Obj expression_statement, statement_expression;
+non terminal Obj if_then_statement;
+non terminal Obj if_then_else_statement, if_then_else_statement_no_short_if;
+non terminal Obj while_statement, while_statement_no_short_if;
+non terminal Obj do_statement;
+non terminal Obj for_statement, for_statement_no_short_if;
+non terminal Obj for_init_opt, for_init;
+non terminal Obj for_update_opt, for_update;
+non terminal Obj statement_expression_list;
+non terminal Obj primary, primary_no_new_array;
+non terminal Obj array_creation_expression;
+non terminal Obj dim_exprs, dim_expr, dims_opt, dims;
+non terminal Obj array_access;
+non terminal Obj postfix_expression;
+non terminal Obj postincrement_expression, postdecrement_expression;
+non terminal Obj unary_expression, unary_expression_not_plus_minus;
+non terminal Obj cast_expression;
+non terminal Obj multiplicative_expression, additive_expression;
+non terminal Obj relational_expression, equality_expression;
+non terminal Obj conditional_and_expression, conditional_or_expression;
+non terminal Obj assignment_expression;
+non terminal Obj assignment;
+non terminal Obj left_hand_side;
+non terminal Obj expression_opt, expression;
+non terminal Obj punteggiatura;
+
+
+
+                               /* SIMBOLO DI PARTENZA */
+start with goal;
+
+                                   /* PRODUZIONI */
+goal ::= compilation_unit
+         ;
+
+literal ::=	INTEGER_LITERAL:il {: RESULT = new Obj(Integer.toString((Integer)il),"INTEGER", "NUMERO"); :}
+	|	FLOATING_POINT_LITERAL:fpl {: RESULT = new Obj(Double.toString((Double)fpl),"DOUBLE", "NUMERO"); :}
+	|	BOOLEAN_LITERAL:boolit {: RESULT = new Obj(boolit?"true":"false", "BOOLEAN"); :}
+	|	CHARACTER_LITERAL:chlit {: RESULT = new Obj(chlit.toString());  :}
+	|	STRING_LITERAL:strlit {: RESULT = new Obj(strlit.replace("\"","\\\""),"STRING"); :}
+	|	NULL_LITERAL {: RESULT = new Obj("null",""); :}
+	;
+
+type	::=	primitive_type:tipo_prim {: RESULT = tipo_prim; :}        
+	;
+primitive_type ::=
+		numeric_type:tipo_num {: RESULT = tipo_num; :}
+	|	BOOLEAN:b {: RESULT = new Obj(b.toString(),"BOOLEAN"); :}        
+	;
+numeric_type::=	integral_type:tipo_intero {: RESULT = tipo_intero; :}
+	|	floating_point_type:tipo_dec {: RESULT = tipo_dec; :}
+        |       error:e {: 
+                        RESULT = new Obj("errore","ERRORE");
+                       :}
+	;
+integral_type ::= 
+		INT:i {: RESULT = new Obj(i.toString(),"INTEGER"); :}        
+	;
+floating_point_type ::= 
+		DOUBLE:d  {: RESULT = new Obj(d.toString(),"DOUBLE"); :}        
+	;
+
+                      /*SEZIONE PER LA GESTIONE DEI NOMI*/
+name ::= simple_name:nome {: RESULT = nome; :}
+	 ;
+simple_name ::=	IDENTIFICATORE:ind {: RESULT = new Obj(ind.toString(),"IDENTIFICATORE"); :}
+	        ;
+
+punteggiatura ::=
+                     VIRGOLA {: parser.report_error("SOSTITUZIONE PUNTO E VIRGOLA CON VIRGOLA!!!\n",null); :}
+                |    PUNTO {: parser.report_error("SOSTITUZIONE PUNTO E VIRGOLA CON PUNTO!!!\n",null); :}
+                |    PUNTO_E_VIRGOLA
+                |    {:  parser.report_error("PUNTO E VIRGOLA MANCANTE!!!\n", null);:}type:tipo {: 
+                                typeDeclErr = tipo.tipo; //capire se è necessario anche tipo.testo
+                                sintErr = true;                                
+                                :}                  
+                ;  
+                 
+
+/*GESTIONE DELLA PARTE INIZIALE CONTENENTE IL PACKAGE, GLI IMPORTI E LA CLASSE*/
+
+compilation_unit ::= type_declarations_opt
+		     ;
+
+type_declarations_opt ::= type_declarations   | ;
+
+
+
+type_declarations ::= type_declaration
+                      |
+	              type_declarations type_declaration
+	              ;
+
+type_declaration ::= class_declaration
+	             |	
+                     PUNTO_E_VIRGOLA 
+                     | error 
+	             ;
+
+                   /*SEZIONE PER LA GESTIONE DEI MODIFICATORI*/
+modifiers_opt::=
+          {: RESULT = new Obj(""); :} 
+	|	modifiers:mod_opt {:  
+                                   ProdParser.mods(mod_opt.testo);  
+                                    
+                                    if(checkFlag == true){ 
+                                       flagWarn = true;                                      
+                                       parser.report_error(Err_War, mod_opt);  
+                                       flagWarn = false; 
+                                       checkFlag = false;
+                                    }
+
+                                    RESULT = mod_opt; 
+                                   :}
+	;
+modifiers ::= 	modifier:mod {: RESULT = mod; :}
+	|	modifiers:mods modifier:mod {: RESULT = new Obj(mods.testo+" "+mod.testo); :}
+	;
+modifier ::=	PUBLIC:pub {: RESULT = new Obj(pub.toString(),"PUBLIC"); :}
+        |       PRIVATE:priv {: RESULT = new Obj(priv.toString(),"PRIVATE"); :}
+	|	STATIC:stat {: RESULT = new Obj(stat.toString(),"STATIC"); :}
+	|	FINAL:f {: RESULT = new Obj(f.toString(),"FINAL"); :} 
+	;
+
+
+class_declaration ::= 
+	modifiers_opt CLASS simple_name class_body         
+	;
+class_body ::=	LBRACE {: UtilParser.newScope(); :} class_body_declarations_opt RBRACE {: 
+                                                                                          UtilParser.delScope();
+                                                                                          livP=3; 
+                                                                                          structProg(livP,flagP2,"");
+                                                                                        :}          
+	;
+class_body_declarations_opt ::= 
+	|	class_body_declarations ;
+class_body_declarations ::= 
+		class_body_declaration
+	|	class_body_declarations class_body_declaration        
+	;
+class_body_declaration ::=
+		class_member_declaration
+	|	constructor_declaration
+	|	block        
+        ;
+class_member_declaration ::=
+                method_declaration
+	|       PUNTO_E_VIRGOLA        
+	;
+
+                       /*SEZIONE RIGUARDANTE I CAMPI(VARIABILI) DI UNA CLASSE*/
+variable_declarators ::=
+		variable_declarator:vard {:                                            
+                                            RESULT = new Obj(vard.testo,vard.tipo); 
+                                           :}	                          
+        ;
+variable_declarator ::=
+		variable_declarator_id:vdi {: 
+                                             if(vdi.tipo.equals("ARRAY")){
+                                               vdi.testo = vdi.testo.replace("[]", "");
+                                               Record rec = SymbolTable.getCurrRec(vdi.testo);
+                                               rec.setValue("null");
+                                             }else{
+                                                Record rec = SymbolTable.getCurrRec(vdi.testo);
+                                                rec.setValue("null"); 
+                                             }
+
+                                             RESULT = vdi; 
+                                            :}
+	|	variable_declarator_id:vdi EQ variable_initializer:vi {: 
+                                                                        if(vdi.tipo.equals("ARRAY")){
+                                                                          ProdParser.declArr(vdi.testo, vi.testo);
+                                                                        }else{
+                                                                          Record rec = SymbolTable.getCurrRec(vdi.testo);
+                                                                          rec.setValue(vi.testo); 
+                                                                        }
+                                                                        
+                                                                        RESULT = new Obj(vdi.testo+" = "+vi.testo, vi.tipo);                           
+                                                                       :}
+	;
+variable_declarator_id ::=
+		simple_name:nome {: 
+                                   SymbolTable.addTb(nome.testo);
+                                   
+                                    if(checkFlag == true){                                                                                                                                                                                                         
+                                        parser.report_error(Err_War,nome);
+                                        checkFlag = false;                                                                                 
+                                    }
+                                                
+                                   RESULT = nome; 
+                                  :}
+	|	variable_declarator_id:vardid LBRACK RBRACK {: RESULT = new Obj(vardid.testo+"["+"]","ARRAY"); :}
+	|	variable_declarator_id:vardid TONDA_APERTA TONDA_CHIUSA {: parser.report_error("ERRORE NELLE PARENTESI DEGLI ARRAY!!!\n",null); 
+                                                                            RESULT = new Obj(vardid.testo+"["+"]","ARRAY");
+                                                                         :}
+        ;
+variable_initializer ::=
+		expression:espr {: RESULT = espr; :}
+	|	array_initializer:arrinit {: RESULT = arrinit; :}
+	;
+
+                           /*SEZIONE RIGUARDANTE I METODI DI UNA CLASSE*/
+method_declaration ::=
+		method_header:methead method_body:methbod 
+	;
+method_header ::=
+		modifiers_opt:modopt VOID method_declarator:methdecl {: RESULT = new Obj(modopt.testo+" "+"void"+" "+methdecl.testo); :}
+	;
+method_declarator ::=
+		simple_name:nome TONDA_APERTA formal_parameter_list_opt:fparlopt TONDA_CHIUSA {: RESULT = new Obj(nome.testo+"("+fparlopt.testo+")");                                                                                                                                                                                                  
+                                                                                               :}
+	;
+formal_parameter_list_opt ::=
+        {: RESULT = new Obj(""); :}
+	;
+method_body ::=	block:bl {: structProg(livP,flagP2,bl.testo); :}              
+        |	PUNTO_E_VIRGOLA:pev {: RESULT = new Obj(pev.toString()); :}        
+	;
+               
+                      /*SEZIONE RIGUARDANTE L'INIZIALIZZAZIONE DI UN ARRAY*/
+array_initializer ::=
+		LBRACE variable_initializers:varinits RBRACE {: RESULT = new Obj(varinits.testo,varinits.tipo); :}
+	|	LBRACE RBRACE {: RESULT = new Obj("{"+"}"); :}
+	;
+variable_initializers ::=
+		variable_initializer:varinit {: RESULT = varinit; :}
+	|	variable_initializers:varinits VIRGOLA variable_initializer:varinit {:
+                                                                                      if(varinits.tipo.equals(varinit.tipo)){
+                                                                                         varinits.tipo = varinits.tipo;
+                                                                                      }else{
+                                                                                         varinits.tipo="DOUBLE";
+                                                                                      }
+                                                                                                                                                                            
+                                                                                      RESULT = new Obj(varinits.testo+", "+varinit.testo,varinits.tipo); 
+                                                                                     :}
+	;
+
+                              /*SEZIONE RIGUARDANTE I BLOCCHI*/
+block ::= LBRACE {: UtilParser.newScope(); :} block_statements_opt:blstatmso RBRACE {: RESULT = blstatmso;
+                                                                                       UtilParser.delScope(); 
+                                                                                     :}         
+	;
+block_statements_opt ::=
+	 {: RESULT = new Obj(""); :}
+        |	block_statements:blstatms {: RESULT = blstatms; :}
+	;
+block_statements ::=
+		block_statement:blstatm {: RESULT = blstatm; :}
+	|	block_statements:blstatms block_statement:blstatm {: RESULT = new Obj(blstatms.testo+"\n"+blstatm.testo); :}
+	;               
+block_statement ::=
+                local_variable_declaration_statement:lvds {: 
+                                                            structProg(livP,flagP1,lvds.testo);
+                                                            RESULT = new Obj("");
+                                                          :}
+	|	section_two:sectwo {: RESULT = sectwo; :}       
+        |	class_declaration
+	;
+
+                        /*DICHIARAZIONE DELLE VARIABILI LOCALI*/
+local_variable_declaration_statement ::=
+		local_variable_declaration:lvd punteggiatura  {:                                                                  
+                                                                 livP = 1;                                                                 
+                                                                 RESULT = lvd; 
+                                                               :}  
+	;
+local_variable_declaration ::=
+		type:tipo variable_declarators:vard  {:  
+                                                        Record rec;
+                                                        String Rg;
+                                                        String TR;
+                                                        String VAR;
+                                                        String valueErr; //variabile utilizzata nel caso ci sia un errore di tipo ( INTEGER-DOUBLE )
+                                                        if(vard.tipo.equals("IDENTIFICATORE")){ //variabile priva di inizializzazione
+                                                          
+                                                            if(tipo.tipo.equals("ERRORE")){
+                                                                vard.tipo = "INTEGER";  //sono tipi di default assegnati senza alcun criterio                                                                
+                                                                tipo.tipo = "INTEGER";  //sono tipi di default assegnati senza alcun criterio
+                                                                tipo.testo = "int";     //sono tipi di default assegnati senza alcun criterio
+                                                            }else{
+                                                                vard.tipo = tipo.tipo;
+                                                            }
+                                                          rec = SymbolTable.getCurrRec(vard.testo);
+                                                          rec.setType(vard.tipo);
+
+                                                          TR = Traduzione.createReg(vard.tipo,vard.testo);                                                          
+                                                          vTrad.add(TR);
+                                                          
+                                                        }else{
+                                                         
+                                                          if(tipo.tipo.equals("ERRORE")){
+                                                                tipo.tipo = vard.tipo;  //non avendo riconosciuto il tipo, essendoci un errore sintattico,                                                                
+                                                                                        //viene assegnato quello dell'espressione
+                                                                if(vard.tipo.equals("INTEGER")){
+                                                                    tipo.testo = "int";
+                                                                }else {
+                                                                    tipo.testo = "double";
+                                                                }
+                                                          } 
+
+                                                          VAR = Support.getVar(vard.testo);
+                                                          rec = SymbolTable.checkVScope(VAR);
+
+                                                          vard.tipo = CheckClass.checkTypeA(tipo.tipo,vard.tipo,vard.testo);
+
+                                                          if(checkFlag == true ){                                                                
+                                                                parser.report_error(Err_War,tipo);
+                                                                checkFlag = false;
+
+                                                                if(tipo.tipo.equals("INTEGER")){
+                                                                    valueErr = vard.testo.substring(vard.testo.indexOf("=")+2,vard.testo.indexOf("."));
+                                                                    rec.setValue(valueErr);  
+                                                                    
+                                                                }else{
+                                                                    //CAPIRE COSA FARE IN CASI COME QUESTI
+                                                                }
+
+                                                          }else if(flagWarn == true){
+                                                               parser.report_error(Err_War,tipo);
+                                                               flagWarn = false;
+                                                          }
+
+                                                          
+                                                          rec.setType(vard.tipo);
+                                                          
+                                                          if(vard.testo.contains("[]")){                                                    
+                                                                
+                                                            Rg = "$s"+countReg;
+                                                            rec.setRegDim(Rg);
+                                                            TR = "MOVE "+"dim"+", "+Rg;
+                                                            vTrad.add(TR);    
+                                                            countReg++;
+                                                                                                                   
+                                                            TR = Traduzione.createReg(vard.tipo,VAR);                                                       
+
+                                                          }else{                                                           
+                                                                                                                                                                                
+                                                             TR = Traduzione.createReg(vard.tipo,VAR);
+                                                          }
+                                                                                                                     
+                                                           vTrad.add(TR);
+                                                            
+                                                        }
+                                                                                                  
+                                                       TRAD = Traduzione.tradDecl(tipo.tipo, vard.testo);
+                                                       
+                                                       RESULT = new Obj(TRAD);
+                                                       
+                                                     :}
+	|	FINAL type:tipo variable_declarators:vard   
+                                                    {:
+                                                      String Rg;
+                                                      String TR;
+                                                      String valueErr;
+                                                      String number = vard.testo.substring(vard.testo.indexOf("=")+2,vard.testo.length());
+                                                      vard.testo = Support.getVar(vard.testo);
+
+                                                      Record rec = SymbolTable.getCurrRec(vard.testo);
+                                                      rec.setModifier("final");
+                                                      rec.setValue(number);
+
+                                                      CheckClass.checkTypeA(tipo.tipo,vard.tipo,vard.testo);
+
+                                                      if(checkFlag == true){                                                                                                                                                                                                                          
+                                                         parser.report_error(Err_War,vard);
+                                                         checkFlag = false;  
+
+                                                         if(tipo.tipo.equals("INTEGER")){
+                                                                valueErr = vard.testo.substring(vard.testo.indexOf("=")+2,vard.testo.indexOf("."));
+                                                                rec.setValue(valueErr);  
+                                                         }else{
+                                                                    //CAPIRE COSA FARE IN CASI COME QUESTI
+                                                         }
+                                                      
+                                                      }else if(flagWarn == true){
+                                                         parser.report_error(Err_War,vard);
+                                                         flagWarn = false;
+                                                      }                                                      
+                                                                                                       
+                                                      rec.setType(vard.tipo);                                                      
+                                                      
+                                                      
+                                                      if(vard.tipo.equals("DOUBLE")){
+                                                            Rg = "$f"+countRegFP;
+                                                            TR = "MOVE.D"+" "+vard.testo+","+" "+Rg;
+                                                            countRegFP = countRegFP + 2;
+                                                      }else{
+                                                            Rg = "$s"+countReg;
+                                                            TR = "MOVE"+" "+vard.testo+","+" "+Rg;
+                                                            countReg++;
+                                                      }
+                                                          
+                                                          rec.setRegister(Rg);                                
+                                                          vTrad.add(TR);
+
+                                                      TRAD = vard.testo+" EQU "+number;
+                                                                 
+                                                      RESULT = new Obj(TRAD);                                                                                                                               
+                                                     :}
+	;
+
+section_two ::= statement:stat {: 
+                                 if(sintErr == true){
+                                    livP = 1;
+                                    flagP2 = false;
+                                    sintErr = false;
+                                 }else{
+                                    livP = 2;
+                                    flagP2 = true;
+                                 } 
+                                 RESULT = stat;
+                               :}
+        ;
+                           /*COSTRUTTI DEL LINGUAGGIO JAVA*/
+statement ::=	statement_without_trailing_substatement:swts {: RESULT = swts; :}
+	|	if_then_statement:ifTstatm {: RESULT = ifTstatm; :}
+	|	if_then_else_statement:ifTEstatm {: RESULT = ifTEstatm; :}
+	|	while_statement:whstatm {: RESULT = whstatm; :}
+	|	for_statement:fstatm {: RESULT = fstatm; :}
+	;
+statement_no_short_if ::=
+		statement_without_trailing_substatement:swts {: RESULT = swts; :}
+	|	if_then_else_statement_no_short_if:ifTEstatnosif {: RESULT = ifTEstatnosif; :}
+	|	while_statement_no_short_if:whstatmnosif {: RESULT = whstatmnosif; :}
+	|	for_statement_no_short_if:fstatmnosif {: RESULT = fstatmnosif; :}
+	;
+statement_without_trailing_substatement ::=
+		block: bl {: RESULT = bl; :}
+	|	empty_statement:emstatm {: RESULT = emstatm; :}
+	|	expression_statement:esprstat {: RESULT = esprstat; :}	
+	|	do_statement
+	;
+empty_statement ::=
+                VIRGOLA {: parser.report_error("UTILIZZO IMPROPRIO DELLA VIRGOLA!",null);:}
+		| PUNTO_E_VIRGOLA {: RESULT = new Obj(";"); :}
+	;
+expression_statement ::=        
+		statement_expression:statespr punteggiatura {: RESULT = statespr; :}
+        |       simple_name:simname punteggiatura{: 
+                                                if(sintErr == true){
+                                                    String TR;
+                                                    SymbolTable.addTb(simname.testo);
+                                                    Record rec = SymbolTable.getCurrRec(simname.testo);
+                                                                                                    
+                                                    rec.setType(typeDeclErr);
+                                                    rec.setValue("null"); 
+                                                    simname.tipo = typeDeclErr;
+
+                                                    TR = Traduzione.createReg(simname.tipo,simname.testo);
+                                                    vTrad.add(TR);
+                                                    
+                                                    TRAD = Traduzione.tradDecl(simname.tipo,simname.testo);
+                                                    dichRecup.add(TRAD);
+
+                                                    sintErr = false;
+                                                }else{
+                                                    parser.report_error("PRESENZA DI UNA STRINGA PRIVA DI SENSO!\n",simname);
+                                                }
+                                                
+                                                RESULT = new Obj("");
+                                               :}
+	;
+statement_expression ::=
+		assignment:ass {: RESULT = ass; :}
+	|	postincrement_expression:postin {: RESULT = postin; :}
+	|	postdecrement_expression:postde {: RESULT = postde; :}
+	;
+
+                              /*BLOCCO DI SELEZIONE IF*/
+if_then_statement ::=
+		IF TONDA_APERTA expression:espr TONDA_CHIUSA statement:statm {: 
+                                                                          String esc = "ESCI"+countCl;
+
+                                                                          if(!espr.tipo.equals("BOOLEAN")){  
+                                                                            
+                                                                            checkFlag = true;                                                                        
+                                                                            parser.report_error("ERROR: IL BLOCCO DI SELEZIONE ACCETTA ESCLUSIVAMENTE IL TIPO BOOLEAN!\n",espr.linea);
+                                                                            checkFlag = false;                                                                            
+                                                                            
+                                                                            TRAD = "SLT\nBEQ "+esc+"\n"+statm.testo+"\n"+esc+":\n"; 
+
+                                                                          }else{ 
+
+                                                                            if(espr.testo.contains(".D")){                                                                              
+                                                                              espr.testo = espr.testo.concat(", "+esc);  
+                                                                            }else{
+                                                                              espr.testo = espr.testo.replaceAll("OFFSET",esc); 
+                                                                            }
+
+                                                                            TRAD = espr.testo+"\n"+statm.testo+"\n"+esc+":\n";
+                                                                          }
+                                                                          countCl++;
+                                                                          
+                                                                          RESULT = new Obj(TRAD);                                                                          
+                                                                        :}
+	;
+if_then_else_statement ::=
+		IF TONDA_APERTA expression:espr TONDA_CHIUSA statement_no_short_if:statnosif 
+			ELSE statement:statm {: 
+                                            String el = "ELSE"+countCl;
+
+                                            if(!espr.tipo.equals("BOOLEAN")){  
+
+                                               checkFlag = true;                                           
+                                               parser.report_error("ERROR: IL BLOCCO DI SELEZIONE ACCETTA ESCLUSIVAMENTE IL TIPO BOOLEAN!\n",espr.linea);
+                                               checkFlag = false;
+                                               
+                                               TRAD = "SLT \nBEQ "+el+"\n"+statnosif.testo+"\n ESCI"+countCl+"\n"+el+": "+
+                                                                                     statm.testo+"\nESCI"+countCl+":"+"\n";
+                                            }else{                                             
+
+                                                if(espr.testo.contains(".D")){
+                                                    espr.testo = espr.testo.concat(", "+el);
+                                                }else{
+                                                    espr.testo = espr.testo.replaceAll("OFFSET",el);
+                                                }
+                                             
+                                                TRAD = espr.testo+"\n"+statnosif.testo+"\n ESCI"+countCl+"\n"+el+": "+
+                                                                                    statm.testo+"\nESCI"+countCl+":"+"\n";                                            
+                                            }
+                                            countCl++;
+
+                                            RESULT = new Obj(TRAD);
+                                          :}
+	;
+if_then_else_statement_no_short_if ::=
+		IF TONDA_APERTA expression:espr TONDA_CHIUSA statement_no_short_if:statnosif1
+			ELSE statement_no_short_if:statnosif2
+                                          {: 
+                                            String el = "ELSE"+countCl;
+
+                                            if(!espr.tipo.equals("BOOLEAN")){ 
+
+                                               checkFlag = true;                                              
+                                               parser.report_error("ERROR: IL BLOCCO DI SELEZIONE ACCETTA ESCLUSIVAMENTE IL TIPO BOOLEAN!\n",espr.linea);
+                                               checkFlag = false;
+
+                                               TRAD = "SLT \nBEQ "+el+"\n"+statnosif1.testo+"\n ESCI"+countCl+"\n"+el+": "+statnosif2.testo+"\nESCI:\n";   
+                                               
+                                            }else{ 
+
+                                                if(espr.testo.contains(".D")){
+                                                    espr.testo = espr.testo.concat(", "+el); 
+                                                }else{
+                                                    espr.testo = espr.testo.replaceAll("OFFSET",el);
+                                                }
+
+                                                TRAD = espr.testo+"\n"+statnosif1.testo+"\n ESCI"+countCl+"\n"+el+": "+statnosif2.testo+"\nESCI:\n";
+                                            }                                            
+                                            countCl++;
+
+                                            RESULT = new Obj(TRAD);
+                                          :}
+	;
+
+                                    /*CICLO WHILE*/
+while_statement ::=
+		WHILE TONDA_APERTA expression:espr TONDA_CHIUSA statement:statm 
+                                       {: 
+                                            String esc = "ESCI"+countCl;
+
+                                            if(!espr.tipo.equals("BOOLEAN")){  
+                                               
+                                               checkFlag = true;                                             
+                                               parser.report_error("ERROR: IL COSTRUTTO WHILE ACCETTA ESCLUSIVAMENTE IL TIPO BOOLEAN!\n",espr.linea);
+                                               checkFlag = false;
+
+                                               TRAD = "CICLO"+countCl+": "+" "+"SLT \nBEQ "+esc+"\n"+statm.testo+"\nCICLO"+countCl+"\n"+esc+":\n";
+                                               
+                                            }else{ 
+
+                                                if(espr.testo.contains(".D")){
+                                                    espr.testo = espr.testo.concat(", "+esc);
+                                                }else{
+                                                    espr.testo = espr.testo.replaceAll("OFFSET",esc);
+                                                }
+                                              
+                                                TRAD = "CICLO"+countCl+": "+" "+espr.testo+"\n"+statm.testo+"\nCICLO"+countCl+"\n"+esc+":\n";
+                                            }
+                                            countCl++;
+
+                                            RESULT = new Obj(TRAD); 
+                                          :}
+	;
+while_statement_no_short_if ::=
+		WHILE TONDA_APERTA expression:espr TONDA_CHIUSA statement_no_short_if:statmnosif 
+                                        {: 
+                                           String esc = "ESCI"+countCl;
+
+                                           if(!espr.tipo.equals("BOOLEAN")){
+
+                                               checkFlag = true;                                             
+                                               parser.report_error("ERROR: IL COSTRUTTO WHILE ACCETTA ESCLUSIVAMENTE IL TIPO BOOLEAN!",espr.linea);
+                                               checkFlag = false;
+
+                                               TRAD = "CICLO"+countCl+": "+" "+"SLT \nBEQ "+esc+"\n"+statmnosif.testo+"\nCICLO"+countCl+"\n"+esc+":\n";
+                                               
+                                            }else{ 
+
+                                                if(espr.testo.contains(".D")){
+                                                    espr.testo = espr.testo.concat(", "+esc); 
+                                                }else{
+                                                    espr.testo = espr.testo.replaceAll("OFFSET",esc); 
+                                                }
+
+                                                TRAD = "CICLO"+countCl+": "+" "+espr.testo+"\n"+statmnosif.testo+"\nCICLO"+countCl+"\n"+esc+":\n";
+                                            }
+                                            countCl++;  
+
+                                            RESULT = new Obj(TRAD);
+                                          :}
+	;
+do_statement ::=
+		DO statement WHILE TONDA_APERTA expression:espr TONDA_CHIUSA PUNTO_E_VIRGOLA 
+                                        {: 
+                                            /*if(!espr.tipo.equals("BOOLEAN")){
+                                               
+                                               checkFlag = true;                                               
+                                               parser.report_error("ERROR: IL COSTRUTTO WHILE ACCETTA ESCLUSIVAMENTE IL TIPO BOOLEAN!\n",null);
+                                               checkFlag = false;
+                                            }*/ 
+
+
+
+                                          :}
+	;
+
+                                     /*CICLO FOR*/
+for_statement ::=
+		FOR TONDA_APERTA for_init_opt:fino PUNTO_E_VIRGOLA expression_opt:espr PUNTO_E_VIRGOLA
+			for_update_opt:fupo TONDA_CHIUSA statement:statm
+                                       {: 
+                                            String esc = "ESCI"+countCl;
+
+                                            if(!espr.tipo.equals("BOOLEAN")){
+
+                                               checkFlag = true;
+                                               parser.report_error("ERROR: IL COSTRUTTO FOR ACCETTA ESCLUSIVAMENTE IL TIPO BOOLEAN!",espr.linea);
+                                               checkFlag = false;
+
+                                               TRAD = fino.testo+"\n"+"CICLO"+countCl+": "+" "+"SLT \nBEQ "+esc+"\n\t"+statm.testo+"\n\t"+fupo.testo+"\nCICLO"+countCl+"\n"+esc+":\n";
+                                               
+                                            }else{ 
+
+                                                if(espr.testo.contains(".D")){
+                                                    espr.testo = espr.testo.concat(", "+esc); 
+                                                }else{
+                                                    espr.testo = espr.testo.replaceAll("OFFSET",esc);
+                                                }
+                                               
+                                                TRAD = fino.testo+"\n"+"CICLO"+countCl+": "+" "+espr.testo+"\n\t"+statm.testo+"\n\t"+fupo.testo+"\nCICLO"+countCl+"\n"+esc+":\n"; 
+                                            }
+                                            countCl++;
+
+                                            RESULT = new Obj(TRAD);
+                                          :}
+	
+            | FOR TONDA_APERTA error TONDA_CHIUSA statement:statm {: 
+                                                                    String esc = "ESCI"+countCl;
+                                                                    TRAD = "CICLO"+countCl+": "+" "+"SLT \nBEQ "+esc+"\n\t"+statm.testo+"\n\t"+"\nCICLO"+countCl+"\n"+esc+":\n";
+                                                                    countCl++;
+
+                                                                    RESULT = new Obj(TRAD);
+                                                                   :}
+            ;
+for_statement_no_short_if ::=
+		FOR TONDA_APERTA for_init_opt:fino PUNTO_E_VIRGOLA expression_opt:espr PUNTO_E_VIRGOLA
+			for_update_opt:fupo TONDA_CHIUSA statement_no_short_if:statmnosif
+                                       {: 
+                                            String esc = "ESCI"+countCl;
+
+                                            if(!espr.tipo.equals("BOOLEAN")){  
+
+                                                checkFlag = true;
+                                                parser.report_error("ERROR: IL COSTRUTTO FOR ACCETTA ESCLUSIVAMENTE IL TIPO BOOLEAN!",espr.linea);
+                                                checkFlag = false;
+
+                                                TRAD = fino.testo+"\n"+"CICLO"+countCl+": "+" "+"SLT \nBEQ "+esc+"\n\t"+statmnosif.testo+"\n\t"+fupo.testo+"\nCICLO"+countCl+"\n"+esc+":\n";
+                                              
+                                            }else{ 
+
+                                                if(espr.testo.contains(".D")){
+                                                    espr.testo = espr.testo.concat(", "+esc);
+                                                }else{
+                                                    espr.testo = espr.testo.replaceAll("OFFSET",esc);
+                                                }
+                                             
+                                                TRAD = fino.testo+"\n"+"CICLO"+countCl+": "+" "+espr.testo+"\n\t"+statmnosif.testo+"\n\t"+fupo.testo+"\nCICLO"+countCl+"\n"+esc+":\n";
+                                            }
+                                            countCl++;
+
+                                            RESULT = new Obj(TRAD);
+                                        :}
+        | FOR TONDA_APERTA error TONDA_CHIUSA statement_no_short_if:statmnosif {: 
+                                                                                    String esc = "ESCI"+countCl;
+                                                                                    TRAD = "CICLO"+countCl+": "+" "+"SLT \nBEQ "+esc+"\n\t"+statmnosif.testo+"\n\t"+"\nCICLO"+countCl+"\n"+esc+":\n";
+                                                                                    countCl++;
+                                                                                    
+                                                                                    RESULT = new Obj(TRAD);
+                                                                                :}
+	;
+for_init_opt ::=
+	 {: RESULT = new Obj(""); :}
+        |	for_init:foriniz {: RESULT = foriniz; :}
+	;
+for_init ::=	statement_expression_list:stesprl {: RESULT = stesprl; :}
+	|	local_variable_declaration:locvardec {: RESULT = locvardec; :}
+	;
+for_update_opt ::=
+	 {: RESULT = new Obj(""); :}
+        |	for_update:forup {: RESULT = forup; :}
+	;
+for_update ::=	statement_expression_list:stesprl {: RESULT = stesprl; :}
+	;
+statement_expression_list ::=
+		statement_expression:stespr {: RESULT = stespr; :}
+	|	statement_expression_list VIRGOLA statement_expression
+	;
+
+primary ::=	primary_no_new_array:pnna {: RESULT = pnna; :}
+	|	array_creation_expression:arrcrespr {: RESULT = arrcrespr; :} 
+	;
+primary_no_new_array ::=
+		literal:numero {: RESULT = numero; :}
+	|	TONDA_APERTA expression:espr TONDA_CHIUSA {: RESULT = new Obj("( "+espr.testo+" )", espr.tipo); :}
+	|	array_access:arracc {: 
+                                      String T = "";
+                                      String D = arracc.testo.substring(0, arracc.testo.indexOf("["));
+                                      Record rec = SymbolTable.checkVScope(D);
+
+                                      if(rec.getTabRegArr().containsKey(arracc.testo)){
+                                         TRAD = (String) rec.getTabRegArr().get(arracc.testo);                                       
+                                      }else{
+                                        rec.getTabRegArr().put(arracc.testo,ArrActTemp);
+
+                                      if(arracc.tipo.equals("INTEGER")){
+                                         T = "LW"; 
+                                      }else if(arracc.tipo.equals("DOUBLE")){
+                                         T = "L.D"; 
+                                      }else{
+                                         parser.report_error("ERROR: tipo non supportato!",arracc);
+                                      }
+                                      
+                                      if(TabTrad.containsKey("ARRAY_ACCESS_I")){
+                                         TRAD = T+" "+TabTrad.get("ARRAY_ACCESS_I");
+                                         TabTrad.remove("ARRAY_ACCESS_I");
+                                      }else if(TabTrad.containsKey("ARRAY_ACCESS")){
+                                        
+                                        TRAD = TabTrad.get("ARRAY_ACCESS");
+                                          
+                                        if(arracc.tipo.equals("DOUBLE")){
+                                           TRAD = TRAD.replace(TRAD.substring(TRAD.lastIndexOf("\n$f")+1,TRAD.length()),
+                                                  T+" "+TRAD.substring(TRAD.lastIndexOf("\n$f")+1,TRAD.length()));  
+                                        }else{
+                                           TRAD = TRAD.replace(TRAD.substring(TRAD.lastIndexOf("\n$t")+1,TRAD.length()),
+                                                  T+" "+TRAD.substring(TRAD.lastIndexOf("\n$t")+1,TRAD.length()));
+                                        }                                  
+                                                                                
+                                      } 
+                                      }
+                                      RESULT = new Obj(TRAD,arracc.tipo,"ARRAY_ACCESS"); 
+                             :}
+	;
+
+                            /*PARTE RIGUARDANTE GLI ARRAY*/
+array_creation_expression ::=
+		NEW primitive_type:primtype dim_exprs:essd dims_opt {: RESULT = new Obj("new "+primtype.testo+" "+essd.testo, primtype.tipo); :}
+	|	NEW primitive_type:primtype dims:d array_initializer:arrinit {: RESULT = new Obj("new "+primtype.testo+" "+d.testo+arrinit.testo, primtype.tipo); :}
+	;
+dim_exprs ::=	dim_expr:despr {: RESULT = despr; :}
+	;
+dim_expr ::=	LBRACK expression:espr RBRACK {: 
+                                               if(!espr.tipo.equals("INTEGER")){  
+                                                  //VERIFICARE L'EFFETTIVA UTILITÀ
+                                                  checkFlag = true;                                                
+                                                  parser.report_error("ERROR: la dimensione del vettore deve essere un numero intero!\n",espr);
+                                                  checkFlag = false;
+                                               }else{  
+                                                   RESULT = new Obj("["+espr.testo+"]",espr.tipo);
+                                               }
+                                              :}
+	;
+dims_opt ::=
+        {: RESULT = new Obj(""); :}
+	|	dims:d 
+	;
+dims ::=	LBRACK RBRACK {: RESULT = new Obj("["+"]"); :}
+	|	dims LBRACK RBRACK
+	;
+
+array_access ::=
+		name:nome LBRACK expression:espr RBRACK {:
+                                                         int I1,I2;
+                                                         Record recE;
+                                                         String indice;
+                                                         ArrayList listvalue = new ArrayList();
+
+                                                         Record rec = SymbolTable.checkVScope(nome.testo);
+
+                                                         if(checkFlag == true){ 
+                                                                                                                                                                                                                                                                                         
+                                                              parser.report_error(Err_War,nome);
+                                                              checkFlag = false;
+                                                              String regRandom = "$s"+countReg;
+
+                                                              for(int i = 0; i < 10; i++){
+                                                                listvalue.add("0");
+                                                              }
+
+                                                              SymbolTable.getTable().put(nome.testo,new Record("INTEGER",listvalue,100,nome.testo,regRandom));
+                                                              rec = SymbolTable.checkVScope(nome.testo);
+                                                              countReg++;
+                                                         }
+   
+                                                        nome.tipo = rec.getType();
+                                                         
+                                                        if(!espr.tipo.equals("INTEGER")){  
+                                                            
+                                                            checkFlag = true;                                                         
+                                                            parser.report_error("ERROR: LA DIMENSIONE DEL VETTORE DEVE ESSERE UN NUMERO INTERO!\n",espr);
+                                                            checkFlag = false;
+                                                            
+                                                            if(espr.genere.equals("NUMERO")){
+                                                                espr.testo = espr.testo.substring(0,espr.testo.indexOf("."));
+                                                                I1 = Support.changeStrInt(espr.testo);
+                                                                I2 = Support.changeStrInt(rec.getValue().toString());
+                                                            }else{
+                                                                recE = SymbolTable.getCurrRec(espr.testo);
+                                                                indice = recE.getValue().toString().substring(0,recE.getValue().toString().indexOf("."));
+                                                                I1 = Support.changeStrInt(indice);
+                                                                I2 = Support.changeStrInt(rec.getValue().toString());
+                                                            }
+                                                         
+                                                        }else{ 
+                                                             
+                                                            if(espr.genere.equals("NUMERO")){
+                                                                I1 = Support.changeStrInt(espr.testo);
+                                                                I2 = Support.changeStrInt(rec.getValue().toString());                                                            
+                                                            }else{
+                                                                recE = SymbolTable.checkVScope(espr.testo);                                                                    
+                                                                I1 = Support.changeStrInt(recE.getValue().toString());
+                                                                I2 = Support.changeStrInt(rec.getValue().toString());                                                                    
+                                                            }                                            
+                                                        }
+                                                         
+                                                        if(I1 > I2){                                                                     
+                                                                  parser.report_fatal_error("FATAL ERROR: L'INDICE SUPERA LA DIMENSIONE MASSIMA DEL VETTORE!\n");
+                                                                  FlagSyn = true;
+                                                                  //SARÀ NECESSARIO USCIRE DAL PROGRAMMA!!!
+                                                        } 
+                                                         
+                                                        
+                                                         String prod = nome.testo+"["+espr.testo+"]";
+                                                         if(!rec.getTabRegArr().containsKey(prod)){
+
+                                                         if(espr.genere.equals("NUMERO")){
+
+                                                           if(nome.tipo.equals("DOUBLE")){
+                                                              TRAD = "$f"+countRegFP+", "+Support.calcOffset(espr.testo,nome.tipo)+
+                                                                                                              "("+rec.getRegister()+")";
+                                                              TabTrad.put("ARRAY_ACCESS_I",TRAD);
+                                                              ArrActTemp = "$f"+countRegFP;
+                                                              countRegFP = countRegFP + 2;
+                                                           }else{
+                                                              TRAD = "$t"+countRTemp+", "+Support.calcOffset(espr.testo,nome.tipo)+
+                                                                                                              "("+rec.getRegister()+")";
+                                                              TabTrad.put("ARRAY_ACCESS_I",TRAD);
+                                                              ArrActTemp ="$t"+countRTemp;
+                                                              countRTemp++;
+                                                           } 
+                                                                                                                      
+                                                          }else if(espr.genere.equals("VARIABILE")){
+                                                            recE = SymbolTable.getCurrRec(espr.testo);                                                            
+                                                            
+                                                            if(nome.tipo.equals("INTEGER")){                                                              
+                                                               int countRTempS = countRTemp+1;
+
+                                                               TRAD = "MULT "+"$t"+countRTempS+", "+recE.getRegister()+", "+4+"\n"+
+                                                                   "ADD "+"$t"+countRTempS+", "+"$t"+countRTempS+", "+rec.getRegister()+"\n"+
+                                                                   "$t"+countRTemp+", "+"0("+"$t"+countRTempS+")";
+
+                                                               TabTrad.put("ARRAY_ACCESS",TRAD);
+                                                               ArrActTemp ="$t"+countRTemp;                                                               
+                                                               countRTemp = countRTemp+2;
+
+                                                            }else if(nome.tipo.equals("DOUBLE")){
+                                                             
+                                                                TRAD = "MULT "+"$t"+countRTemp+", "+recE.getRegister()+", "+8+"\n"+
+                                                                       "MTC1 "+"$t"+countRTemp+", "+"$f"+countRegFP+"\n"+ 
+                                                                       "ADD.D "+"$f"+countRegFP+", "+"$f"+countRegFP+", "+rec.getRegister()+"\n"+
+                                                                       "TEMP"+", "+"0("+"$f"+countRegFP+")";                                                                   
+                                                                countRegFP = countRegFP + 2;
+                                                                TRAD = TRAD.replace("TEMP","$f"+Integer.toString(countRegFP));
+
+                                                                TabTrad.put("ARRAY_ACCESS",TRAD);
+                                                                ArrActTemp ="$f"+Integer.toString(countRegFP);
+                                                                countRTemp++;
+                                                                countRegFP = countRegFP + 2;
+                                                            }else{ 
+                                                              
+                                                              checkFlag = true;                                                               
+                                                              parser.report_error("ERROR: tipo non supportato!\n",espr); 
+                                                              checkFlag = true; 
+                                                            } 
+                                                           
+                                                            espr.genere = "";
+                                                          }else{      
+                                                                                                                
+                                                              parser.report_error("ERROR!",espr);                                                              
+                                                          }
+                                                        }  
+                                                        
+                                                        RESULT = new Obj(nome.testo+"["+espr.testo+"]", nome.tipo,espr.genere);
+                                                       :}
+	;
+postfix_expression ::=
+		primary:prim {: RESULT = prim; :}
+	|	name:nome {:  
+                             Record rec = SymbolTable.checkVScope(nome.testo);
+
+                             if(checkFlag == true){
+                                                                                                                                                                                                                                  
+                                parser.report_error(Err_War,nome);
+                                checkFlag = false;   
+
+                                String regRandom = "$s"+countReg;                                
+                                SymbolTable.getTable().put(nome.testo,new Record("INTEGER",nome.testo,regRandom,0));
+                                rec = SymbolTable.checkVScope(nome.testo);
+                                countReg++;
+                             }
+  
+                             nome.tipo = rec.getType();
+                             
+                             RESULT = new Obj(nome.testo,nome.tipo,"VARIABILE"); 
+                          :} 
+	|	postincrement_expression:postinespr {: RESULT = postinespr; :}
+	|	postdecrement_expression:postdecespr {: RESULT = postdecespr; :}
+	;
+
+postincrement_expression ::=
+		postfix_expression:postespr PLUSPLUS {: 
+                                               if(!postespr.tipo.equals("INTEGER")){    
+                                                                                                 
+                                                    parser.report_error("ERROR: IL TIPO DI TALE VARIABILE DEVE ESSERE NECESSARIAMENTE UN INTERO!\n",postespr);
+                                               } 
+                                                
+                                                Record rec = SymbolTable.getCurrRec(postespr.testo);   
+                                                TRAD = "ADDI"+" "+rec.getRegister()+", "+rec.getRegister()+", "+"1";
+
+                                               RESULT = new Obj(TRAD,postespr.tipo);
+                                            :}             
+                            
+	;
+postdecrement_expression ::=
+		postfix_expression:postespr MINUSMINUS {: 
+                                                 if(!postespr.tipo.equals("INTEGER")){  
+                                                                                                    
+                                                    parser.report_error("ERROR: IL TIPO DI TALE VARIABILE DEVE ESSERE NECESSARIAMENTE UN INTERO!\n",postespr);
+                                                    
+                                                 } 
+                                                   
+                                                Record rec = SymbolTable.getCurrRec(postespr.testo);   
+                                                TRAD = "ADDI"+" "+rec.getRegister()+", "+rec.getRegister()+", "+"-1";
+
+                                                RESULT = new Obj(TRAD,postespr.tipo);
+                                               :}
+	;
+
+unary_expression ::=
+	unary_expression_not_plus_minus:uenpm {: RESULT = uenpm; :}
+	;
+
+unary_expression_not_plus_minus ::=
+		postfix_expression:postex {: RESULT = postex; :}
+	|	cast_expression
+	;
+
+                                  /*CAST DI UNA VARIABILE */
+cast_expression ::=
+		TONDA_APERTA primitive_type:primtype dims_opt TONDA_CHIUSA unary_expression:unespr
+                                                                                 /*{: 
+                                                                                      if(primtype.tipo.equals("BOOLEAN") && !enespr.tipo.equals(BOOLEAN)){
+                                                                                      
+                                                                                         parser.report_error("Error: non è possibile effettuare il cast!!!\n",unespr);
+
+                                                                                      }else{                                                                                                                                                                           
+                                                                                       RESULT = new Obj();
+                                                                                      }
+                                                                                      
+                                                                                    :}*/
+	;
+
+                   /*ESPRESSIONI CON OPERAZIONI DI MOLTIPLICAZIONE E DIVISIONE*/
+multiplicative_expression ::=
+		unary_expression:unex {: RESULT = unex; :}
+	|	multiplicative_expression:multespr PER unary_expression:unex {:  String mlT = CheckClass.checkTypeMD(multespr.tipo,unex.tipo); 
+
+                                                                                  if(checkFlag == true){  
+                                                                                                                                                                                                                                                                                                                                      
+                                                                                    parser.report_error(Err_War,multespr);
+                                                                                    checkFlag = false;
+                                                                                  
+                                                                                    RESULT = new Obj(" ","ESPRESSIONE",parser.returnLine());
+                                                                                  }else{
+
+                                                                                    if(flagWarn == true){
+                                                                                        Traduzione.castFP(multespr.tipo,multespr.genere,multespr.testo,unex.genere,unex.testo);
+                                                                                        TRAD = Traduzione.tradEspr(1,multespr.genere, unex.genere,
+                                                                                                             multespr.testo,unex.testo,mlT);
+                                                                                     
+                                                                                        parser.warning(Err_War,multespr);
+                                                                                        flagWarn = false;
+                                                                                    }else{
+                                                                                        if(mlT.equals("DOUBLE")){
+                                                                                            TRAD = Traduzione.tradEspr(multespr.genere, unex.genere,
+                                                                                                                      multespr.testo,unex.testo,mlT,1);
+                                                                                        }else{
+                                                                                            TRAD = Traduzione.tradEspr(multespr.genere, unex.genere,
+                                                                                                                      multespr.testo,unex.testo,1,mlT);
+                                                                                        }
+                                                                                    }
+                                                                                                                               
+                                                                                    RESULT = new Obj(TRAD,mlT,"ESPRESSIONE",parser.returnLine()); 
+                                                                                  }
+                                                                                 :}
+	|	multiplicative_expression:multespr DIVISO unary_expression:unex {: 
+                                                                                   if(unex.genere.equals("NUMERO")){
+                                                                                        if(Integer.parseInt(unex.testo) == 0){  
+                                                                                                                                                                          
+                                                                                            parser.report_fatal_error("FATAL ERROR: NON E' POSSIBILE EFFETTUARE LA DIVISIONE PER 0!\n");
+                                                                                            FlagSyn = true;
+                                                                                            //USCIRE DAL PROGRAMMA!!!!
+                                                                                        }
+                                                                                   }else{
+                                                                                     Record rec = SymbolTable.getCurrRec(unex.testo);  
+                                                                                     if(rec.getValue().equals("0")){
+                                                                                        parser.report_fatal_error("FATAL ERROR: NON E' POSSIBILE EFFETTUARE LA DIVISIONE PER 0!\n");
+                                                                                        FlagSyn = true;
+                                                                                            //USCIRE DAL PROGRAMMA!!!!
+                                                                                     }
+                                                                                   
+                                                                                   }
+
+                                                                                   String dvT = CheckClass.checkTypeMD(multespr.tipo,unex.tipo); 
+                                                                                     
+                                                                                   if(checkFlag == true){   
+                                                                                                                                                                                                                                                    
+                                                                                    parser.report_error(Err_War,multespr);
+                                                                                    checkFlag = false; 
+                                                                                    RESULT = new Obj(" ","ESPRESSIONE",parser.returnLine());
+                                                                                  }else{
+
+                                                                                    if(flagWarn == true){
+                                                                                        Traduzione.castFP(multespr.tipo,multespr.genere,multespr.testo,unex.genere,unex.testo);
+                                                                                        TRAD = Traduzione.tradEspr(2,multespr.genere, unex.genere,
+                                                                                                             multespr.testo,unex.testo,dvT);
+                                                                                        parser.warning(Err_War,multespr);
+                                                                                        flagWarn = false;
+                                                                                    }else{
+                                                                                        if(dvT.equals("DOUBLE")){
+                                                                                            TRAD = Traduzione.tradEspr(multespr.genere, unex.genere,
+                                                                                                                      multespr.testo,unex.testo,dvT,2);
+                                                                                        }else{
+                                                                                            TRAD = Traduzione.tradEspr(multespr.genere, unex.genere,
+                                                                                                                      multespr.testo,unex.testo,2,dvT);
+                                                                                        
+                                                                                        }
+                                                                                    }
+                                                                                                                                                                         
+                                                                                   RESULT = new Obj(TRAD,dvT,"ESPRESSIONE",parser.returnLine());
+                                                                                  }
+                                                                                  :}
+	;
+
+                        /*ESPRESSIONI CON OPERAZIONI DI SOMMA E DIFFERENZA*/
+additive_expression ::=
+		multiplicative_expression:multex {: RESULT = multex; :}
+	|	additive_expression:addespr PIU multiplicative_expression:multespr {: String smT = CheckClass.checkTypeMD(addespr.tipo,multespr.tipo); 
+                                                                                      
+                                                                                      if(checkFlag == true){   
+                                                                                                                                                                                                                                                     
+                                                                                         parser.report_error(Err_War,multespr);
+                                                                                         checkFlag = false;
+                                                                                         
+                                                                                         RESULT = new Obj(" ","ESPRESSIONE",parser.returnLine());
+                                                                                      }else{
+
+                                                                                      if(flagWarn == true){
+                                                                                         Traduzione.castFP(addespr.tipo,addespr.genere,addespr.testo,multespr.genere,multespr.testo);
+                                                                                         TRAD = Traduzione.tradEspr(3,addespr.genere, multespr.genere,
+                                                                                                             addespr.testo,multespr.testo,smT);
+                                                                                         parser.warning(Err_War,multespr);
+                                                                                         flagWarn = false;
+                                                                                      }else{
+                                                                                         if(smT.equals("DOUBLE")){
+                                                                                            TRAD = Traduzione.tradEspr(addespr.genere,multespr.genere,
+                                                                                                                      addespr.testo,multespr.testo,smT,3);
+                                                                                         }else{
+                                                                                            TRAD = Traduzione.tradEspr(addespr.genere,multespr.genere,
+                                                                                                                       addespr.testo,multespr.testo,3,smT);
+                                                                                         }
+                                                                                      }
+                                                                                                                                                                 
+                                                                                      RESULT = new Obj(TRAD,smT,"ESPRESSIONE",parser.returnLine());
+                                                                                      }
+                                                                                    :}
+	|	additive_expression:addespr MENO multiplicative_expression:multespr {: String dfT = CheckClass.checkTypeMD(addespr.tipo,multespr.tipo); 
+                                                                                       
+                                                                                       if(checkFlag == true){ 
+                                                                                                                                                                                                                                                        
+                                                                                         parser.report_error(Err_War,multespr);
+                                                                                         checkFlag = false;    
+
+                                                                                         RESULT = new Obj(" ","ESPRESSIONE",parser.returnLine());
+                                                                                       }else{
+
+                                                                                       if(flagWarn == true){
+                                                                                         Traduzione.castFP(addespr.tipo,addespr.genere,addespr.testo,multespr.genere,multespr.testo);
+                                                                                         TRAD = Traduzione.tradEspr(4,addespr.genere, multespr.genere,
+                                                                                                             addespr.testo,multespr.testo,dfT);
+                                                                                         parser.warning(Err_War,multespr);                                                                                        
+                                                                                         flagWarn = false;
+                                                                                       }else{
+                                                                                         if(dfT.equals("DOUBLE")){
+                                                                                            TRAD = Traduzione.tradEspr(addespr.genere,multespr.genere,
+                                                                                                                      addespr.testo,multespr.testo,dfT,4);
+                                                                                         }else{
+                                                                                            TRAD = Traduzione.tradEspr(addespr.genere,multespr.genere,
+                                                                                                                       addespr.testo,multespr.testo,4,dfT);
+                                                                                         }
+                                                                                       }
+                                                                                                                                                                              
+                                                                                      RESULT = new Obj(TRAD,dfT,"ESPRESSIONE",parser.returnLine());
+                                                                                      }
+                                                                                    :}
+	;
+
+                                 /*SEZIONE RIGUARDANTE LE CONDIZIONI <, >, <=, >=*/
+relational_expression ::=
+		additive_expression:addespr {: RESULT = addespr; :}
+	|	relational_expression:relespr LT additive_expression:addespr {:CheckClass.checkOpCond(relespr.tipo,addespr.tipo); 
+
+                                                                               if(checkFlag == true){ 
+                                                                                                                                                                                                                                                     
+                                                                                    parser.report_error(Err_War,relespr);
+                                                                                    checkFlag = false;
+                                                                                                                                                                        
+                                                                                    RESULT = new Obj("","BOOLEAN"); 
+
+                                                                                }else{
+
+                                                                                    if(relespr.tipo.equals("INTEGER") && addespr.tipo.equals("INTEGER")){
+                                                                                        String RTemp = "$t"+countRTemp;
+                                                                                        TRAD = Traduzione.tradRel(relespr.genere,addespr.genere,
+                                                                                                             relespr.testo,addespr.testo,RTemp,1,relespr.tipo,addespr.tipo);
+                                                                                        countRTemp++;
+                                                                                    }else if(relespr.tipo.equals("DOUBLE") && addespr.tipo.equals("DOUBLE")){
+                                                                                        TRAD = Traduzione.tradRel(relespr.genere,addespr.genere,
+                                                                                                             relespr.testo,addespr.testo,2,relespr.tipo);          
+                                                                                    }else{
+                                                                                        TRAD = Traduzione.tradRel(relespr.genere,addespr.genere,
+                                                                                                  relespr.testo,addespr.testo,relespr.tipo,addespr.tipo,2); 
+                                                                                    } 
+                                                                               
+                                                                                    RESULT = new Obj(TRAD,"BOOLEAN");  
+                                                                                }
+                                                                              :}
+	|	relational_expression:relespr GT additive_expression:addespr {: 
+                                                                                CheckClass.checkOpCond(relespr.tipo,addespr.tipo);
+                                                                                
+                                                                                if(checkFlag == true){
+                                                                                                                                                                                                                                                       
+                                                                                    parser.report_error(Err_War,relespr);
+                                                                                    checkFlag = false;
+
+                                                                                    RESULT = new Obj("","BOOLEAN");
+                                                                                }else{
+
+                                                                                    if(relespr.tipo.equals("INTEGER") && addespr.tipo.equals("INTEGER")){
+                                                                                        String RTemp = "$t"+countRTemp;
+                                                                                        TRAD = Traduzione.tradRel(relespr.genere,addespr.genere,
+                                                                                                             relespr.testo,addespr.testo,RTemp,2,relespr.tipo,addespr.tipo);
+                                                                                        countRTemp++;
+                                                                                    }else if(relespr.tipo.equals("DOUBLE") && addespr.tipo.equals("DOUBLE")){
+                                                                                        TRAD = Traduzione.tradRel(relespr.genere,addespr.genere,
+                                                                                                             relespr.testo,addespr.testo,1,relespr.tipo);          
+                                                                                    }else{
+                                                                                        TRAD = Traduzione.tradRel(relespr.genere,addespr.genere,
+                                                                                                  relespr.testo,addespr.testo,relespr.tipo,addespr.tipo,1); 
+                                                                                    } 
+                                                                                
+                                                                                    RESULT = new Obj(TRAD,"BOOLEAN"); 
+                                                                                }
+                                                                              :} 
+	|	relational_expression:relespr LTEQ additive_expression:addespr {:
+                                                                                CheckClass.checkOpCond(relespr.tipo,addespr.tipo);
+
+                                                                                if(checkFlag == true){
+                                                                                    
+                                                                                    parser.report_error(Err_War,relespr);
+                                                                                    checkFlag = false;
+
+                                                                                    RESULT = new Obj("","BOOLEAN");
+                                                                                }else{
+
+                                                                                    if(relespr.tipo.equals("INTEGER") && addespr.tipo.equals("INTEGER")){
+                                                                                        String RTemp = "$t"+countRTemp;
+                                                                                        TRAD = Traduzione.tradRel(relespr.genere,addespr.genere,
+                                                                                                             relespr.testo,addespr.testo,RTemp,3,relespr.tipo,addespr.tipo);
+                                                                                        countRTemp++;
+                                                                                    }else if(relespr.tipo.equals("DOUBLE") && addespr.tipo.equals("DOUBLE")){
+                                                                                        TRAD = Traduzione.tradRel(relespr.genere,addespr.genere,
+                                                                                                             relespr.testo,addespr.testo,4,relespr.tipo);          
+                                                                                    }else{
+                                                                                        TRAD = Traduzione.tradRel(relespr.genere,addespr.genere,
+                                                                                                  relespr.testo,addespr.testo,relespr.tipo,addespr.tipo,4); 
+                                                                                    } 
+                                                                               
+                                                                                    RESULT = new Obj(TRAD,"BOOLEAN");
+                                                                                }   
+                                                                                :}
+	|	relational_expression:relespr GTEQ additive_expression:addespr {: 
+                                                                                CheckClass.checkOpCond(relespr.tipo,addespr.tipo);
+                                                                                
+                                                                                if(checkFlag == true){ 
+                                                                                    
+                                                                                    parser.report_error(Err_War,relespr);
+                                                                                    checkFlag = false;
+
+                                                                                    RESULT = new Obj("","BOOLEAN");
+                                                                                }else{
+
+                                                                                    if(relespr.tipo.equals("INTEGER") && addespr.tipo.equals("INTEGER")){
+                                                                                        String RTemp = "$t"+countRTemp;
+                                                                                        TRAD = Traduzione.tradRel(relespr.genere,addespr.genere,
+                                                                                                             relespr.testo,addespr.testo,RTemp,4,relespr.tipo,addespr.tipo);
+                                                                                        countRTemp++;
+                                                                                    }else if(relespr.tipo.equals("DOUBLE") && addespr.tipo.equals("DOUBLE")){
+                                                                                        TRAD = Traduzione.tradRel(relespr.genere,addespr.genere,
+                                                                                                             relespr.testo,addespr.testo,3,relespr.tipo);          
+                                                                                    }else{
+                                                                                        TRAD = Traduzione.tradRel(relespr.genere,addespr.genere,
+                                                                                                  relespr.testo,addespr.testo,relespr.tipo,addespr.tipo,3); 
+                                                                                    } 
+                                                                                
+                                                                                    RESULT = new Obj(TRAD,"BOOLEAN"); 
+                                                                                }
+                                                                                :}
+	;
+
+                              /*SEZIONE RIGUARDANTE LE CONDIZIONI  ==, != */
+equality_expression ::=
+		relational_expression:relex {: RESULT = relex; :}
+	|	equality_expression:eqespr EQEQ relational_expression:relespr {: 
+                                                                                CheckClass.checkEQNEQ(eqespr.tipo,relespr.tipo); 
+
+                                                                                if(checkFlag == true){
+                                                                                    
+                                                                                    parser.report_error(Err_War,relespr);
+                                                                                    checkFlag = false;
+
+                                                                                    RESULT = new Obj("","BOOLEAN");
+                                                                                }else{
+
+                                                                                    if(eqespr.tipo.equals("INTEGER") && relespr.tipo.equals("INTEGER")){
+                                                                                        TRAD = Traduzione.tradEQNEQ(eqespr.genere,relespr.genere,
+                                                                                                                     eqespr.testo,relespr.testo,eqespr.tipo,relespr.tipo,1);
+                                                                                    }else if(eqespr.tipo.equals("DOUBLE") && relespr.tipo.equals("DOUBLE")){
+                                                                                        TRAD = Traduzione.tradEQNEQ(eqespr.genere,relespr.genere,
+                                                                                                                     eqespr.testo,relespr.testo,eqespr.tipo,relespr.tipo,1);
+                                                                                    }else{
+                                                                                        TRAD = Traduzione.tradEQNEQFPI(eqespr.genere,relespr.genere,
+                                                                                                 eqespr.testo,relespr.testo,eqespr.tipo,relespr.tipo,1);
+                                                                                    }
+                                                                                 
+                                                                                    RESULT = new Obj(TRAD,"BOOLEAN");
+                                                                                }
+                                                                              :}
+        
+	|	equality_expression:eqespr NOTEQ relational_expression:relespr {: 
+                                                                                CheckClass.checkEQNEQ(eqespr.tipo,relespr.tipo);
+
+                                                                                if(checkFlag == true){
+                                                                                    
+                                                                                    parser.report_error(Err_War,relespr);
+                                                                                    checkFlag = false;
+
+                                                                                    RESULT = new Obj("","BOOLEAN");
+                                                                                }else{
+
+                                                                                    if(eqespr.tipo.equals("INTEGER") && relespr.tipo.equals("INTEGER")){
+                                                                                        TRAD = Traduzione.tradEQNEQ(eqespr.genere,relespr.genere,
+                                                                                                                     eqespr.testo,relespr.testo,eqespr.tipo,relespr.tipo,2);
+                                                                                    }else if(eqespr.tipo.equals("DOUBLE") && relespr.tipo.equals("DOUBLE")){
+                                                                                        TRAD = Traduzione.tradEQNEQ(eqespr.genere,relespr.genere,
+                                                                                                                     eqespr.testo,relespr.testo,eqespr.tipo,relespr.tipo,2);
+                                                                                    }else{
+                                                                                        TRAD = Traduzione.tradEQNEQFPI(eqespr.genere,relespr.genere,
+                                                                                                 eqespr.testo,relespr.testo,eqespr.tipo,relespr.tipo,2);
+                                                                                    }
+    
+                                                                                    RESULT = new Obj(TRAD,"BOOLEAN");
+                                                                                }  
+                                                                                :}
+	;
+
+conditional_and_expression ::=
+		equality_expression:eqex {: RESULT = eqex; :}
+	|	conditional_and_expression ANDAND equality_expression:eqex
+	;
+conditional_or_expression ::=
+		conditional_and_expression:condandex {: RESULT = condandex; :}
+	|	conditional_or_expression OROR conditional_and_expression
+	;
+assignment_expression ::=
+		conditional_or_expression:condorex {: RESULT = condorex; :}  
+	|	assignment:ass {: RESULT = ass; :}
+	;
+                    
+                                   /*ASSEGNAZIONE DI UNA VARIABILE O DI UN ARRAY*/
+assignment ::=	left_hand_side:lhs EQ assignment_expression:assespr  {: 
+                                                                        String TR;
+                                                                        String valueErr;
+                                                                        if(sintErr == true){                                                                                                                                                          
+                                                                              Record rec = SymbolTable.checkVScope(lhs.testo);
+                                                                              rec.setValue(assespr.testo);
+
+                                                                              lhs.tipo = CheckClass.checkTypeA(typeDeclErr,assespr.tipo,lhs.testo);
+
+                                                                              if(checkFlag == true ){                                                                
+                                                                                    parser.report_error(Err_War,lhs);
+                                                                                    checkFlag = false;
+
+                                                                                    if(lhs.tipo.equals("INTEGER")){
+                                                                                        valueErr = assespr.testo.substring(assespr.testo.indexOf("=")+2,assespr.testo.indexOf("."));
+                                                                                        rec.setValue(valueErr);                                                                     
+                                                                                    }else{
+                                                                                        //CAPIRE COSA FARE IN CASI COME QUESTI
+                                                                                    }
+
+                                                                              }else if(flagWarn == true){
+                                                                                    parser.report_error(Err_War,lhs);
+                                                                                    flagWarn = false;
+                                                                              }
+                                                                              
+                                                                              rec.setType(lhs.tipo);
+                                                                              TR = Traduzione.createReg(lhs.tipo,lhs.testo);
+                                                                              vTrad.add(TR);
+                                                                              
+                                                                              TRAD = Traduzione.tradDecl(lhs.tipo,lhs.testo);
+                                                                              dichRecup.add(TRAD); 
+                                                                              RESULT = new Obj("");
+                                                                        }else{
+                                                                                                    
+                                                                       if(lhs.testo.contains("[") && lhs.testo.contains("]")){
+                                                                                               
+                                                                         String var = lhs.testo.substring(0,lhs.testo.indexOf("["));
+                                                                                                
+                                                                         Record rec = SymbolTable.checkVScope(var); //ottengo l'indirzzo del record
+
+                                                                         int n1 = lhs.testo.indexOf("[");  
+                                                                         int n2 = lhs.testo.indexOf("]");
+                                                                                                
+                                                                         String num = lhs.testo.substring(n1+1,n2);
+                                                                                                                                                                                        
+                                                                         CheckClass.checkTypeA(lhs.tipo,assespr.tipo,assespr.testo);
+                                                                         if(checkFlag == true){   
+                                                                          
+                                                                               parser.report_error(Err_War,lhs);
+                                                                               checkFlag = false;
+                                                                         }
+                                                                         
+                                                                                                    
+                                                                         if(lhs.genere.equals("ARRAY_ACCESS_I")){                                                                                                  
+                                                                             int ind = Support.changeStrInt(num);
+                                                                             boolean fg = rec.setArrayList(assespr.testo, ind); 
+
+                                                                             if(flagWarn == true){                                                                                                                                                                        
+                                                                                    parser.warning(Err_War,lhs);
+                                                                                    flagWarn = false;
+                                                                             }
+  
+                                                                             if(fg==true){
+                                                                                rec.remElem(ind+1);
+                                                                             }
+                                                                         }
+                                                                          
+                                                                         if(rec.getTabRegArr().containsKey(lhs.testo)){                                                                             
+                                                                              
+                                                                             if(lhs.tipo.equals("INTEGER")){
+                                                                                
+                                                                                if(assespr.genere.equals("ESPRESSIONE")){                                                                                  
+                                                                                  String  T = "$t"+countRTemp;                   
+                                                                                  assespr.testo = assespr.testo.replace("RIS",T);                                                                                  
+                                                                                  TRAD = assespr.testo+"\n"+STArr.replace("REGT",T);                                                                                  
+                                                                                  countRTemp++;              
+                                                                                }else if(assespr.genere.equals("VARIABILE")){ 
+                 
+                                                                                  Record rec2 = SymbolTable.checkVScope(assespr.testo);
+                                                                                  TRAD = STArr.replace("REGT",rec2.getRegister());  
+                                                                                             
+                                                                                }else if(assespr.genere.equals("ARRAY_ACCESS")){
+                                                                                  
+                                                                                    if(rec.getTabRegArr().containsValue(assespr.testo)){
+                                                                                       TRAD = STArr.replace("REGT",assespr.testo);                                                                                       
+                                                                                    }else{                   
+                                                                                      int m = assespr.testo.lastIndexOf(" $t");
+                                                                                      String MT = assespr.testo.substring(m+1,m+4);
+                                                                                      TRAD = assespr.testo+"\n"+STArr.replace("REGT",MT);                                                                                      
+                                                                                    }
+                                                                                }else{
+                                                                                      TRAD = STArr.replace("REGT",assespr.testo);                                                                                      
+                                                                                }
+
+                                                                              }else{
+
+                                                                                if(assespr.genere.equals("ESPRESSIONE")){
+                                                                                                     
+                                                                                  String  T = "$f"+countRegFP;                   
+                                                                                  assespr.testo = assespr.testo.replace("RIS",T);                                                                                  
+                                                                                  TRAD = assespr.testo+"\n"+STArr.replace("REGT",T);
+                                                                                  countRegFP+=2;
+                                                                                                
+                                                                                }else if(assespr.genere.equals("VARIABILE")){
+                                                                                                     
+                                                                                  Record rec2 = SymbolTable.getCurrRec(assespr.testo);
+                                                                                  TRAD = STArr.replace("REGT",rec2.getRegister());
+                                                                                                
+                                                                                }else if(assespr.genere.equals("ARRAY_ACCESS")){
+                                                                                                     
+                                                                                  if(rec.getTabRegArr().containsValue(assespr.testo)){
+                                                                                     TRAD = STArr.replace("REGT",assespr.testo);
+                                                                                  }else{                   
+                                                                                     int m = assespr.testo.lastIndexOf(" $f");
+                                                                                     String MT = assespr.testo.substring(m+1,m+4);
+                                                                                     TRAD = assespr.testo+"\n"+STArr.replace("REGT",MT);
+                                                                                  }
+                                                                                }else{
+                                                                                 TRAD = STArr.replace("REGT",assespr.testo);
+                                                                                }
+
+                                                                              } 
+                                                                              
+                                                                          }else{ 
+                                                                                
+                                                                                String vett = lhs.testo;
+                                                                                String UT;
+                                                                                int l;
+
+                                                                                lhs.testo = TabTrad.get("ARRAY_ACCESS_ASS");
+                                                                                if(lhs.tipo.equals("DOUBLE")){
+                                                                                    l = lhs.testo.lastIndexOf(" $f");                                                                                    
+                                                                                }else{
+                                                                                    l = lhs.testo.lastIndexOf(" $t");
+                                                                                }
+                   
+                                                                                ArrActTStore = lhs.testo.substring(lhs.testo.indexOf("(")+1, lhs.testo.length()-1);  
+                                                                                UT = lhs.testo.substring(l+1,l+4);
+                                                                                rec.getTabRegArr().put(vett, ArrActTStore);
+                                                                                
+                                                                                if(flagWarn == true){
+                                                                                    parser.warning(Err_War,lhs);
+
+                                                                                    String APP = Traduzione.funct(assespr.genere,assespr.testo);
+                                                                                    if(assespr.genere.equals("ESPRESSIONE")){                                                                                                           
+                                                                                        assespr.testo = assespr.testo.replace("RIS",UT);                               
+                                                                                        int nh = lhs.testo.lastIndexOf("S");
+                                                                                        TRAD = lhs.testo.substring(0,nh)+assespr.testo+"\n"+lhs.testo.substring(nh,lhs.testo.length());                                                              
+                                                                                    }else if (assespr.genere.equals("ARRAY_ACCESS")){
+                                                                                        if(assespr.testo.startsWith("$t")){
+                                                                                            TRAD = lhs.testo.substring(0,l-3)+"\n"+APP+lhs.testo.substring(l-3,lhs.testo.length()).replace(UT,Traduzione.getRegFP()); 
+                                                                                        }else{ 
+                                                                                            TRAD = lhs.testo.substring(0,l-3)+assespr.testo+"\n"+APP+lhs.testo.substring(l-3,lhs.testo.length()).replace(UT,Traduzione.getRegFP()); 
+                                                                                        }
+                                                                                    }else{
+                                                                                        TRAD = lhs.testo.substring(0,l-3)+"\n"+APP+lhs.testo.substring(l-3,lhs.testo.length()).replace(UT,Traduzione.getRegFP()); 
+                                                                                    }
+
+                                                                                    flagWarn = false;  
+                                                                                }else{
+                                                                            
+                                                                                    if(lhs.tipo.equals("INTEGER")){
+                                                                                    
+                                                                                        if(assespr.genere.equals("ESPRESSIONE")){
+                                                                                                     
+                                                                                            assespr.testo = assespr.testo.replace("RIS",UT);
+                                                                                            int nh = lhs.testo.lastIndexOf("S");
+                                                                                            TRAD = lhs.testo.substring(0,nh)+assespr.testo+"\n"+lhs.testo.substring(nh,lhs.testo.length());
+                                                                                                
+                                                                                        }else if(assespr.genere.equals("VARIABILE")){
+                                                                                                     
+                                                                                            Record rec2 = SymbolTable.checkVScope(assespr.testo);
+                                                                                            TRAD = lhs.testo.substring(0,l-2)+lhs.testo.substring(l-2,lhs.testo.length()).replace(UT,rec2.getRegister());
+                                                                                                
+                                                                                        }else if(assespr.genere.equals("ARRAY_ACCESS")){
+                                                                                            if(assespr.testo.startsWith("$t")){
+                                                                                                TRAD = lhs.testo.replace(UT,assespr.testo);
+                                                                                            }else{       
+                                                                                                int m = assespr.testo.lastIndexOf(" $t");
+                                                                                                String MT = assespr.testo.substring(m+1,m+4);
+                                                                                                TRAD = lhs.testo.substring(0,l-2)+assespr.testo+"\n"+lhs.testo.substring(l-2,lhs.testo.length()).replace(UT,MT);
+                                                                                            }
+                                                                                        }else{
+                                                                                            TRAD = lhs.testo.replace(UT,assespr.testo);
+                                                                                        }
+                                                                                    }else{
+
+                                                                                        if(assespr.genere.equals("ESPRESSIONE")){
+                                                                                                     
+                                                                                            assespr.testo = assespr.testo.replace("RIS",UT);
+                                                                                            int nh = lhs.testo.lastIndexOf("S");
+                                                                                            TRAD = lhs.testo.substring(0,nh)+assespr.testo+"\n"+lhs.testo.substring(nh,lhs.testo.length());
+                                                                                                
+                                                                                        }else if(assespr.genere.equals("VARIABILE")){
+                                                                                                     
+                                                                                            Record rec2 = SymbolTable.getCurrRec(assespr.testo);
+                                                                                            TRAD = lhs.testo.substring(0,l-2)+lhs.testo.substring(l-2,lhs.testo.length()).replace(UT,rec2.getRegister());
+                                                                                                
+                                                                                        }else if(assespr.genere.equals("ARRAY_ACCESS")){
+                                                                                            if(assespr.testo.startsWith("$f")){
+                                                                                                TRAD = lhs.testo.replace(UT,assespr.testo);
+                                                                                            }else{         
+                                                                                                int m = assespr.testo.lastIndexOf(" $f");
+                                                                                                String MT = assespr.testo.substring(m+1,m+4);
+                                                                                                TRAD = lhs.testo.substring(0,l-2)+assespr.testo+"\n"+lhs.testo.substring(l-2,lhs.testo.length()).replace(UT,MT);
+                                                                                            }
+                                                                                        }else{
+                                                                                            TRAD = lhs.testo.replace(UT,assespr.testo);
+                                                                                        }
+                                                                                    }                                                  
+                                                                                } 
+                                                                              }
+                                                                           }else{                                                                                                  
+                                                                                Record rec = SymbolTable.checkVScope(lhs.testo); //è per ottenere SOLO il record
+                                                                       
+                                                                                if(rec.getModifier().equals("null")){
+                                                                                                    
+                                                                                    String str = CheckClass.checkTypeA(lhs.tipo,assespr.tipo,assespr.testo);
+                                                                                    if(checkFlag == true){ 
+                                                                                       
+                                                                                        parser.report_error(Err_War,lhs);
+                                                                                        checkFlag = false;
+                                                                                    }
+
+                                                                                    if(flagWarn == true){
+                                                                                        parser.warning(Err_War,lhs);
+
+                                                                                        String APP = Traduzione.funct(assespr.genere,assespr.testo);
+                                                                                        if(assespr.genere.equals("ESPRESSIONE")){                                                                                                           
+                                                                                            // T.substring(T.indexOf("RIS")-4, T.indexOf("RIS"));
+                                                                                            // TRAD = APP. 
+                                                                                            // TRAD = APP.replace("RIS",rec.getRegister());                                                                                            
+                                                                                        }else if (assespr.genere.equals("ARRAY_ACCESS")){ 
+                                                                                            if(assespr.testo.startsWith("$t")){
+                                                                                                TRAD = APP+Traduzione.OpEspr(3,rec.getType())+" "+
+                                                                                                                rec.getRegister()+", $zero"+", "+Traduzione.getRegFP();
+                                                                                            }else{
+                                                                                                TRAD = assespr.testo+"\n"+APP+Traduzione.OpEspr(3,rec.getType())+" "+
+                                                                                                                rec.getRegister()+", $zero"+", "+Traduzione.getRegFP();
+                                                                                            }
+                                                                                        }else{
+                                                                                            TRAD = APP+Traduzione.OpEspr(3,rec.getType())+" "+rec.getRegister()+
+                                                                                                                                ", $zero"+", "+Traduzione.getRegFP();
+                                                                                        }
+                                                                                        flagWarn = false;
+                                                                                    }else{
+                                                                                        if(lhs.tipo.equals("INTEGER")){
+
+                                                                                            if(assespr.genere.equals("ESPRESSIONE")){  
+                                                                                                         
+                                                                                                TRAD = assespr.testo.replace("RIS",rec.getRegister()); 
+                             
+                                                                                            }else if (assespr.genere.equals("VARIABILE")){
+
+                                                                                                Record rec2 = SymbolTable.checkVScope(assespr.testo);
+                                                                                                TRAD = Traduzione.OpEspr(3,rec.getType())+" "+rec.getRegister()+
+                                                                                                                                ", $zero"+", "+rec2.getRegister();
+
+                                                                                            }else if (assespr.genere.equals("ARRAY_ACCESS")){
+                                                                               
+                                                                                                if(assespr.testo.startsWith("$t")){
+                                                                                                    TRAD = Traduzione.OpEspr(3,rec.getType())+" "+
+                                                                                                            rec.getRegister()+", $zero"+", "+assespr.testo;
+                                                                                                }else{
+                                                                                                    int l = assespr.testo.lastIndexOf(" $t");
+                                                                                                    String UT = assespr.testo.substring(l+1,l+4);
+                                                                                                    TRAD = assespr.testo+"\n"+Traduzione.OpEspr(3,rec.getType())+" "+
+                                                                                                                                    rec.getRegister()+", $zero"+", "+UT;
+                                                                                                }
+
+                                                                                            }else{
+                                                                                                rec.setValue(assespr.testo);
+                                                                                                TRAD = Traduzione.OpEspr(3,rec.getType())+"I"+" "+rec.getRegister()+
+                                                                                                                                        ", $zero"+", "+assespr.testo;
+                                                                                            }
+                                                                                        }else{
+
+                                                                                            if(assespr.genere.equals("ESPRESSIONE")){                                                                                                           
+                                                                                                TRAD = assespr.testo.replace("RIS",rec.getRegister());                              
+                                                                                            }else if (assespr.genere.equals("VARIABILE")){
+                                                                                                 Record rec2 = SymbolTable.getCurrRec(assespr.testo);
+                                                                                                 TRAD = Traduzione.OpEspr(3,rec.getType())+" "+rec.getRegister()+
+                                                                                                                                ", $zero"+", "+rec2.getRegister();
+                                                                                            }else if (assespr.genere.equals("ARRAY_ACCESS")){ 
+                                                                              
+                                                                                                if(assespr.testo.startsWith("$f")){
+                                                                                                    TRAD = Traduzione.OpEspr(3,rec.getType())+" "+
+                                                                                                           rec.getRegister()+", $zero"+", "+assespr.testo;
+                                                                                                }else{                                                                                         
+                                                                                                    int l = assespr.testo.lastIndexOf(" $f");
+                                                                                                    String UT = assespr.testo.substring(l+1,l+4);
+                                                                                                    TRAD = assespr.testo+"\n"+Traduzione.OpEspr(3,rec.getType())+" "+
+                                                                                                                                    rec.getRegister()+", $zero"+", "+UT;
+                                                                                                }
+
+                                                                                            }else{
+                                                                                                rec.setValue(assespr.testo);
+                                                                                                TRAD = Traduzione.OpEspr(3,rec.getType())+"I"+" "+rec.getRegister()+
+                                                                                                                                  ", $zero"+", "+assespr.testo;
+                                                                                            }
+                                                                                        }
+                                                                                    }  
+                                                                                }else{
+                                                                                  
+                                                                                    parser.report_error("ERROR: NON E' POSSIBILE ASSEGNARE UN VALORE AD UNA VARIABILE CON MODIFICATORE FINAL!\n",lhs);
+                                                                                }                                                                                
+                                                                            } 
+                                                                             RESULT = new Obj(TRAD,lhs.tipo);
+                                                                            }                  
+                                                                          
+                                                                        :}
+	;
+
+left_hand_side ::=
+		name:nome {: 
+                            if(sintErr == true){
+                                    SymbolTable.addTb(nome.testo);
+                            }
+                            Record rec = SymbolTable.checkVScope(nome.testo); 
+
+                            if(checkFlag == true){ 
+                                
+                                parser.report_error(Err_War,nome);
+                                checkFlag = false;                               
+                                
+                                String regRandom = "$s"+countReg;                                
+                                SymbolTable.getTable().put(nome.testo,new Record("INTEGER",nome.testo,regRandom,0));
+                                rec = SymbolTable.checkVScope(nome.testo);
+                                countReg++;
+
+                            }
+                           
+                            nome.tipo = rec.getType();
+                                                        
+                            RESULT = new Obj(nome.testo,nome.tipo,"VARIABILE"); 
+                            RESULT = nome;
+                           :}
+	|	array_access:arracc {:
+                                      String T = "";
+                                      if(arracc.tipo.equals("INTEGER")){
+                                         T = "SW"; 
+                                      }else if(arracc.tipo.equals("DOUBLE")){
+                                         T = "S.D"; 
+                                      }else{
+                                        
+                                         parser.report_error("ERROR: tipo non supportato!",arracc);
+                                      }
+                                      
+                                      String D = arracc.testo.substring(0, arracc.testo.indexOf("["));
+                                      Record rec = SymbolTable.checkVScope(D);
+
+                                      if(rec.getTabRegArr().containsKey(arracc.testo)){                                         
+                                            STArr = T+" "+"REGT "+"0("+rec.getTabRegArr().get(arracc.testo)+")";                                       
+                                      }else{ 
+                                        
+                                            if(TabTrad.containsKey("ARRAY_ACCESS_I")){
+                                         
+                                                TRAD = T+" "+TabTrad.get("ARRAY_ACCESS_I");
+                                                TabTrad.put("ARRAY_ACCESS_ASS",TRAD);
+                                                TabTrad.remove("ARRAY_ACCESS_I");
+                                                arracc.genere = "ARRAY_ACCESS_I";
+
+                                            }else if(TabTrad.containsKey("ARRAY_ACCESS")){
+                                        
+                                                TRAD = TabTrad.get("ARRAY_ACCESS");
+                                                if(arracc.tipo.equals("DOUBLE")){
+                                                    TRAD = TRAD.replace(TRAD.substring(TRAD.lastIndexOf("\n$f")+1,TRAD.length()),
+                                                                    T+" "+TRAD.substring(TRAD.lastIndexOf("\n$f")+1,TRAD.length()));
+                                                }else{
+                                                    TRAD = TRAD.replace(TRAD.substring(TRAD.lastIndexOf("\n$t")+1,TRAD.length()),
+                                                                    T+" "+TRAD.substring(TRAD.lastIndexOf("\n$t")+1,TRAD.length()));
+                                                }                                    
+                                        
+                                            TabTrad.put("ARRAY_ACCESS_ASS",TRAD);
+                                            arracc.genere = "ARRAY_ACCESS";
+                                            }
+                                      }
+
+                                      RESULT = new Obj(arracc.testo,arracc.tipo,arracc.genere); 
+                                     :}
+	;
+expression_opt ::=
+	{: RESULT = new Obj(""); :}
+        |	expression:espr {: RESULT = espr; :}
+	;
+expression ::=	assignment_expression:assex {: RESULT = assex; :}
+	;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
