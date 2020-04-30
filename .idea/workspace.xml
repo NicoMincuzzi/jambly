@@ -1,111 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="ed7fdfdd-a987-46df-82b9-96f226732119" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/Compilatore.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Compilatore.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/CheckClass.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/CheckClass.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/Compilatore.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/Compilatore.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/Expr.cup" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/Expr.cup" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/Expr.lex" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/Expr.lex" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/ExprLex.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/ExprLex.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/Main_Window.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/Main_Window.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/Obj.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/Obj.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/PrintText.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/PrintText.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/ProdParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/ProdParser.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/Record.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/Record.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/Support.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/Support.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/Support_Tool.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/Support_Tool.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/SymbolTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/SymbolTable.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/Traduzione.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/Traduzione.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/UtilParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/UtilParser.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/UtilScanner.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/UtilScanner.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/CUP$parser$actions.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/CUP$parser$actions.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/Main.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/action_part.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/action_part.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/action_part.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/action_part.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/action_production.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/action_production.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/action_production.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/action_production.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/assoc.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/assoc.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/assoc.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/assoc.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/emit.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/emit.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/emit.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/emit.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/internal_error.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/internal_error.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/internal_error.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/internal_error.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/lalr_item.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/lalr_item.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/lalr_item.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/lalr_item.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/lalr_item_set.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/lalr_item_set.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/lalr_item_set.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/lalr_item_set.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/lalr_state.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/lalr_state.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/lalr_state.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/lalr_state.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/lalr_transition.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/lalr_transition.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/lalr_transition.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/lalr_transition.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/lexer.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/lexer.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/lexer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/lexer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/lr_item_core.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/lr_item_core.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/lr_item_core.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/lr_item_core.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/non_terminal.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/non_terminal.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/non_terminal.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/non_terminal.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/nonassoc_action.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/nonassoc_action.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/nonassoc_action.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/nonassoc_action.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/parse_action.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/parse_action.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/parse_action.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/parse_action.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/parse_action_row.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/parse_action_row.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/parse_action_row.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/parse_action_row.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/parse_action_table.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/parse_action_table.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/parse_action_table.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/parse_action_table.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/parse_reduce_row.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/parse_reduce_row.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/parse_reduce_row.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/parse_reduce_row.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/parse_reduce_table.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/parse_reduce_table.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/parse_reduce_table.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/parse_reduce_table.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/parser.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/parser.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/parser.cup" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/parser.cup" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/parser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/parser.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/production.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/production.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/production.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/production.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/production_part.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/production_part.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/production_part.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/production_part.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/reduce_action.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/reduce_action.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/reduce_action.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/reduce_action.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/runtime/Scanner.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/runtime/Scanner.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/runtime/Scanner.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/runtime/Scanner.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/runtime/Symbol.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/runtime/Symbol.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/runtime/Symbol.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/runtime/Symbol.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/runtime/lr_parser.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/runtime/lr_parser.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/runtime/lr_parser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/runtime/lr_parser.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/runtime/virtual_parse_stack.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/runtime/virtual_parse_stack.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/runtime/virtual_parse_stack.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/runtime/virtual_parse_stack.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/shift_action.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/shift_action.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/shift_action.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/shift_action.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/simple_calc/CUP$parser$actions.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/simple_calc/CUP$parser$actions.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/simple_calc/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/simple_calc/Main.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/simple_calc/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/simple_calc/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/simple_calc/parser.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/simple_calc/parser.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/simple_calc/parser.cup" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/simple_calc/parser.cup" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/simple_calc/parser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/simple_calc/parser.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/simple_calc/scanner.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/simple_calc/scanner.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/simple_calc/scanner.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/simple_calc/scanner.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/simple_calc/sym.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/simple_calc/sym.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/simple_calc/sym.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/simple_calc/sym.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/sym.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/sym.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/sym.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/sym.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/symbol.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/symbol.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/symbol.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/symbol.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/symbol_part.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/symbol_part.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/symbol_part.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/symbol_part.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/symbol_set.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/symbol_set.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/symbol_set.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/symbol_set.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/terminal.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/terminal.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/terminal.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/terminal.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/terminal_set.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/terminal_set.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/terminal_set.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/terminal_set.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/version.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/version.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/java_cup/version.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/java_cup/version.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/parser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/parser.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compilatore/sym.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/compilatore/sym.java" afterDir="false" />
-    </list>
+    <list default="true" id="ed7fdfdd-a987-46df-82b9-96f226732119" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -186,7 +82,7 @@
       <updated>1587236146823</updated>
       <workItem from="1587236149304" duration="1230000" />
       <workItem from="1588270223769" duration="2313000" />
-      <workItem from="1588277873425" duration="1320000" />
+      <workItem from="1588277873425" duration="1831000" />
     </task>
     <servers />
   </component>
@@ -206,29 +102,30 @@
       <screen x="0" y="23" width="1280" height="729" />
     </state>
     <state x="492" y="283" key="#com.intellij.ide.util.projectWizard.JdkChooserPanel.MyDialog/0.23.1280.729@0.23.1280.729" timestamp="1587241829695" />
-    <state width="1238" height="182" key="GridCell.Tab.0.bottom" timestamp="1588279218518">
+    <state width="1238" height="182" key="GridCell.Tab.0.bottom" timestamp="1588279630462">
       <screen x="0" y="23" width="1280" height="729" />
     </state>
-    <state width="1238" height="182" key="GridCell.Tab.0.bottom/-90.-877.1440.877/0.23.1280.729@0.23.1280.729" timestamp="1588279218518" />
-    <state width="1238" height="182" key="GridCell.Tab.0.center" timestamp="1588279218517">
+    <state width="1238" height="182" key="GridCell.Tab.0.bottom/-90.-877.1440.877/0.23.1280.729@0.23.1280.729" timestamp="1588279630462" />
+    <state width="1238" height="182" key="GridCell.Tab.0.center" timestamp="1588279630461">
       <screen x="0" y="23" width="1280" height="729" />
     </state>
-    <state width="1238" height="182" key="GridCell.Tab.0.center/-90.-877.1440.877/0.23.1280.729@0.23.1280.729" timestamp="1588279218517" />
-    <state width="1238" height="182" key="GridCell.Tab.0.left" timestamp="1588279218517">
+    <state width="1238" height="182" key="GridCell.Tab.0.center/-90.-877.1440.877/0.23.1280.729@0.23.1280.729" timestamp="1588279630461" />
+    <state width="1238" height="182" key="GridCell.Tab.0.left" timestamp="1588279630460">
       <screen x="0" y="23" width="1280" height="729" />
     </state>
-    <state width="1238" height="182" key="GridCell.Tab.0.left/-90.-877.1440.877/0.23.1280.729@0.23.1280.729" timestamp="1588279218517" />
-    <state width="1238" height="182" key="GridCell.Tab.0.right" timestamp="1588279218518">
+    <state width="1238" height="182" key="GridCell.Tab.0.left/-90.-877.1440.877/0.23.1280.729@0.23.1280.729" timestamp="1588279630460" />
+    <state width="1238" height="182" key="GridCell.Tab.0.right" timestamp="1588279630462">
       <screen x="0" y="23" width="1280" height="729" />
     </state>
-    <state width="1238" height="182" key="GridCell.Tab.0.right/-90.-877.1440.877/0.23.1280.729@0.23.1280.729" timestamp="1588279218518" />
+    <state width="1238" height="182" key="GridCell.Tab.0.right/-90.-877.1440.877/0.23.1280.729@0.23.1280.729" timestamp="1588279630462" />
     <state x="346" y="144" width="588" height="486" key="find.popup" timestamp="1588271031913">
       <screen x="0" y="23" width="1280" height="729" />
     </state>
     <state x="346" y="144" width="588" height="486" key="find.popup/-90.-877.1440.877/0.23.1280.729@0.23.1280.729" timestamp="1588271031913" />
-    <state x="305" y="76" key="search.everywhere.popup" timestamp="1587242446056">
+    <state x="305" y="76" width="670" height="676" key="search.everywhere.popup" timestamp="1588279664317">
       <screen x="0" y="23" width="1280" height="729" />
     </state>
+    <state x="305" y="76" width="670" height="676" key="search.everywhere.popup/-90.-877.1440.877/0.23.1280.729@0.23.1280.729" timestamp="1588279664317" />
     <state x="305" y="76" key="search.everywhere.popup/0.23.1280.729@0.23.1280.729" timestamp="1587242446056" />
   </component>
 </project>
