@@ -239,7 +239,7 @@ public class Support_Tool extends JFrame {
         try {
             pr.waitFor();
         } catch (Exception e) {
-
+            System.out.println("Cannot move files in project package. " + e);
         }
     }
 

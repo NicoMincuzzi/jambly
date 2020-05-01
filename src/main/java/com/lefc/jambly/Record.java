@@ -52,7 +52,6 @@ public class Record {
         return TabArrTemp;
     }
 
-    /*METODI CHE PERMETTONO DI SETTARE I VARI ELEMENTI DEL RECORD*/
     public void setName(String N) {
         name = N;
     }
@@ -70,14 +69,8 @@ public class Record {
     }
 
     public void setList(ArrayList listValue) {
-
         list = listValue;
-        if (list.isEmpty()) {
-            FA = false;
-        } else {
-            FA = true;
-        }
-
+        FA = !list.isEmpty();
     }
 
     public void setRegister(String R) {
@@ -89,7 +82,6 @@ public class Record {
     }
 
     public boolean setArrayList(String value, int index) {
-
         try {
             list.add(index, value);
             return index + 1 != list.size();

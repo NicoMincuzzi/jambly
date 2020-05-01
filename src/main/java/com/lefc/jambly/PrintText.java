@@ -3,17 +3,17 @@ package com.lefc.jambly;
 import java.io.IOException;
 
 public class PrintText implements Comparable<PrintText> {
-    //implementa un'interfaccia perchè implementa metodi astratti
     private String message;
-    private String s; //stringa errata
+    private String wrongString;
     private int pos;
 
     public PrintText() {
         message = "";
-        s = "";
+        wrongString = "";
         pos = -1;
     }
 
+    @Override
     public int compareTo(PrintText o) //ordinamento della lista degli errori
     {
         if (this.getPos() < o.getPos()) //confronto tra ogg chiamante e l'ogg passato
@@ -41,7 +41,7 @@ public class PrintText implements Comparable<PrintText> {
     }
 
     public String getString() {
-        return s;
+        return wrongString;
     }
 
     public int getPos() {
@@ -49,7 +49,7 @@ public class PrintText implements Comparable<PrintText> {
     }
 
     public void setString(String s) {
-        this.s = s;
+        this.wrongString = s;
     }
 
     public void setPos(int pos) {
@@ -206,7 +206,7 @@ public class PrintText implements Comparable<PrintText> {
         wrongStr = wrongStr.replaceAll("\n", "");
 
         setString(wrongStr);
-        if (flag == true)
+        if (flag)
             setPos(linea);
         else
             setPos(line);
