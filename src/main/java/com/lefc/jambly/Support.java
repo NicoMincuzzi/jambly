@@ -7,8 +7,6 @@ import java.util.ArrayList;
 public class Support {
     private static ArrayList<String> listMod;
     private static int I;
-    private static double D;
-    private static Integer it;
     private static String str;
     private static int numErr;
 
@@ -16,11 +14,12 @@ public class Support {
         return listMod;
     }
 
-    public static int changeStrInt(String espr) {
+    public static int changeStrInt(String expression) {
         try {
-            it = new Integer(espr);
+            Integer it = new Integer(expression);
             I = it.intValue();
         } catch (Exception e) {
+            System.out.println("Cannot convert string to int. " + e);
         }
         return I;
     }
@@ -68,9 +67,9 @@ public class Support {
         return str;
     }
 
-    public static void writeFile(boolean FLAG, String TRAD) throws IOException {
+    public static void writeFile(boolean flag, String TRAD) throws IOException {
         FileWriter file = new FileWriter("FileTrad.txt", true);
-        if (FLAG == true) {
+        if (flag) {
             file.write(TRAD);
             file.flush();
         } else {

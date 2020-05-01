@@ -39,7 +39,7 @@ public class Compilatore extends JFrame {
     }
 
     public Compilatore() {
-        super("Compilatore Java-Assembly");
+        super("Java-Assembly Interpreter");
         initComponent();
     }
 
@@ -108,8 +108,6 @@ public class Compilatore extends JFrame {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
                     but2ActionPerformed(evt);
-                } catch (FileNotFoundException ex) {
-                    Logger.getLogger(Compilatore.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (IOException ex) {
                     Logger.getLogger(Compilatore.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -202,11 +200,11 @@ public class Compilatore extends JFrame {
         button2.setEnabled(true);
     }
 
-    private void but2ActionPerformed(java.awt.event.ActionEvent evt) throws FileNotFoundException, IOException {
+    private void but2ActionPerformed(java.awt.event.ActionEvent evt) throws IOException {
         AreaTxt2.setText("");
         runCompil();
 
-        if (CUP$parser$actions.FlagSyn == false && Support.getnumErr() < 5) {
+        if (!CUP$parser$actions.FlagSyn && Support.getnumErr() < 5) {
             if (new File("FileErr.txt").exists()) {
                 readFile("FileErr.txt", 2);
                 readFile("FileTrad.txt", 2);

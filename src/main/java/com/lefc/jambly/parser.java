@@ -1316,7 +1316,7 @@ public void structProg(int levP, boolean flag, String trad) throws IOException{
                                       }
                                       
                                       String D = arracc.testo.substring(0, arracc.testo.indexOf("["));
-                                      Record rec = SymbolTable.checkVScope(D);
+                                      Record rec = SymbolTable.retrieveVariableInsideScope(D);
 
                                       if(rec.getTabRegArr().containsKey(arracc.testo)){                                         
                                             STArr = T+" "+"REGT "+"0("+rec.getTabRegArr().get(arracc.testo)+")";                                       
@@ -1360,9 +1360,9 @@ public void structProg(int levP, boolean flag, String trad) throws IOException{
 		Obj nome = (Obj)((java_cup.runtime.Symbol) CUP$parser$stack.elementAt(CUP$parser$top-0)).value;
 		 
                             if(sintErr == true){
-                                    SymbolTable.addTb(nome.testo);
+                                    SymbolTable.addVariableToTable(nome.testo);
                             }
-                            Record rec = SymbolTable.checkVScope(nome.testo); 
+                            Record rec = SymbolTable.retrieveVariableInsideScope(nome.testo);
 
                             if(checkFlag == true){ 
                                 
@@ -1371,7 +1371,7 @@ public void structProg(int levP, boolean flag, String trad) throws IOException{
                                 
                                 String regRandom = "$s"+countReg;                                
                                 SymbolTable.getTable().put(nome.testo,new Record("INTEGER",nome.testo,regRandom,0));
-                                rec = SymbolTable.checkVScope(nome.testo);
+                                rec = SymbolTable.retrieveVariableInsideScope(nome.testo);
                                 countReg++;
 
                             }
@@ -1399,7 +1399,7 @@ public void structProg(int levP, boolean flag, String trad) throws IOException{
                                                                         String TR;
                                                                         String valueErr;
                                                                         if(sintErr == true){                                                                                                                                                          
-                                                                              Record rec = SymbolTable.checkVScope(lhs.testo);
+                                                                              Record rec = SymbolTable.retrieveVariableInsideScope(lhs.testo);
                                                                               rec.setValue(assespr.testo);
 
                                                                               lhs.tipo = CheckClass.checkTypeA(typeDeclErr,assespr.tipo,lhs.testo);
@@ -1433,7 +1433,7 @@ public void structProg(int levP, boolean flag, String trad) throws IOException{
                                                                                                
                                                                          String var = lhs.testo.substring(0,lhs.testo.indexOf("["));
                                                                                                 
-                                                                         Record rec = SymbolTable.checkVScope(var);
+                                                                         Record rec = SymbolTable.retrieveVariableInsideScope(var);
 
                                                                          int n1 = lhs.testo.indexOf("[");
                                                                          int n2 = lhs.testo.indexOf("]");
@@ -1473,7 +1473,7 @@ public void structProg(int levP, boolean flag, String trad) throws IOException{
                                                                                   countRTemp++;              
                                                                                 }else if(assespr.genere.equals("VARIABILE")){ 
                  
-                                                                                  Record rec2 = SymbolTable.checkVScope(assespr.testo);
+                                                                                  Record rec2 = SymbolTable.retrieveVariableInsideScope(assespr.testo);
                                                                                   TRAD = STArr.replace("REGT",rec2.getRegister());  
                                                                                              
                                                                                 }else if(assespr.genere.equals("ARRAY_ACCESS")){
@@ -1565,7 +1565,7 @@ public void structProg(int levP, boolean flag, String trad) throws IOException{
                                                                                                 
                                                                                         }else if(assespr.genere.equals("VARIABILE")){
                                                                                                      
-                                                                                            Record rec2 = SymbolTable.checkVScope(assespr.testo);
+                                                                                            Record rec2 = SymbolTable.retrieveVariableInsideScope(assespr.testo);
                                                                                             TRAD = lhs.testo.substring(0,l-2)+lhs.testo.substring(l-2,lhs.testo.length()).replace(UT,rec2.getRegister());
                                                                                                 
                                                                                         }else if(assespr.genere.equals("ARRAY_ACCESS")){
@@ -1607,7 +1607,7 @@ public void structProg(int levP, boolean flag, String trad) throws IOException{
                                                                                 } 
                                                                               }
                                                                            }else{                                                                                                  
-                                                                                Record rec = SymbolTable.checkVScope(lhs.testo);
+                                                                                Record rec = SymbolTable.retrieveVariableInsideScope(lhs.testo);
                                                                        
                                                                                 if(rec.getModifier().equals("null")){
                                                                                                     
@@ -1648,7 +1648,7 @@ public void structProg(int levP, boolean flag, String trad) throws IOException{
                              
                                                                                             }else if (assespr.genere.equals("VARIABILE")){
 
-                                                                                                Record rec2 = SymbolTable.checkVScope(assespr.testo);
+                                                                                                Record rec2 = SymbolTable.retrieveVariableInsideScope(assespr.testo);
                                                                                                 TRAD = Traduzione.OpEspr(3,rec.getType())+" "+rec.getRegister()+
                                                                                                                                 ", $zero"+", "+rec2.getRegister();
 
@@ -2384,7 +2384,7 @@ public void structProg(int levP, boolean flag, String trad) throws IOException{
 		int nomeright = ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-0)).right;
 		Obj nome = (Obj)((java_cup.runtime.Symbol) CUP$parser$stack.elementAt(CUP$parser$top-0)).value;
 		  
-                             Record rec = SymbolTable.checkVScope(nome.testo);
+                             Record rec = SymbolTable.retrieveVariableInsideScope(nome.testo);
 
                              if(checkFlag == true){
                                                                                                                                                                                                                                   
@@ -2393,7 +2393,7 @@ public void structProg(int levP, boolean flag, String trad) throws IOException{
 
                                 String regRandom = "$s"+countReg;                                
                                 SymbolTable.getTable().put(nome.testo,new Record("INTEGER",nome.testo,regRandom,0));
-                                rec = SymbolTable.checkVScope(nome.testo);
+                                rec = SymbolTable.retrieveVariableInsideScope(nome.testo);
                                 countReg++;
                              }
   
@@ -2433,7 +2433,7 @@ public void structProg(int levP, boolean flag, String trad) throws IOException{
                                                          String indice;
                                                          ArrayList listvalue = new ArrayList();
 
-                                                         Record rec = SymbolTable.checkVScope(nome.testo);
+                                                         Record rec = SymbolTable.retrieveVariableInsideScope(nome.testo);
 
                                                          if(checkFlag == true){ 
                                                                                                                                                                                                                                                                                          
@@ -2446,7 +2446,7 @@ public void structProg(int levP, boolean flag, String trad) throws IOException{
                                                               }
 
                                                               SymbolTable.getTable().put(nome.testo,new Record("INTEGER",listvalue,100,nome.testo,regRandom));
-                                                              rec = SymbolTable.checkVScope(nome.testo);
+                                                              rec = SymbolTable.retrieveVariableInsideScope(nome.testo);
                                                               countReg++;
                                                          }
    
@@ -2475,7 +2475,7 @@ public void structProg(int levP, boolean flag, String trad) throws IOException{
                                                                 I1 = Support.changeStrInt(espr.testo);
                                                                 I2 = Support.changeStrInt(rec.getValue().toString());                                                            
                                                             }else{
-                                                                recE = SymbolTable.checkVScope(espr.testo);                                                                    
+                                                                recE = SymbolTable.retrieveVariableInsideScope(espr.testo);
                                                                 I1 = Support.changeStrInt(recE.getValue().toString());
                                                                 I2 = Support.changeStrInt(rec.getValue().toString());                                                                    
                                                             }                                            
@@ -2669,7 +2669,7 @@ public void structProg(int levP, boolean flag, String trad) throws IOException{
 		 
                                       String T = "";
                                       String D = arracc.testo.substring(0, arracc.testo.indexOf("["));
-                                      Record rec = SymbolTable.checkVScope(D);
+                                      Record rec = SymbolTable.retrieveVariableInsideScope(D);
 
                                       if(rec.getTabRegArr().containsKey(arracc.testo)){
                                          TRAD = (String) rec.getTabRegArr().get(arracc.testo);                                       
@@ -3250,7 +3250,7 @@ public void structProg(int levP, boolean flag, String trad) throws IOException{
 		 
                                                 if(sintErr == true){
                                                     String TR;
-                                                    SymbolTable.addTb(simname.testo);
+                                                    SymbolTable.addVariableToTable(simname.testo);
                                                     Record rec = SymbolTable.getCurrRec(simname.testo);
                                                                                                     
                                                     rec.setType(typeDeclErr);
@@ -3586,7 +3586,7 @@ public void structProg(int levP, boolean flag, String trad) throws IOException{
                                                           } 
 
                                                           VAR = Support.getVar(vard.testo);
-                                                          rec = SymbolTable.checkVScope(VAR);
+                                                          rec = SymbolTable.retrieveVariableInsideScope(VAR);
 
                                                           vard.tipo = CheckClass.checkTypeA(tipo.tipo,vard.tipo,vard.testo);
 
@@ -3956,7 +3956,7 @@ public void structProg(int levP, boolean flag, String trad) throws IOException{
 		int nomeright = ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-0)).right;
 		Obj nome = (Obj)((java_cup.runtime.Symbol) CUP$parser$stack.elementAt(CUP$parser$top-0)).value;
 		 
-                                   SymbolTable.addTb(nome.testo);
+                                   SymbolTable.addVariableToTable(nome.testo);
                                    
                                     if(checkFlag == true){                                                                                                                                                                                                         
                                         parser.report_error(Err_War,nome);

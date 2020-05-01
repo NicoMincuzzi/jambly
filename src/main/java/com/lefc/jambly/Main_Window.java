@@ -24,7 +24,7 @@ public class Main_Window extends JFrame {
         panel11 = new JPanel(new FlowLayout(FlowLayout.CENTER));
         panel12 = new JPanel(new FlowLayout(FlowLayout.CENTER));
         button1 = new JButton("Tool JFlex/Cup");
-        button2 = new JButton("Compilatore");
+        button2 = new JButton("Interpreter");
         cuscinetto1 = new JPanel();
         cuscinetto2 = new JPanel();
         cuscinetto3 = new JPanel();

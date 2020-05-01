@@ -510,7 +510,7 @@ variable_declarator ::=
 	;
 variable_declarator_id ::=
 		simple_name:nome {: 
-                                   SymbolTable.addTb(nome.testo);
+                                   SymbolTable.addVariableToTable(nome.testo);
                                    
                                     if(checkFlag == true){                                                                                                                                                                                                         
                                         parser.report_error(Err_War,nome);
@@ -629,7 +629,7 @@ local_variable_declaration ::=
                                                           } 
 
                                                           VAR = Support.getVar(vard.testo);
-                                                          rec = SymbolTable.checkVScope(VAR);
+                                                          rec = SymbolTable.retrieveVariableInsideScope(VAR);
 
                                                           vard.tipo = CheckClass.checkTypeA(tipo.tipo,vard.tipo,vard.testo);
 
@@ -769,7 +769,7 @@ expression_statement ::=
         |       simple_name:simname punteggiatura{: 
                                                 if(sintErr == true){
                                                     String TR;
-                                                    SymbolTable.addTb(simname.testo);
+                                                    SymbolTable.addVariableToTable(simname.testo);
                                                     Record rec = SymbolTable.getCurrRec(simname.testo);
                                                                                                     
                                                     rec.setType(typeDeclErr);
@@ -1056,7 +1056,7 @@ primary_no_new_array ::=
 	|	array_access:arracc {: 
                                       String T = "";
                                       String D = arracc.testo.substring(0, arracc.testo.indexOf("["));
-                                      Record rec = SymbolTable.checkVScope(D);
+                                      Record rec = SymbolTable.retrieveVariableInsideScope(D);
 
                                       if(rec.getTabRegArr().containsKey(arracc.testo)){
                                          TRAD = (String) rec.getTabRegArr().get(arracc.testo);                                       
@@ -1125,7 +1125,7 @@ array_access ::=
                                                          String indice;
                                                          ArrayList listvalue = new ArrayList();
 
-                                                         Record rec = SymbolTable.checkVScope(nome.testo);
+                                                         Record rec = SymbolTable.retrieveVariableInsideScope(nome.testo);
 
                                                          if(checkFlag == true){ 
                                                                                                                                                                                                                                                                                          
@@ -1138,7 +1138,7 @@ array_access ::=
                                                               }
 
                                                               SymbolTable.getTable().put(nome.testo,new Record("INTEGER",listvalue,100,nome.testo,regRandom));
-                                                              rec = SymbolTable.checkVScope(nome.testo);
+                                                              rec = SymbolTable.retrieveVariableInsideScope(nome.testo);
                                                               countReg++;
                                                          }
    
@@ -1167,7 +1167,7 @@ array_access ::=
                                                                 I1 = Support.changeStrInt(espr.testo);
                                                                 I2 = Support.changeStrInt(rec.getValue().toString());                                                            
                                                             }else{
-                                                                recE = SymbolTable.checkVScope(espr.testo);                                                                    
+                                                                recE = SymbolTable.retrieveVariableInsideScope(espr.testo);                                                                    
                                                                 I1 = Support.changeStrInt(recE.getValue().toString());
                                                                 I2 = Support.changeStrInt(rec.getValue().toString());                                                                    
                                                             }                                            
@@ -1246,7 +1246,7 @@ array_access ::=
 postfix_expression ::=
 		primary:prim {: RESULT = prim; :}
 	|	name:nome {:  
-                             Record rec = SymbolTable.checkVScope(nome.testo);
+                             Record rec = SymbolTable.retrieveVariableInsideScope(nome.testo);
 
                              if(checkFlag == true){
                                                                                                                                                                                                                                   
@@ -1255,7 +1255,7 @@ postfix_expression ::=
 
                                 String regRandom = "$s"+countReg;                                
                                 SymbolTable.getTable().put(nome.testo,new Record("INTEGER",nome.testo,regRandom,0));
-                                rec = SymbolTable.checkVScope(nome.testo);
+                                rec = SymbolTable.retrieveVariableInsideScope(nome.testo);
                                 countReg++;
                              }
   
@@ -1652,7 +1652,7 @@ assignment ::=	left_hand_side:lhs EQ assignment_expression:assespr  {:
                                                                         String TR;
                                                                         String valueErr;
                                                                         if(sintErr == true){                                                                                                                                                          
-                                                                              Record rec = SymbolTable.checkVScope(lhs.testo);
+                                                                              Record rec = SymbolTable.retrieveVariableInsideScope(lhs.testo);
                                                                               rec.setValue(assespr.testo);
 
                                                                               lhs.tipo = CheckClass.checkTypeA(typeDeclErr,assespr.tipo,lhs.testo);
@@ -1686,7 +1686,7 @@ assignment ::=	left_hand_side:lhs EQ assignment_expression:assespr  {:
                                                                                                
                                                                          String var = lhs.testo.substring(0,lhs.testo.indexOf("["));
                                                                                                 
-                                                                         Record rec = SymbolTable.checkVScope(var); //ottengo l'indirzzo del record
+                                                                         Record rec = SymbolTable.retrieveVariableInsideScope(var); //ottengo l'indirzzo del record
 
                                                                          int n1 = lhs.testo.indexOf("[");  
                                                                          int n2 = lhs.testo.indexOf("]");
@@ -1726,7 +1726,7 @@ assignment ::=	left_hand_side:lhs EQ assignment_expression:assespr  {:
                                                                                   countRTemp++;              
                                                                                 }else if(assespr.genere.equals("VARIABILE")){ 
                  
-                                                                                  Record rec2 = SymbolTable.checkVScope(assespr.testo);
+                                                                                  Record rec2 = SymbolTable.retrieveVariableInsideScope(assespr.testo);
                                                                                   TRAD = STArr.replace("REGT",rec2.getRegister());  
                                                                                              
                                                                                 }else if(assespr.genere.equals("ARRAY_ACCESS")){
@@ -1819,7 +1819,7 @@ assignment ::=	left_hand_side:lhs EQ assignment_expression:assespr  {:
                                                                                                 
                                                                                         }else if(assespr.genere.equals("VARIABILE")){
                                                                                                      
-                                                                                            Record rec2 = SymbolTable.checkVScope(assespr.testo);
+                                                                                            Record rec2 = SymbolTable.retrieveVariableInsideScope(assespr.testo);
                                                                                             TRAD = lhs.testo.substring(0,l-2)+lhs.testo.substring(l-2,lhs.testo.length()).replace(UT,rec2.getRegister());
                                                                                                 
                                                                                         }else if(assespr.genere.equals("ARRAY_ACCESS")){
@@ -1861,7 +1861,7 @@ assignment ::=	left_hand_side:lhs EQ assignment_expression:assespr  {:
                                                                                 } 
                                                                               }
                                                                            }else{                                                                                                  
-                                                                                Record rec = SymbolTable.checkVScope(lhs.testo); //è per ottenere SOLO il record
+                                                                                Record rec = SymbolTable.retrieveVariableInsideScope(lhs.testo); //è per ottenere SOLO il record
                                                                        
                                                                                 if(rec.getModifier().equals("null")){
                                                                                                     
@@ -1902,7 +1902,7 @@ assignment ::=	left_hand_side:lhs EQ assignment_expression:assespr  {:
                              
                                                                                             }else if (assespr.genere.equals("VARIABILE")){
 
-                                                                                                Record rec2 = SymbolTable.checkVScope(assespr.testo);
+                                                                                                Record rec2 = SymbolTable.retrieveVariableInsideScope(assespr.testo);
                                                                                                 TRAD = Traduzione.OpEspr(3,rec.getType())+" "+rec.getRegister()+
                                                                                                                                 ", $zero"+", "+rec2.getRegister();
 
@@ -1964,9 +1964,9 @@ assignment ::=	left_hand_side:lhs EQ assignment_expression:assespr  {:
 left_hand_side ::=
 		name:nome {: 
                             if(sintErr == true){
-                                    SymbolTable.addTb(nome.testo);
+                                    SymbolTable.addVariableToTable(nome.testo);
                             }
-                            Record rec = SymbolTable.checkVScope(nome.testo); 
+                            Record rec = SymbolTable.retrieveVariableInsideScope(nome.testo); 
 
                             if(checkFlag == true){ 
                                 
@@ -1975,7 +1975,7 @@ left_hand_side ::=
                                 
                                 String regRandom = "$s"+countReg;                                
                                 SymbolTable.getTable().put(nome.testo,new Record("INTEGER",nome.testo,regRandom,0));
-                                rec = SymbolTable.checkVScope(nome.testo);
+                                rec = SymbolTable.retrieveVariableInsideScope(nome.testo);
                                 countReg++;
 
                             }
@@ -1997,7 +1997,7 @@ left_hand_side ::=
                                       }
                                       
                                       String D = arracc.testo.substring(0, arracc.testo.indexOf("["));
-                                      Record rec = SymbolTable.checkVScope(D);
+                                      Record rec = SymbolTable.retrieveVariableInsideScope(D);
 
                                       if(rec.getTabRegArr().containsKey(arracc.testo)){                                         
                                             STArr = T+" "+"REGT "+"0("+rec.getTabRegArr().get(arracc.testo)+")";                                       

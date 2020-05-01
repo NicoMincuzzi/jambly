@@ -4,10 +4,6 @@ import java.util.ArrayList;
 
 public class ProdParser {
 
-    private static String elem;
-    private static String dim;
-    private static int i;
-    private static ArrayList listvalue;
     private static Record rec;
 
     /*FUNZIONE PER LA GESTIONE DEI MODIFICATORII*/
@@ -18,11 +14,13 @@ public class ProdParser {
 
     /*FUNZIONE CHE GESTISCE LA DICHIARAZIONE DEGLI ARRAY*/
     public static void declArr(String vdi, String vi) {
-        listvalue = new ArrayList();
+        ArrayList listValue = new ArrayList();
 
         vdi = vdi.replace("[]", "");
         rec = SymbolTable.getCurrRec(vdi);
 
+        String elem;
+        int i;
         if (vi.contains("new")) {
             i = vi.lastIndexOf(",");
 
@@ -34,7 +32,7 @@ public class ProdParser {
                     elem = vi.substring(i + 1, vi.length());  //recupero valori numerici
                 }
 
-                listvalue.add(elem);
+                listValue.add(elem);
 
                 if (i != -1) {
                     vi = vi.substring(vi.indexOf("]") + 1, i);
@@ -43,7 +41,7 @@ public class ProdParser {
                     vi = "";
                 }
             }
-            rec.setList(listvalue);
+            rec.setList(listValue);
         } else {
             i = vi.lastIndexOf(",");
 
@@ -54,7 +52,7 @@ public class ProdParser {
                     elem = vi.substring(i + 1, vi.length());  //recupero valori numerici
                 }
 
-                listvalue.add(elem);
+                listValue.add(elem);
                 if (i != -1) {
                     vi = vi.substring(0, i);
                     i = vi.lastIndexOf(",");
@@ -62,8 +60,8 @@ public class ProdParser {
                     vi = "";
                 }
             }
-            rec.setValue(listvalue.size());
-            rec.setList(listvalue);
+            rec.setValue(listValue.size());
+            rec.setList(listValue);
         }
     }
 }

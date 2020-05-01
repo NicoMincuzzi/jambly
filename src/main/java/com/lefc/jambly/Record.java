@@ -92,12 +92,7 @@ public class Record {
 
         try {
             list.add(index, value);
-
-            if (index + 1 == list.size()) {
-                return false;
-            } else {
-                return true;
-            }
+            return index + 1 != list.size();
         } catch (Exception e) {
 
             if (index == 0) {
@@ -113,15 +108,8 @@ public class Record {
 
     }
 
-    public void setTabRegArr(String key, String value) {
-
-        TabArrTemp.put(key, value);
-
-    }
-
     /*COSTRUTTORI DELLA CLASSE RECORD*/
     public Record() {
-
     }
 
     public Record(String N) {
@@ -192,7 +180,7 @@ public class Record {
         System.out.println("Name   : " + name);
         System.out.println("Value  : " + value.toString());
 
-        if (FA == true) {
+        if (FA) {
             int i = 0;
             ListIterator it = list.listIterator(list.size());
 
@@ -202,5 +190,4 @@ public class Record {
             }
         }
     }
-
 }

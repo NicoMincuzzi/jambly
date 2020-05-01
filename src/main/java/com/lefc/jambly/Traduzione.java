@@ -4,7 +4,6 @@ import java.util.ListIterator;
 
 public class Traduzione {
 
-    private static boolean flagR = false;
     private static boolean flagL = false;
     private static String RegFP;
     private static String APP;
@@ -130,7 +129,7 @@ public class Traduzione {
 
         /*I SEGUENTI "IF-ELSE" ANNIDATI PERMETTONO DI TRATTARE TUTTE LE COMBINAZIONI POSSIBILI TRA VARIABILI, ARRAY E NUMERI*/
         if (multgen.equals("VARIABILE")) {
-            Record rec = SymbolTable.checkVScope(multesto);
+            Record rec = SymbolTable.retrieveVariableInsideScope(multesto);
 
             if (ungen.equals("NUMERO")) {
                 if (I == 3) {
@@ -625,7 +624,7 @@ public class Traduzione {
 
             /*I SEGUENTI "IF-ELSE" ANNIDATI PERMETTONO DI TRATTARE TUTTE LE COMBINAZIONI POSSIBILI TRA VARIABILI, ARRAY E NUMERI*/
             if (multgen.equals("VARIABILE")) {
-                Record rec = SymbolTable.checkVScope(multesto);
+                Record rec = SymbolTable.retrieveVariableInsideScope(multesto);
 
                 if (ungen.equals("NUMERO")) {
                     if (I == 3) {
@@ -787,7 +786,7 @@ public class Traduzione {
         Record rec;
 
         if (G_L.equals("VARIABILE")) {
-            rec = SymbolTable.checkVScope(T_L);
+            rec = SymbolTable.retrieveVariableInsideScope(T_L);
 
             TRAD = selGenBinR(G_R, G_L, "", T_R, rec.getRegister(), RTemp, I, Tp_R);
 
