@@ -163,14 +163,10 @@ parser code{:
                 buffer = new StringBuilder(message);
                 buffer.append("Output: \n");
                 cont_errori++;
-               try { 
                output = scan.text(line); 
                 
                 output.setMessage(message);
                  error.add(output);
-                }catch (IOException ex) {
-                        ex.printStackTrace();
-                   }
 
               }
 

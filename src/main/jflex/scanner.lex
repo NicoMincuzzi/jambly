@@ -1,6 +1,5 @@
 package com.lefc.jambly;
 
-import com.lefc.jambly.PrintText;
 import java_cup.runtime.*;
 import java.io.*;
 
@@ -57,20 +56,17 @@ import static com.lefc.jambly.sym.*;
      return zzBuffer;
    }
 
-   public PrintText text(int linea) throws IOException
-   {
-     PrintText pt=new PrintText();
-     pt.textAndLine(linea,zzBuffer);
-          
-     return pt;
+   public PrintText text(int linea){
+     PrintText printText=new PrintText();
+     printText.textAndLine(linea,zzBuffer);
+     return printText;
    }
      
-   public PrintText text() throws IOException 
-   {
-     PrintText pt=new PrintText();
-     pt.textAndLine(getCurrentPos(), getColumn(), getLine(),zzBuffer); //permette di ottenere il testo e il n di linea
+   public PrintText text() throws IOException {
+     PrintText printText=new PrintText();
+     printText.textAndLine(getCurrentPos(), getColumn(), getLine(),zzBuffer); //permette di ottenere il testo e il n di linea
          //1) posizione del buffer nel momento in cui viene sollevato l'errore, 2) colonna, 3) linea, 4) buffer 
-     return pt;
+     return printText;
    } 
  
 public int countBrace2=0;  
