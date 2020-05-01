@@ -19,11 +19,10 @@
             <artifactId>jflex</artifactId>
             <version>1.5.1</version>
         </dependency>
-
         <dependency>
             <groupId>com.github.vbmacher</groupId>
-            <artifactId>cup-maven-plugin</artifactId>
-            <version>1.0.1</version>
+            <artifactId>java-cup-runtime</artifactId>
+            <version>11b-20160615</version>
         </dependency>
     </dependencies>
     <build>
@@ -37,6 +36,23 @@
                 <target>${compiler.target}</target>
             </configuration>
         </plugin>
+        <!--<plugin>
+            <groupId>com.github.vbmacher</groupId>
+            <artifactId>cup-maven-plugin</artifactId>
+            <version>11b-20160615</version>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>generate</goal>
+                    </goals>
+                </execution>
+            </executions>
+            <configuration>
+                <outputDirectory>${project.build.directory}/generated-sources/cup</outputDirectory>
+                <className>parser</className>
+                <symbolsName>sym</symbolsName>
+            </configuration>
+        </plugin>-->
     </plugins>
     </build>
 </project>
