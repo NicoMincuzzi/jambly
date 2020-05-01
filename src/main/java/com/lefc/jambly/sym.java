@@ -4,7 +4,7 @@
 // Thu Sep 11 10:39:50 CEST 2014
 //----------------------------------------------------
 
-package compilatore;
+package com.lefc.jambly;
 
 /**
  * CUP generated class containing symbol constants.

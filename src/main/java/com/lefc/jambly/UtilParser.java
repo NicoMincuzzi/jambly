@@ -1,4 +1,4 @@
-package compilatore;
+package com.lefc.jambly;
 
 import java.util.HashMap;
 import java.util.ListIterator;

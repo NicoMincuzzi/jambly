@@ -1,4 +1,4 @@
-package compilatore;
+package com.lefc.jambly;
 
 import java.io.FileWriter;
 import java.io.IOException;

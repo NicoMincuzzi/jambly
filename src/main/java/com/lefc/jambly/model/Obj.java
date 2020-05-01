@@ -1,4 +1,4 @@
-package compilatore;
+package com.lefc.jambly.model;
 
 public class Obj {
     public String testo;

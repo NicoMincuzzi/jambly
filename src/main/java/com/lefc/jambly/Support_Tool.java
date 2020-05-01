@@ -1,4 +1,4 @@
-package compilatore;
+package com.lefc.jambly;
 
 import javax.swing.*;
 import java.awt.*;

@@ -4,10 +4,12 @@
 // Thu Sep 11 10:39:50 CEST 2014
 //----------------------------------------------------
 
-package compilatore;
+package com.lefc.jambly;
 
 import java.io.*;
 import java.util.*;
+
+import com.lefc.jambly.model.Obj;
 import java_cup.runtime.Symbol;
 
 /** CUP v0.10k generated parser.
@@ -3746,7 +3748,7 @@ public void structProg(int levP, boolean flag, String trad) throws IOException{
 		int blstatmsoright = ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-1)).right;
 		Obj blstatmso = (Obj)((java_cup.runtime.Symbol) CUP$parser$stack.elementAt(CUP$parser$top-1)).value;
 		 RESULT = blstatmso;
-                                                                                       UtilParser.delScope(); 
+                                                                                       UtilParser.delScope();
                                                                                      
               CUP$parser$result = new java_cup.runtime.Symbol(35/*block*/, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-3)).left, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-0)).right, RESULT);
             }

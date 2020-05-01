@@ -1,10 +1,10 @@
-package newversionproj;
+package compilatore;
 
 import java_cup.runtime.*;
 import java.io.*;
 
-import newversionproj.sym;
-import static newversionproj.sym.*;
+import sym;
+import static sym.*;
 
 %%
 
@@ -19,284 +19,83 @@ import static newversionproj.sym.*;
 %final
 // %abstract
 
-%cupsym newversionproj.sym
+%cupsym sym
 %cup
 %cupdebug
 
-%init{
-	// TODO: code that goes to constructor
-%init}
 
 %{
+   StringBuilder string = new StringBuilder();
+ 
+   private Symbol sym(int type)
+   {
+     return sym(type, yytext());
+   }
 
-StringBuilder string = new StringBuilder();
+   private Symbol sym(int type, Object value)
+   {
+     return new Symbol(type, yyline, yycolumn, value);
+   }
 
-	private Symbol sym(int type)
-	{
-		return sym(type, yytext());
-	}
+   public int getLine()
+   {
+     return yyline+1;
+   }
+   
+   public int getCurrentPos()
+   {
+      return zzCurrentPos;
+   }
+   
+   public int getColumn()
+   {
+     return yycolumn;
+   }
 
-	private Symbol sym(int type, Object value)
-	{
-		return new Symbol(type, yyline, yycolumn, value);
-	}
+   public char[] getBuffer()
+   {
+     return zzBuffer;
+   }
 
-public int getLine()
-      {
-          return yyline+1;
-      
-
-      }
-     public int getCurrentPos()
-     {
-         return zzCurrentPos;
-      }
-     public int getColumn()
-    {
-         return yycolumn;
-
-     }
-    public int getStart()
-    {
-            return zzStartRead;
-    }
-    public int getMarked()
-    {
-            return zzMarkedPos;
-    }
+   public PrintText text(int linea) throws IOException
+   {
+     PrintText pt=new PrintText();
+     pt.textAndLine(linea,zzBuffer);
+          
+     return pt;
+   }
      
-      public int findLine(int currPos, int currLine, int column)
-     {
-           int start=currPos-(column+1);
-           int end=currPos-1;
-           int riga=currLine;
-           int f_line=0;
-           int cont=1;
-           boolean firstLine=false;
-         
-           int spazz=0;
-           
-                //System.out.println("stampa linea: "+riga);
-            
-                 while(cont<riga && firstLine==false)
-                     {
-                      while(zzBuffer[f_line]=='\n' || zzBuffer[f_line]=='\r' ||
-                           zzBuffer[f_line]=='\t' || zzBuffer[f_line]==' ')
-                           {
-                                if(zzBuffer[f_line]=='\n')
-                                 cont++;
-                              f_line++;
-                            }
-                       firstLine=true;
+   public PrintText text() throws IOException 
+   {
+     PrintText pt=new PrintText();
+     pt.textAndLine(getCurrentPos(), getColumn(), getLine(),zzBuffer); //permette di ottenere il testo e il n di linea
+         //1) posizione del buffer nel momento in cui viene sollevato l'errore, 2) colonna, 3) linea, 4) buffer 
+     return pt;
+   } 
+ 
+public int countBrace2=0;  
+public int pos_par_open=0;  //posizione dell'ultima parentesi graffa aperta
+public int pos_par_close=0;  //posizione dell'ultima parentesi graffa chiusa
+public int pos_vir=0;        //posizione dell'ultimo ";"
+public int get_brace()
+{
+  return countBrace2;
+}
+public int get_open_par()
+{
+   return pos_par_open;
+}
+public int get_close_par()
+{
+    return pos_par_close;
 
-                   }
-                
-               
-                if(cont==riga)
-                 {
-                      return cont;                            
-                                        
-                       
-                     }
-               
-                  else
-                  {
-                
-                        while(zzBuffer[start]!=zzBuffer[end] && (zzBuffer[end]==' ' || zzBuffer[end]=='\t'))
-                       end--;
-                     if(zzBuffer[end]==zzBuffer[start])
-                     {
-                        spazz--;
-                        start--;
-                          while(zzBuffer[start]=='\n' || zzBuffer[start]=='\r' ||
-                           zzBuffer[start]=='\t' || zzBuffer[start]==' ')
-                          {
-                              if(zzBuffer[start]=='\n')
-                               spazz--;
-                              start--;
-                           }
-                          return riga+spazz;
-               
-                     }
-                    
+}
+public int getPos_vir()
+{
 
-                    else{
-                          return riga;
-                         }
-            }
-          
-         
-       }
-       
-
-       public boolean checkBrack()throws FileNotFoundException
-       {
-             UtilScanner util=new UtilScanner();
-             util.getUtil();
-             
-             int start=0;
-             int end=util.getPos();
-             
-             
-             boolean flag=true;
-             
-            int i;
-           
-         
-           while(start<=end)
-           {
-              
-               switch(zzBuffer[start])
-               {
-                case '{': 
-                          UtilParser.addBr();
-                          start++;
-                          break;
-                case '}':
-                         UtilParser.decrBr();
-                         start++;
-                         break;
-                
-                default: 
-                         start++;
-                         break;
-                }
-
-            }
-          if(UtilParser.getcountBrace2()!=0)
-           {
-               
-               
-                                  
-                    if(UtilParser.getcountBrace2()>0)
-                   {
-                    System.out.println("numero di parentesi mancanti: " +UtilParser.getcountBrace2());
-                    System.out.println("Ultima parentesi riga num:\n"+util.getLine());
-                    return true;
-                   }
-                
-                  else{
-                   System.out.println("numero di parentesi  superflue: " +(-UtilParser.getcountBrace2()));
-                   System.out.println("Ultima parentesi riga num:\n"+util.getLine());
-                    return true;
-                    }
-               }
-               else
-                {
-                 return false;    
-                }
-            
-        
-       }
-       public String text()
-        {
-          
-         int start=zzCurrentPos-(yycolumn+1);
-         
-         int end=zzCurrentPos-1;
-         int f_line=0; 
-         int line=getLine(); 
-         int cont=1;
-         
-          
-         StringBuffer load=new StringBuffer("");
-         String wrongStr="";
-         boolean flag=false;
-         boolean firstLine=false;
-
-        
-        try{   
-        flag=checkBrack();
-        }catch(FileNotFoundException f)
-        {
-            System.out.println("errore controllo parentesi");
-         }
-         if(flag)
-         {
-              String s = "parentesi";
-              return s;
-         }
-            else
-            {
-              
-                while(cont<line && firstLine==false)
-                {
-                      while(zzBuffer[f_line]=='\n' || zzBuffer[f_line]=='\r' ||
-                           zzBuffer[f_line]=='\t' || zzBuffer[f_line]==' ')
-                           {
-                                if(zzBuffer[f_line]=='\n')
-                                 cont++;
-                              f_line++;
-                            }
-                       firstLine=true;
-
-                }
-
-                if(cont==line)
-                 {
-                  
-                            
-                                        
-                       while(zzBuffer[f_line]!='\n')
-                      {
-                          
-                        load.append(zzBuffer[f_line]);
-                        f_line++;
-
-                       }
-                   
-                     }
-               
-                  else
-                  {
-                      
-                     
-                    
-                     while(zzBuffer[start]!=zzBuffer[end] && (zzBuffer[end]==' ' || zzBuffer[end]=='\t'))
-                       end--;
-                     if(zzBuffer[end]==zzBuffer[start])
-                     {
-                        start--;
-                          while(zzBuffer[start]=='\n' || zzBuffer[start]=='\r' ||
-                           zzBuffer[start]=='\t' || zzBuffer[start]==' ')
-                           start--;
-             
-                        load.append(zzBuffer[start]);
-                        while(zzBuffer[start]!='\n' && start!=0)
-                        {
-                           start--;
-                           load.append(zzBuffer[start]);
-                        }           
-                        load.reverse();
-               
-                     }
-                    
-
-                    else{
-                          start++;
-                         while(zzBuffer[start]=='\n' || zzBuffer[start]=='\r' ||
-                           zzBuffer[start]=='\t' || zzBuffer[start]==' ')
-                           start++;
-                          while(zzBuffer[start]!='\n')
-                          { 
-                               load.append(zzBuffer[start]);
-                               start++;
-
-                           }
-                         }
-
-                  }
-           
-           wrongStr=load.toString();
-           wrongStr=wrongStr.trim();
-           wrongStr=wrongStr.replaceAll("\n","");
-          
-           return wrongStr;
-          }
-  
-       }
-    
-  
+  return pos_vir;
+}  
+ 
 %}
 
 LineTerminator = \r|\n|\r\n
@@ -387,11 +186,18 @@ SingleCharacter = [^\r\n\'\\]              //qualsiasi carattere escluso \r o \n
   /* separatori */
   "("                            { return sym(TONDA_APERTA); }
   ")"                            { return sym(TONDA_CHIUSA); }
-  "{"                            { return sym(LBRACE); }
-  "}"                            { return sym(RBRACE); }
+  "{"                            { countBrace2++;
+                                  
+                                  pos_par_open=yyline+1;
+                                  
+                                    return sym(LBRACE); }
+  "}"                            { countBrace2--;  
+                                                                     
+                                     pos_par_close=yyline+1; 
+                                    return sym(RBRACE); }
   "["                            { return sym(LBRACK); }
   "]"                            { return sym(RBRACK); }
-  ";"                            { return sym(PUNTO_E_VIRGOLA); }
+  ";"                            { pos_vir=yyline+1; return sym(PUNTO_E_VIRGOLA); }
   ","                            { return sym(VIRGOLA); }
   "."                            { return sym(PUNTO); }
   
@@ -399,7 +205,6 @@ SingleCharacter = [^\r\n\'\\]              //qualsiasi carattere escluso \r o \n
   "="                            { return sym(EQ); }
   ">"                            { return sym(GT); }
   "<"                            { return sym(LT); }
-  "!"                            { return sym(NOT); }
   "=="                           { return sym(EQEQ); }
   "<="                           { return sym(LTEQ); }
   ">="                           { return sym(GTEQ); }
@@ -414,8 +219,6 @@ SingleCharacter = [^\r\n\'\\]              //qualsiasi carattere escluso \r o \n
   "/"                            { return sym(DIVISO); }
     
   
-
-
  /* simbolo che identifica l'inizio di una stringa  */
   \"                             { yybegin(STRING); string.setLength(0); }       //si passa nello stato STRING
 
