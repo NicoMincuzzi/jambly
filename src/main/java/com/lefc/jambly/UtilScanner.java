@@ -1,5 +1,7 @@
 package com.lefc.jambly;
 
+import java_cup.runtime.Symbol;
+
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -30,14 +32,13 @@ public class UtilScanner {
     }
 
     public void getUtil() throws FileNotFoundException {
-        FileReader fr2 = new FileReader(Compilatore.getPath());
-        ExprLex scanner = new ExprLex(fr2);
+        FileReader fileReader = new FileReader(Compilatore.getPath());
+        Scanner scanner = new Scanner(fileReader);
 
-        java_cup.runtime.Symbol t;
-        java_cup.runtime.Symbol end = new java_cup.runtime.Symbol(sym.EOF);
+        Symbol t;
+        Symbol end = new Symbol(sym.EOF);
 
         boolean flag = true;
-        int pos = 0;
         try {
             while ((t = scanner.next_token()) != null && flag == true) {
                 if (t.toString().compareTo(end.toString()) != 0) {

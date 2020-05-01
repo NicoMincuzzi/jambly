@@ -994,7 +994,7 @@ public class parser extends java_cup.runtime.lr_parser {
              public ArrayList<PrintText> error= new ArrayList <PrintText>();
              int cont_errori=0;
              boolean fatal=false;
-             ExprLex scan= (ExprLex)this.getScanner();
+             Scanner scan= (Scanner)this.getScanner();
             
              
            
@@ -1072,7 +1072,7 @@ public class parser extends java_cup.runtime.lr_parser {
          }
              public int returnLine()
              {
-                return ((ExprLex)this.getScanner()).getLine();
+                return ((Scanner)this.getScanner()).getLine();
              }
               
 

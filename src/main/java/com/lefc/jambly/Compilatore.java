@@ -232,8 +232,8 @@ public class Compilatore extends JFrame {
     private void runCompil() throws FileNotFoundException {
         FileReader fr = new FileReader(Path);
 
-        ExprLex el = new ExprLex(fr);
-        parser p = new parser(el);
+        Scanner scanner = new Scanner(fr);
+        parser p = new parser(scanner);
         try {
             p.parse();
             p.calcola_par(); //per un errore sulle parentesi

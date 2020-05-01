@@ -74,7 +74,7 @@ parser code{:
              public ArrayList<PrintText> error= new ArrayList <PrintText>(); //lista di errori con accesso casuale
              int cont_errori=0;  //contatore errori
              boolean fatal=false;  //per un fatal error
-             ExprLex scan = (ExprLex)this.getScanner();  //ottengo lo scanner che stà utilizzando il parser, per usare
+             Scanner scan = (Scanner)this.getScanner();  //ottengo lo scanner che stà utilizzando il parser, per usare
                                                         // alcune funzioni del primo                            
             
              
@@ -153,7 +153,7 @@ parser code{:
          }
              public int returnLine()
              {
-                return ((ExprLex)this.getScanner()).getLine();
+                return ((Scanner)this.getScanner()).getLine();
              }
               
 //tutti i metodi successivi si appoggiano alla seconda report_error passando il mess e il tipo di ogg

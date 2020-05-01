@@ -8,7 +8,7 @@ public class PrintText implements Comparable<PrintText> {
     private String s; //stringa errata
     private int pos;
 
-    PrintText() {
+    public PrintText() {
         message = "";
         s = "";
         pos = -1;
