@@ -4,17 +4,15 @@ import java.util.ListIterator;
 
 public class CheckClass {
 
-    private static ListIterator<String> it;
-    private static String m1;
-    private static String m2;
     private static String str;
 
     /*METODO PER IL CONTROLLO SUI MODIFICATORI*/
     public static void checkMod() {
-        it = Support.getArrList().listIterator();
+        ListIterator<String> it = Support.getArrList().listIterator();
 
         if (Support.getArrList().size() <= 3 && Support.getArrList().size() > 0) {
-            m1 = it.next();
+            String m1 = it.next();
+            String m2;
             while (it.hasNext()) {
                 m2 = it.next();
                 if (m1.equals(m2) || m1.equals("public") && m2.equals("private") ||

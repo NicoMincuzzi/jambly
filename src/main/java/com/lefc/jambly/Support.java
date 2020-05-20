@@ -3,44 +3,45 @@ package com.lefc.jambly;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Support {
-    private static ArrayList<String> listMod;
-    private static int I;
-    private static String str;
+    private static List<String> listMod;
     private static int numErr;
 
-    public static ArrayList getArrList() {
+    public static List<String> getArrList() {
         return listMod;
     }
 
     public static int changeStrInt(String expression) {
+        int i = 0;
         try {
-            Integer it = new Integer(expression);
-            I = it.intValue();
+            i = new Integer(expression);
         } catch (Exception e) {
             System.out.println("Cannot convert string to int. " + e);
         }
-        return I;
+        return i;
     }
 
     /*Funzione che permette di dividere parole separate da spazi*/
     public static void sepWordWS(String s) {
-        I = 0;
+        int i = 0;
         listMod = new ArrayList<>();
-        while (I != -1) {
-            I = s.lastIndexOf(" ");
-            str = s.substring(I + 1, s.length());
+        String str;
+        while (i != -1) {
+            i = s.lastIndexOf(" ");
+            str = s.substring(i + 1, s.length());
             listMod.add(str);
-
-            if (I != -1) {
-                s = s.substring(0, I);
+            if (i != -1) {
+                s = s.substring(0, i);
             }
         }
     }
 
 
     public static String getVar(String varad) {
+        String str;
+
         if (varad.contains("[]")) {
             str = varad.substring(0, varad.indexOf("[]"));
         } else {
@@ -50,21 +51,20 @@ public class Support {
     }
 
     public static String calcOffset(String espr, String tipo) {
-        I = 0;
+        int i = 0;
         switch (tipo) {
             case "INTEGER":
-                I = changeStrInt(espr) * 4;
+                i = changeStrInt(espr) * 4;
                 break;
             case "DOUBLE":
-                I = changeStrInt(espr) * 8;
+                i = changeStrInt(espr) * 8;
                 break;
             default:
                 System.out.println("ERROR: tipo non supportato!");
                 break;
         }
 
-        str = String.valueOf(I);
-        return str;
+        return String.valueOf(i);
     }
 
     public static void writeFile(boolean flag, String TRAD) throws IOException {
@@ -84,8 +84,8 @@ public class Support {
         file.flush();
     }
 
-    public static void countExit(int cont_errori) {
-        numErr = cont_errori;
+    public static void countExit(int errorCount) {
+        numErr = errorCount;
     }
 
     public static int getnumErr() {

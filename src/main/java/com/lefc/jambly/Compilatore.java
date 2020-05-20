@@ -3,6 +3,7 @@ package com.lefc.jambly;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
+import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,8 +21,8 @@ public class Compilatore extends JFrame {
     private JPanel pan101;
     private JPanel pan11;
     private JPanel pan12;
-    private JButton button1;
-    private JButton button2;
+    private JButton browseButton;
+    private JButton runButton;
     private JTextField textField;
     private JPanel pan31;
     private JPanel pan311;
@@ -30,8 +31,8 @@ public class Compilatore extends JFrame {
     private JScrollPane ScrollPan1;
     private JTextArea AreaTxt2;
     private JScrollPane ScrollPan2;
-    private JLabel label1;
-    private JLabel label2;
+    private JLabel sourceCodeLabel;
+    private JLabel outputLabel;
     private JPanel cuscinetto;
 
     public static String getPath() {
@@ -55,8 +56,8 @@ public class Compilatore extends JFrame {
         pan101 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         pan11 = new JPanel(new GridLayout(1, 1));
         pan12 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        button1 = new JButton("Browse...");
-        button2 = new JButton("Analizza/Traduci");
+        browseButton = new JButton("Browse...");
+        runButton = new JButton("Analizza/Traduci");
         textField = new JTextField();
         pan31 = new JPanel(new BorderLayout());
         pan311 = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -65,8 +66,8 @@ public class Compilatore extends JFrame {
         ScrollPan1 = new JScrollPane(AreaTxt1);
         AreaTxt2 = new JTextArea();
         ScrollPan2 = new JScrollPane(AreaTxt2);
-        label1 = new JLabel("  Codice sorgente:");
-        label2 = new JLabel("Errori/Codice Target:");
+        sourceCodeLabel = new JLabel("  Codice sorgente:");
+        outputLabel = new JLabel("Errori/Codice Target:");
         cuscinetto = new JPanel(new FlowLayout());
 
         Container cont = this.getContentPane();
@@ -76,10 +77,10 @@ public class Compilatore extends JFrame {
         cont.add(pan2, BorderLayout.CENTER);
         cont.add(pan3, BorderLayout.SOUTH);
 
-        button1.setPreferredSize(new Dimension(110, 30));
+        browseButton.setPreferredSize(new Dimension(110, 30));
         textField.setPreferredSize(new Dimension(650, 30));
 
-        button2.setEnabled(false);
+        runButton.setEnabled(false);
 
         pan1.add(pan11, BorderLayout.EAST);
         pan1.setPreferredSize(new Dimension(900, 40));
@@ -90,21 +91,21 @@ public class Compilatore extends JFrame {
 
         pan11.add(pan12);
         pan12.setPreferredSize(new Dimension(150, 80));
-        pan12.add(button1);
+        pan12.add(browseButton);
 
-        button1.setPreferredSize(new Dimension(110, 30));
+        browseButton.setPreferredSize(new Dimension(110, 30));
 
-        button1.addActionListener(new java.awt.event.ActionListener() {
+        browseButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    but1ActionPerformed(evt);
+                    browseButtonActionPerformed(evt);
                 } catch (IOException ex) {
                     Logger.getLogger(Compilatore.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         });
 
-        button2.addActionListener(new java.awt.event.ActionListener() {
+        runButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
                     but2ActionPerformed(evt);
@@ -116,16 +117,16 @@ public class Compilatore extends JFrame {
 
         pan2.setPreferredSize(new Dimension(900, 110));
         pan2.add(pan21, BorderLayout.NORTH);
-        pan21.add(button2);
-        button2.setPreferredSize(new Dimension(150, 30));
+        pan21.add(runButton);
+        runButton.setPreferredSize(new Dimension(150, 30));
 
         pan2.add(cuscinetto, BorderLayout.CENTER);
         cuscinetto.setPreferredSize(new Dimension(150, 10));
         pan2.add(pan22, BorderLayout.SOUTH);
         pan22.add(pan22L);
         pan22.add(pan22R);
-        pan22L.add(label1);
-        pan22R.add(label2);
+        pan22L.add(sourceCodeLabel);
+        pan22R.add(outputLabel);
 
         pan3.setPreferredSize(new Dimension(900, 450));
         pan3.add(pan31);
@@ -187,22 +188,22 @@ public class Compilatore extends JFrame {
         }
     }
 
-    private void but1ActionPerformed(java.awt.event.ActionEvent evt) throws IOException {
-        JFileChooser fchooser = new JFileChooser("/home/nicola/Nicola/Progetti-Esercitazioni/Java/Compilatore/CasiTest");
-        fchooser.showOpenDialog(null);
+    private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) throws IOException {
+        JFileChooser jFileChooser = new JFileChooser(Paths.get("./src/main/resources/assembly_files/").toAbsolutePath().toString());
+        jFileChooser.showOpenDialog(null);
 
-        File f = fchooser.getSelectedFile();
+        File f = jFileChooser.getSelectedFile();
         Path = f.getAbsolutePath();
         textField.setText(Path);
         AreaTxt1.setText("");
 
         readFile(Path, 1);
-        button2.setEnabled(true);
+        runButton.setEnabled(true);
     }
 
     private void but2ActionPerformed(java.awt.event.ActionEvent evt) throws IOException {
         AreaTxt2.setText("");
-        runCompil();
+        runInterpreter();
 
         if (!CUP$parser$actions.FlagSyn && Support.getnumErr() < 5) {
             if (new File("FileErr.txt").exists()) {
@@ -223,11 +224,11 @@ public class Compilatore extends JFrame {
         f = new File("FileErr.txt");
         f.delete();
 
-        button1.setEnabled(false);
-        button2.setEnabled(false);
+        browseButton.setEnabled(false);
+        runButton.setEnabled(false);
     }
 
-    private void runCompil() throws FileNotFoundException {
+    private void runInterpreter() throws FileNotFoundException {
         FileReader fr = new FileReader(Path);
 
         Scanner scanner = new Scanner(fr);
