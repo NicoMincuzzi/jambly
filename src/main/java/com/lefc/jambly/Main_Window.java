@@ -68,7 +68,7 @@ public class Main_Window extends JFrame {
 
         button2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button2ActionPerformed(evt);
+                interpreterButtonActionPerformed(evt);
             }
         });
 
@@ -84,11 +84,13 @@ public class Main_Window extends JFrame {
     }
 
     private void button1ActionPerformed(java.awt.event.ActionEvent evt) {
-        Support_Tool ST = new Support_Tool();
+        Support_Tool supportTool = new Support_Tool();
+        supportTool.runLexerParserWindow();
     }
 
-    private void button2ActionPerformed(java.awt.event.ActionEvent evt) {
+    private void interpreterButtonActionPerformed(java.awt.event.ActionEvent evt) {
         Compilatore compiler = new Compilatore();
+        compiler.runMainWindow();
     }
 
     public static void main(String[] args) {

@@ -10,30 +10,11 @@ import java.util.logging.Logger;
 public class Compilatore extends JFrame {
     private static String Path;
 
-    private JPanel pan1;
-    private JPanel pan2;
-    private JPanel pan21;
-    private JPanel pan22;
-    private JPanel pan22L;
-    private JPanel pan22R;
-    private JPanel pan3;
-    private JPanel pan10;
-    private JPanel pan101;
-    private JPanel pan11;
-    private JPanel pan12;
     private JButton browseButton;
     private JButton runButton;
     private JTextField textField;
-    private JPanel pan31;
-    private JPanel pan311;
-    private JPanel pan312;
     private JTextArea AreaTxt1;
-    private JScrollPane ScrollPan1;
     private JTextArea AreaTxt2;
-    private JScrollPane ScrollPan2;
-    private JLabel sourceCodeLabel;
-    private JLabel outputLabel;
-    private JPanel cuscinetto;
 
     public static String getPath() {
         return Path;
@@ -41,34 +22,33 @@ public class Compilatore extends JFrame {
 
     public Compilatore() {
         super("Java-Assembly Interpreter");
-        initComponent();
     }
 
-    private void initComponent() {
-        pan1 = new JPanel(new BorderLayout());
-        pan2 = new JPanel(new BorderLayout());
-        pan21 = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        pan22 = new JPanel(new GridLayout(1, 2));
-        pan22L = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        pan22R = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        pan3 = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        pan10 = new JPanel(new GridLayout(1, 1));
-        pan101 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        pan11 = new JPanel(new GridLayout(1, 1));
-        pan12 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+    public void runMainWindow() {
+        JPanel pan1 = new JPanel(new BorderLayout());
+        JPanel pan2 = new JPanel(new BorderLayout());
+        JPanel pan21 = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JPanel pan22 = new JPanel(new GridLayout(1, 2));
+        JPanel pan22L = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel pan22R = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel pan3 = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JPanel pan10 = new JPanel(new GridLayout(1, 1));
+        JPanel pan101 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel pan11 = new JPanel(new GridLayout(1, 1));
+        JPanel pan12 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         browseButton = new JButton("Browse...");
-        runButton = new JButton("Analizza/Traduci");
+        runButton = new JButton("Run Interpreter");
         textField = new JTextField();
-        pan31 = new JPanel(new BorderLayout());
-        pan311 = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        pan312 = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JPanel pan31 = new JPanel(new BorderLayout());
+        JPanel pan311 = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JPanel pan312 = new JPanel(new FlowLayout(FlowLayout.CENTER));
         AreaTxt1 = new JTextArea();
-        ScrollPan1 = new JScrollPane(AreaTxt1);
+        JScrollPane scrollPan1 = new JScrollPane(AreaTxt1);
         AreaTxt2 = new JTextArea();
-        ScrollPan2 = new JScrollPane(AreaTxt2);
-        sourceCodeLabel = new JLabel("  Codice sorgente:");
-        outputLabel = new JLabel("Errori/Codice Target:");
-        cuscinetto = new JPanel(new FlowLayout());
+        JScrollPane scrollPan2 = new JScrollPane(AreaTxt2);
+        JLabel sourceCodeLabel = new JLabel("  Source Code:");
+        JLabel outputLabel = new JLabel("Errori/Codice Target:");
+        JPanel cuscinetto = new JPanel(new FlowLayout());
 
         Container cont = this.getContentPane();
         cont.setLayout(new BorderLayout());
@@ -134,9 +114,9 @@ public class Compilatore extends JFrame {
         pan31.add(pan311, BorderLayout.CENTER);
         pan311.setPreferredSize(new Dimension(440, 435));
 
-        ScrollPan1.setPreferredSize(new Dimension(430, 425));
-        ScrollPan1.setBounds(3, 3, 300, 200);
-        pan311.add(ScrollPan1);
+        scrollPan1.setPreferredSize(new Dimension(430, 425));
+        scrollPan1.setBounds(3, 3, 300, 200);
+        pan311.add(scrollPan1);
 
         AreaTxt1.setText("");
         AreaTxt1.setLineWrap(true); //limita il testo al riquadro
@@ -146,9 +126,9 @@ public class Compilatore extends JFrame {
         pan31.add(pan312, BorderLayout.EAST);
         pan312.setPreferredSize(new Dimension(440, 435));
 
-        ScrollPan2.setPreferredSize(new Dimension(430, 425));
-        ScrollPan2.setBounds(3, 3, 300, 200);
-        pan312.add(ScrollPan2);
+        scrollPan2.setPreferredSize(new Dimension(430, 425));
+        scrollPan2.setBounds(3, 3, 300, 200);
+        pan312.add(scrollPan2);
 
         AreaTxt2.setText("");
         AreaTxt2.setLineWrap(true); //limita il testo al riquadro
