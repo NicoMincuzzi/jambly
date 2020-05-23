@@ -1,6 +1,7 @@
-package compilatore;
+package com.lefc.jambly;
 import java.io.*;
 import java.util.*;
+import com.lefc.jambly.model.Obj;
 import java_cup.runtime.Symbol;
 
 action code{:
@@ -9,7 +10,6 @@ String ArrActTStore = "";
 String ArrActTemp = "";
 String TRAD = "";
 String STArr = "";
-static String RegFP;
 boolean flagP1 = true;
 boolean flagP2 = true;
 static boolean flagWarn = false;
@@ -427,8 +427,10 @@ type_declaration ::= class_declaration
 modifiers_opt::=
           {: RESULT = new Obj(""); :} 
 	|	modifiers:mod_opt {:  
-                                   ProdParser.mods(mod_opt.testo);  
-                                    
+                                    ProdParser prodParser = new ProdParser();
+                                    prodParser.modifierHandler(mod_opt.testo);
+                                    prodParser.modifierHandler(mod_opt.testo);
+
                                     if(checkFlag == true){ 
                                        flagWarn = true;                                      
                                        parser.report_error(Err_War, mod_opt);  

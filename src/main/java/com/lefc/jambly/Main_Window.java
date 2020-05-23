@@ -16,10 +16,10 @@ public class Main_Window extends JFrame {
 
     public Main_Window() {
         super("Jambly");
-        initComponent();
+        runMainWindow();
     }
 
-    private void initComponent() {
+    private void runMainWindow() {
         panel1 = new JPanel(new GridLayout(2, 2));
         panel11 = new JPanel(new FlowLayout(FlowLayout.CENTER));
         panel12 = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -84,7 +84,7 @@ public class Main_Window extends JFrame {
     }
 
     private void button1ActionPerformed(java.awt.event.ActionEvent evt) {
-        Support_Tool supportTool = new Support_Tool();
+        SupportTool supportTool = new SupportTool();
         supportTool.runLexerParserWindow();
     }
 

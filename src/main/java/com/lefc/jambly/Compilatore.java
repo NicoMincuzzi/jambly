@@ -16,10 +16,6 @@ public class Compilatore extends JFrame {
     private JTextArea AreaTxt1;
     private JTextArea AreaTxt2;
 
-    public static String getPath() {
-        return Path;
-    }
-
     public Compilatore() {
         super("Java-Assembly Interpreter");
     }
@@ -184,7 +180,6 @@ public class Compilatore extends JFrame {
     private void but2ActionPerformed(java.awt.event.ActionEvent evt) throws IOException {
         AreaTxt2.setText("");
         runInterpreter();
-
         if (!CUP$parser$actions.FlagSyn && Support.getnumErr() < 5) {
             if (new File("FileErr.txt").exists()) {
                 readFile("FileErr.txt", 2);

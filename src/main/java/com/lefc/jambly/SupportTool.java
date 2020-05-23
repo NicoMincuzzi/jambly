@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Support_Tool extends JFrame {
+public class SupportTool extends JFrame {
 
     private JTextField textField1;
     private JTextField textField2;
@@ -15,7 +15,7 @@ public class Support_Tool extends JFrame {
     private String path1;
     private String path2;
 
-    public Support_Tool() {
+    public SupportTool() {
         super("Run Scanner/Parsing");
     }
 
@@ -148,7 +148,7 @@ public class Support_Tool extends JFrame {
                 try {
                     button4ActionPerformed(evt);
                 } catch (IOException ex) {
-                    Logger.getLogger(Support_Tool.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(SupportTool.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         });

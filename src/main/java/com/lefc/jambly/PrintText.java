@@ -16,15 +16,12 @@ public class PrintText implements Comparable<PrintText> {
     @Override
     public int compareTo(PrintText o) //ordinamento della lista degli errori
     {
-        if (this.getPos() < o.getPos()) //confronto tra ogg chiamante e l'ogg passato
-        {
+        //confronto tra ogg chiamante e l'ogg passato
+        if (this.getPos() < o.getPos()) {
             return -1;              //ordinamento in base al n di riga in modo
         } else                    // da averli come nel source
         {
-            if (this.getPos() == o.getPos())
-                return 0;
-            else
-                return 1;
+            return (this.getPos() == o.getPos()) ? 0 : 1;
         }
     }
 

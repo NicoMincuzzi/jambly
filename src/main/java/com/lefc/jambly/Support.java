@@ -41,7 +41,6 @@ public class Support {
 
     public static String getVar(String varad) {
         String str;
-
         if (varad.contains("[]")) {
             str = varad.substring(0, varad.indexOf("[]"));
         } else {

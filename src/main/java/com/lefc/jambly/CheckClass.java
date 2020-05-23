@@ -4,13 +4,13 @@ import java.util.ListIterator;
 
 public class CheckClass {
 
-    private static String str;
+    public static final int MAX_MODIFIERS_NUMBER = 3;
+    public static final int MIN_MODIFIERS_NUMBER = 0;
 
-    /*METODO PER IL CONTROLLO SUI MODIFICATORI*/
-    public static void checkMod() {
+    public void checkModifiers() {
         ListIterator<String> it = Support.getArrList().listIterator();
 
-        if (Support.getArrList().size() <= 3 && Support.getArrList().size() > 0) {
+        if (Support.getArrList().size() <= MAX_MODIFIERS_NUMBER && Support.getArrList().size() > MIN_MODIFIERS_NUMBER) {
             String m1 = it.next();
             String m2;
             while (it.hasNext()) {
@@ -41,6 +41,7 @@ public class CheckClass {
 
     /*METODO PER IL CONTROLLO DEL TIPO NELLE ESPRESSIONI*/
     public static String checkTypeMD(String type1, String type2) {
+        String str = null;
         if (!type1.equals(type2)) {
             if (type1.equals("INTEGER") && type2.equals("DOUBLE") ||
                     type1.equals("DOUBLE") && type2.equals("INTEGER")) {
@@ -61,7 +62,7 @@ public class CheckClass {
 
     /*METODO PER IL CONTROLLO DI TIPO IN UNA ASSEGNAZIONE*/
     public static String checkTypeA(String type1, String type2, String testo2) {
-
+        String str = null;
         if (testo2.contains("new") && !type1.equals(type2)) {
             CUP$parser$actions.Err_War = "Error: non è possibile assegnare " +
                     type2 + " a " + type1 + "!\n";

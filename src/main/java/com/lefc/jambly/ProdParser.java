@@ -4,12 +4,10 @@ import java.util.ArrayList;
 
 public class ProdParser {
 
-    private static Record rec;
-
-    /*FUNZIONE PER LA GESTIONE DEI MODIFICATORII*/
-    public static void mods(String mod_opt) {
+    public void modifierHandler(String mod_opt) {
         Support.sepWordWS(mod_opt);
-        CheckClass.checkMod();
+        CheckClass checkClass = new CheckClass();
+        checkClass.checkModifiers();
     }
 
     /*FUNZIONE CHE GESTISCE LA DICHIARAZIONE DEGLI ARRAY*/
@@ -17,7 +15,7 @@ public class ProdParser {
         ArrayList listValue = new ArrayList();
 
         vdi = vdi.replace("[]", "");
-        rec = SymbolTable.getCurrRec(vdi);
+        Record rec = SymbolTable.getCurrRec(vdi);
 
         String elem;
         int i;
