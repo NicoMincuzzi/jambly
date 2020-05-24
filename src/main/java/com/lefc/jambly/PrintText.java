@@ -13,14 +13,13 @@ public class PrintText implements Comparable<PrintText> {
         pos = -1;
     }
 
+    //ordinamento della lista degli errori
     @Override
-    public int compareTo(PrintText o) //ordinamento della lista degli errori
-    {
+    public int compareTo(PrintText o) {
         //confronto tra ogg chiamante e l'ogg passato
         if (this.getPos() < o.getPos()) {
-            return -1;              //ordinamento in base al n di riga in modo
-        } else                    // da averli come nel source
-        {
+            return -1;  //ordinamento in base al n di riga in modo da averli come nel source
+        } else {
             return (this.getPos() == o.getPos()) ? 0 : 1;
         }
     }
@@ -77,10 +76,10 @@ public class PrintText implements Comparable<PrintText> {
         setPos(linea);
     }
 
-    public void textAndLine(int pos_attuale, int colonna, int linea, char[] zzBuffer) throws IOException {
+    public void textAndLine(int pos_attuale, int colonna, int linea, char[] zzBuffer){
         //capisce che è avvenuto l'errore solo una volta superato e quindi verrà restituito il token sbagliato
         //per soddisfare la sintassi o il lessico
-        int start = pos_attuale - 1; //
+        int start = pos_attuale - 1;
         int end = pos_attuale;
         int line = linea;
         int rif = 0;
@@ -88,7 +87,6 @@ public class PrintText implements Comparable<PrintText> {
 
         StringBuilder load = new StringBuilder("");
         String wrongStr;
-        boolean firstLine = false;
 
         //controllo errore prima parola inizio programma
         if (end == 0) //errore prima stringa della prima parola nel caso in cui il codice è all'inizio

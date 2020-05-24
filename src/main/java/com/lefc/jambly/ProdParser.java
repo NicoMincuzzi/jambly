@@ -1,6 +1,7 @@
 package com.lefc.jambly;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ProdParser {
 
@@ -12,7 +13,7 @@ public class ProdParser {
 
     /*FUNZIONE CHE GESTISCE LA DICHIARAZIONE DEGLI ARRAY*/
     public static void declArr(String vdi, String vi) {
-        ArrayList listValue = new ArrayList();
+        List<String> listValue = new ArrayList<>();
 
         vdi = vdi.replace("[]", "");
         Record rec = SymbolTable.getCurrRec(vdi);

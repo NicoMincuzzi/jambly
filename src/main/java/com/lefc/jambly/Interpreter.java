@@ -7,7 +7,7 @@ import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Compilatore extends JFrame {
+public class Interpreter extends JFrame {
     private static String Path;
 
     private JButton browseButton;
@@ -16,7 +16,7 @@ public class Compilatore extends JFrame {
     private JTextArea AreaTxt1;
     private JTextArea AreaTxt2;
 
-    public Compilatore() {
+    public Interpreter() {
         super("Java-Assembly Interpreter");
     }
 
@@ -43,7 +43,7 @@ public class Compilatore extends JFrame {
         AreaTxt2 = new JTextArea();
         JScrollPane scrollPan2 = new JScrollPane(AreaTxt2);
         JLabel sourceCodeLabel = new JLabel("  Source Code:");
-        JLabel outputLabel = new JLabel("Errori/Codice Target:");
+        JLabel outputLabel = new JLabel("Output:");
         JPanel cuscinetto = new JPanel(new FlowLayout());
 
         Container cont = this.getContentPane();
@@ -76,7 +76,7 @@ public class Compilatore extends JFrame {
                 try {
                     browseButtonActionPerformed(evt);
                 } catch (IOException ex) {
-                    Logger.getLogger(Compilatore.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(Interpreter.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         });
@@ -84,9 +84,9 @@ public class Compilatore extends JFrame {
         runButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    but2ActionPerformed(evt);
+                    runInterpreterButtonActionPerformed(evt);
                 } catch (IOException ex) {
-                    Logger.getLogger(Compilatore.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(Interpreter.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         });
@@ -136,32 +136,14 @@ public class Compilatore extends JFrame {
         AreaTxt2.setFont(font);
 
         this.setSize(900, 600);
-        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize(); //restituisce un riferimento al oggetto java.awt.Dimension. Contiene le proprietà 
-        //che conterranno la dimensione dello schermo in pixel.
-        double x = (dim.getWidth() - this.getWidth()) / 2;
-        double y = (dim.getHeight() - this.getHeight()) / 2;
+        Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+        double x = (dimension.getWidth() - this.getWidth()) / 2;
+        double y = (dimension.getHeight() - this.getHeight()) / 2;
         setLocation((int) x, (int) y);
         setResizable(false);
 
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.setVisible(true);
-    }
-
-    private void readFile(String PATH, int N) throws IOException {
-        FileReader f = new FileReader(PATH);
-        BufferedReader b = new BufferedReader(f);
-
-        String s;
-        while (true) {
-            s = b.readLine();
-            if (s == null)
-                break;
-            if (N == 1) {
-                AreaTxt1.append(s + "\n");
-            } else {
-                AreaTxt2.append(s + "\n");
-            }
-        }
     }
 
     private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) throws IOException {
@@ -177,7 +159,7 @@ public class Compilatore extends JFrame {
         runButton.setEnabled(true);
     }
 
-    private void but2ActionPerformed(java.awt.event.ActionEvent evt) throws IOException {
+    private void runInterpreterButtonActionPerformed(java.awt.event.ActionEvent evt) throws IOException {
         AreaTxt2.setText("");
         runInterpreter();
         if (!CUP$parser$actions.FlagSyn && Support.getnumErr() < 5) {
@@ -216,6 +198,22 @@ public class Compilatore extends JFrame {
             p.print_error(); //stampa della lista di errori
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void readFile(String path, int N) throws IOException {
+        FileReader f = new FileReader(path);
+        BufferedReader b = new BufferedReader(f);
+
+        while (true) {
+            String s = b.readLine();
+            if (s == null)
+                break;
+            if (N == 1) {
+                AreaTxt1.append(s + "\n");
+            } else {
+                AreaTxt2.append(s + "\n");
+            }
         }
     }
 }

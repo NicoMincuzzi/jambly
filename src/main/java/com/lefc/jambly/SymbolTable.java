@@ -8,7 +8,6 @@ public class SymbolTable {
 
     private static ArrayList<HashMap<String, Record>> listTable = new ArrayList<>();
     private static HashMap<String, Record> table;
-    private static ListIterator<HashMap<String, Record>> listItMap;
 
     /*METODO PER LA RESTITUZIONE DEL CORRENTE RECORD*/
     public static Record getCurrRec(String key) {
@@ -39,7 +38,7 @@ public class SymbolTable {
             rec = table.get(variable);
         } else {
             int h = listTable.size() - 1;
-            listItMap = listTable.listIterator(h);
+            ListIterator<HashMap<String, Record>> listItMap = listTable.listIterator(h);
             while (listItMap.hasPrevious() && !flagT) {
                 table = listItMap.previous();
                 if (table.containsKey(variable)) {

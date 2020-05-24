@@ -2,6 +2,7 @@ package com.lefc.jambly;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.ListIterator;
 
 public class Record {
@@ -9,11 +10,11 @@ public class Record {
     private String modifier = "null";
     private Object value; //valore della variabile(può essere int, double o String) o dimensione vettore all'occorenza
     private String type;
-    private ArrayList list;
+    private List<String> list;
     private String register; //nome del registro che utilizzeremo in Assembly
     private String regDim;
     private boolean FA;
-    private HashMap<String, String> TabArrTemp = new HashMap();
+    private HashMap<String, String> TabArrTemp = new HashMap<>();
 
     /*METODI CHE PERMETTONO DI OTTENERE I VARI ELEMENTI DEL RECORD*/
     public String getName() {
@@ -32,7 +33,7 @@ public class Record {
         return type;
     }
 
-    public ArrayList getList() {
+    public List<String> getList() {
         return list;
     }
 
@@ -68,7 +69,7 @@ public class Record {
         type = T;
     }
 
-    public void setList(ArrayList listValue) {
+    public void setList(List<String> listValue) {
         list = listValue;
         FA = !list.isEmpty();
     }

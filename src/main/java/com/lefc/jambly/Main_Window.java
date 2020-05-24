@@ -89,7 +89,7 @@ public class Main_Window extends JFrame {
     }
 
     private void interpreterButtonActionPerformed(java.awt.event.ActionEvent evt) {
-        Compilatore compiler = new Compilatore();
+        Interpreter compiler = new Interpreter();
         compiler.runMainWindow();
     }
 
