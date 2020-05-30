@@ -12,7 +12,7 @@ public class ProdParser {
     }
 
     /*FUNZIONE CHE GESTISCE LA DICHIARAZIONE DEGLI ARRAY*/
-    public static void declArr(String vdi, String vi) {
+    public static void arrayDeclarationHandler(String vdi, String vi) {
         List<String> listValue = new ArrayList<>();
 
         vdi = vdi.replace("[]", "");

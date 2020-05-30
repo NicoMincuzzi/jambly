@@ -3,7 +3,6 @@ package com.lefc.jambly;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ListIterator;
 
 public class Record {
     private String name;
@@ -37,16 +36,8 @@ public class Record {
         return list;
     }
 
-    public Object getArrayList(int index) {
-        return list.get(index);
-    }
-
     public String getRegister() {
         return register;
-    }
-
-    public String getRegDim() {
-        return regDim;
     }
 
     public HashMap getTabRegArr() {
@@ -87,7 +78,6 @@ public class Record {
             list.add(index, value);
             return index + 1 != list.size();
         } catch (Exception e) {
-
             if (index == 0) {
                 list.add(value);
                 return false;
@@ -98,7 +88,6 @@ public class Record {
                 return false;
             }
         }
-
     }
 
     /*COSTRUTTORI DELLA CLASSE RECORD*/
@@ -164,23 +153,5 @@ public class Record {
     /*METODO CHE PERMETTE L'ELIMINAZIONE DI UN ELEMENTO DEL RECORD*/
     public void remElem(int index) {
         list.remove(index);
-    }
-
-    /*METODO CHE PERMETTE DI MOSTRARE A VIDEO I VARI ELEMENTI DEL RECORD*/
-    public void showField() {
-        System.out.println("\n");
-        System.out.println("Type   : " + type);
-        System.out.println("Name   : " + name);
-        System.out.println("Value  : " + value.toString());
-
-        if (FA) {
-            int i = 0;
-            ListIterator it = list.listIterator(list.size());
-
-            while (it.hasPrevious()) {
-                System.out.println("Elemento " + i + ": " + it.previous().toString());
-                i++;
-            }
-        }
     }
 }

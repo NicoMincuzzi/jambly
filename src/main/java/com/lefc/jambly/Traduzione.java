@@ -274,12 +274,9 @@ public class Traduzione {
                 assemblyOutput = "L.D." + "$f" + CUP$parser$actions.countRegFP + ", " + "const" + multesto + "\n";
                 if (I == 3) {
                     if (ungen.equals("VARIABILE")) {
-
                         assemblyOutput = assemblyOutput.concat(OpEspr(I, T) + " " + "RIS" + ", " + "$f" + CUP$parser$actions.countRegFP + ", " +
                                 rec.getRegister());
-
                     } else if (ungen.equals("ARRAY_ACCESS")) {
-
                         if (untesto.startsWith("$f")) {
                             assemblyOutput = assemblyOutput + "\n" + OpEspr(I, T) + " " + "RIS" + ", " + "$f" + CUP$parser$actions.countRegFP + ", " + untesto;
                         } else {
@@ -292,16 +289,12 @@ public class Traduzione {
                         TRAD2 = "L.D." + "$f" + value + "const" + untesto + "\n";
                         assemblyOutput = assemblyOutput.concat(TRAD2);
                         assemblyOutput = assemblyOutput.concat(OpEspr(I, T) + " " + "RIS" + ", " + "$f" + CUP$parser$actions.countRegFP + ", " + "$f" + value);
-
                     }
                 } else if (I == 4) {
                     if (ungen.equals("VARIABILE")) {
-
                         assemblyOutput = assemblyOutput.concat(OpEspr(I, T) + " " + "RIS" + ", " + "$f" + CUP$parser$actions.countRegFP + ", " +
                                 rec.getRegister());
-
                     } else if (ungen.equals("ARRAY_ACCESS")) {
-
                         if (untesto.startsWith("$f")) {
                             assemblyOutput = assemblyOutput + "\n" + OpEspr(I, T) + " " + "RIS" + ", " + "$f" + CUP$parser$actions.countRegFP + ", " + untesto;
                         } else {
@@ -310,7 +303,6 @@ public class Traduzione {
                             assemblyOutput = assemblyOutput + "\n" + untesto + "\n" + OpEspr(I, T) + " " + "RIS" + ", " + "$f" + CUP$parser$actions.countRegFP + ", " + UT;
                         }
                     } else {
-
                         int value = CUP$parser$actions.countRegFP + 2;
                         TRAD2 = "L.D." + "$f" + value + ", " + "const" + untesto + "\n";
                         assemblyOutput = assemblyOutput.concat(TRAD2);
@@ -319,12 +311,9 @@ public class Traduzione {
                     }
                 } else {
                     if (ungen.equals("VARIABILE")) {
-
                         assemblyOutput = assemblyOutput.concat(OpEspr(I, T) + " " + "RIS" + ", " + "$f" + CUP$parser$actions.countRegFP + ", " +
                                 rec.getRegister());
-
                     } else if (ungen.equals("ARRAY_ACCESS")) {
-
                         if (untesto.startsWith("$f")) {
                             assemblyOutput = assemblyOutput + "\n" + OpEspr(I, T) + " " + "RIS" + ", " + "$f" + CUP$parser$actions.countRegFP + ", " + untesto;
                         } else {
@@ -338,13 +327,11 @@ public class Traduzione {
                         assemblyOutput = assemblyOutput.concat(TRAD2);
                         assemblyOutput = assemblyOutput.concat(OpEspr(I, T) + " " + "RIS" + ", " + "$f" + CUP$parser$actions.countRegFP + ", " + "$f" + value);
                     }
-
                 }
                 CUP$parser$actions.countRegFP += 4;
                 break;
             }
             case "ARRAY_ACCESS":
-
                 String UT;
                 if (multesto.startsWith("$f")) {
                     UT = multesto;
@@ -368,10 +355,8 @@ public class Traduzione {
                         assemblyOutput = multesto + "\n" + "L.D." + "$f" + CUP$parser$actions.countRegFP + ", " + "const" + untesto + "\n" +
                                 OpEspr(I, T) + " " + "RIS" + ", " + UT + ", " + "$f" + CUP$parser$actions.countRegFP;
                     }
-
                     CUP$parser$actions.countRegFP += 2;
                 } else {
-
                     if (untesto.startsWith("$f")) {
                         assemblyOutput = OpEspr(I, T) + " " + "RIS" + ", " + UT + ", " + untesto;
                     } else {
@@ -380,7 +365,6 @@ public class Traduzione {
                         assemblyOutput = multesto + "\n" + untesto + "\n" + OpEspr(I, T) + " " + "RIS" + ", " + UT + ", " + US;
                     }
                 }
-
                 break;
         }
         return assemblyOutput;
@@ -388,7 +372,6 @@ public class Traduzione {
 
 
     public static void castFP(String tipo1, String gen1, String testo1, String gen2, String testo2) {
-
         if (tipo1.equals("INTEGER")) {
             flagL = true;
             funct(gen1, testo1);
@@ -401,17 +384,14 @@ public class Traduzione {
     public static String funct(String gen, String testo) {
         switch (gen) {
             case "NUMERO":
-
                 APP = "ADDI" + " " + "$t" + CUP$parser$actions.countRTemp + ", " + "$zero" + ", " + testo + "\n" +
                         "MTC1" + " " + "$t" + CUP$parser$actions.countRTemp + ", " + "$f" + CUP$parser$actions.countRegFP + "\n" +
                         "CVT.D.W" + " " + "$f" + "CONT" + ", " + "$f" + CUP$parser$actions.countRegFP + "\n";
                 CUP$parser$actions.countRegFP += 2;
                 APP = APP.replace("CONT", Integer.toString(CUP$parser$actions.countRegFP));
                 CUP$parser$actions.countRTemp++;
-
                 break;
             case "ARRAY_ACCESS":
-
                 if (testo.startsWith("$t")) {
                     APP = "MTC1" + " " + testo + ", " + "$f" + CUP$parser$actions.countRegFP + "\n";
                 } else {
@@ -419,45 +399,29 @@ public class Traduzione {
                     String UT = testo.substring(l + 1, l + 4);
                     APP = "MTC1" + " " + UT + ", " + "$f" + CUP$parser$actions.countRegFP + "\n";
                 }
-
                 break;
             case "VARIABILE":
-
                 Record rec = SymbolTable.getCurrRec(testo);
                 APP = "MTC1" + " " + rec.getRegister() + ", " + "$f" + CUP$parser$actions.countRegFP + "\n";
-
                 break;
             default:
                 APP = "";
-         /*while(testo.lastIndexOf("$s") != -1){
-            String RFP,GPR;
-            RFP = "$f"+CUP$parser$actions.countRegFP;
-            GPR = testo.substring(testo.lastIndexOf("$s"), testo.length());
-            APP = APP.concat("MTC1"+" "+GPR+", "+RFP+"\n");
-            testo = testo.replaceAll(GPR, RFP);
-         }*/
                 APP = APP + testo; //VA TESTATA!!!!!!!!
-
-
                 break;
         }
-
         RegFP = "$f" + CUP$parser$actions.countRegFP;
         CUP$parser$actions.countRegFP += 2;
 
         return APP;
     }
 
-
     /*METODO PER LA TRADUZIONE DI ESPRESSIONI IN CUI I MEMBRI HANNO COME TIPO: INTEGER-DOUBLE O VICEVERSA (OVERLOADING)*/
     public static String tradEspr(int I, String multgen, String ungen, String multesto, String untesto, String T) {
-
-        String TRAD2 = "";
+        String TRAD2;
         /*IL SEGUENTE COSTRUTTO "IF-ELSE" VERIFICA, IN BASE AL BOOLEANO "flagL", SE IL PRIMO O IL SECONDO MEMBRO È UN INTERO O UN DOUBLE*/
         if (flagL) {
             /*I SEGUENTI "IF-ELSE" ANNIDATI PERMETTONO DI TRATTARE TUTTE LE COMBINAZIONI POSSIBILI TRA VARIABILI, ARRAY E NUMERI*/
             if (multgen.equals("VARIABILE")) {
-
                 if (ungen.equals("NUMERO")) {
                     if (I == 3) {
                         assemblyOutput = "L.D." + "$f" + CUP$parser$actions.countRegFP + ", " + "const" + untesto + "\n" + APP + OpEspr(I, T) + " " + "RIS" +
@@ -469,11 +433,8 @@ public class Traduzione {
                         assemblyOutput = "L.D." + "$f" + CUP$parser$actions.countRegFP + ", " + "const" + untesto + "\n" + APP + OpEspr(I, T) + " " + "RIS" +
                                 ", " + RegFP + ", " + "$f" + CUP$parser$actions.countRegFP;
                     }
-
                     CUP$parser$actions.countRegFP += 2;
-
                 } else if (ungen.equals("ARRAY_ACCESS")) {
-
                     if (untesto.startsWith("$f")) {
                         assemblyOutput = APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + untesto;
                     } else {
@@ -481,22 +442,15 @@ public class Traduzione {
                         String UT = untesto.substring(l + 1, l + 4);
                         assemblyOutput = untesto + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + UT;
                     }
-
                 } else {
                     Record rec2 = SymbolTable.getCurrRec(untesto);
                     assemblyOutput = APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + rec2.getRegister();
                 }
-
             } else if (multgen.equals("NUMERO")) {
-
                 Record rec = SymbolTable.getCurrRec(untesto);
-
                 if (I == 3) {
-
                     if (ungen.equals("VARIABILE")) {
-
                         assemblyOutput = APP.concat(OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + rec.getRegister());
-
                     } else if (ungen.equals("ARRAY_ACCESS")) {
                         if (untesto.startsWith("$f")) {
                             assemblyOutput = assemblyOutput + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + untesto;
@@ -509,17 +463,11 @@ public class Traduzione {
                         int value = CUP$parser$actions.countRegFP + 2;
                         TRAD2 = "L.D." + "$f" + value + "const" + untesto + "\n";
                         assemblyOutput = TRAD2 + "\n" + APP + "\n" + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + "$f" + value;
-
                     }
-
                 } else if (I == 4) {
-
                     if (ungen.equals("VARIABILE")) {
-
                         assemblyOutput = APP.concat(OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + rec.getRegister());
-
                     } else if (ungen.equals("ARRAY_ACCESS")) {
-
                         if (untesto.startsWith("$f")) {
                             assemblyOutput = assemblyOutput + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + untesto;
                         } else {
@@ -527,21 +475,15 @@ public class Traduzione {
                             String UT = untesto.substring(l + 1, l + 4);
                             assemblyOutput = assemblyOutput + "\n" + untesto + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + UT;
                         }
-
                     } else {
                         int value = CUP$parser$actions.countRegFP + 2;
                         TRAD2 = "L.D." + "$f" + value + "const" + untesto + "\n";
                         assemblyOutput = TRAD2 + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + "$f" + value;
                     }
-
                 } else {
-
                     if (ungen.equals("VARIABILE")) {
-
                         assemblyOutput = APP.concat(OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + rec.getRegister());
-
                     } else if (ungen.equals("ARRAY_ACCESS")) {
-
                         if (untesto.startsWith("$f")) {
                             assemblyOutput = assemblyOutput + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + untesto;
                         } else {
@@ -549,21 +491,17 @@ public class Traduzione {
                             String UT = untesto.substring(l + 1, l + 4);
                             assemblyOutput = assemblyOutput + "\n" + untesto + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + UT;
                         }
-
                     } else {
                         int value = CUP$parser$actions.countRegFP + 2;
                         TRAD2 = "L.D." + "$f" + value + "const" + untesto + "\n";
                         assemblyOutput = TRAD2 + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + "$f" + value;
                     }
-
                 }
                 CUP$parser$actions.countRegFP += 4;
             } else if (multgen.equals("ARRAY_ACCESS")) {
-
                 if (multesto.startsWith("$t")) {
                     multesto = "";
                 }
-
                 if (ungen.equals("VARIABILE")) {
 
                     Record rec = SymbolTable.getCurrRec(untesto);
@@ -584,7 +522,6 @@ public class Traduzione {
 
                     CUP$parser$actions.countRegFP += 2;
                 } else {
-
                     if (untesto.startsWith("$f")) {
                         assemblyOutput = multesto + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + untesto; //va corretto e modificata il metodo funct()
                     } else {

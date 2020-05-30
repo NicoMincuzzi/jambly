@@ -30,14 +30,13 @@ public class Support {
         String str;
         while (i != -1) {
             i = s.lastIndexOf(" ");
-            str = s.substring(i + 1, s.length());
+            str = s.substring(i + 1);
             listMod.add(str);
             if (i != -1) {
                 s = s.substring(0, i);
             }
         }
     }
-
 
     public static String getVar(String varad) {
         String str;

@@ -5,65 +5,57 @@ import com.lefc.jambly.model.Obj;
 import java_cup.runtime.Symbol;
 
 action code{:
-
-String ArrActTStore = "";
-String ArrActTemp = "";
-String TRAD = "";
-String STArr = "";
-boolean flagP1 = true;
-boolean flagP2 = true;
-static boolean flagWarn = false;
-int livP = 0;
-static String Err_War = "";
-static boolean checkFlag = false;
-static boolean FlagSyn = false;
-String typeDeclErr; //variabile che ci permette di recuperare il tipo in caso di errori sintattici
-boolean sintErr = false; // flag che ci permette di capire se si è verificato o meno un errore sintattico
-
-
-static int countReg = 0;
-static int countRegFP = 0;
-static int countRTemp = 0;
-int countCl = 1;
-
-ArrayList <String> vTrad = new ArrayList();
-ArrayList <String> dichRecup = new ArrayList(); //struttura che permette di recuperare una dichiarazione
-                                                //nel caso in cui, in precedenza, ci sia stato un errore sintattico
-                                                //legato alla mancanza del ";"
-HashMap <String,String> TabTrad = new HashMap();
+    String ArrActTStore = "";
+    String ArrActTemp = "";
+    String TRAD = "";
+    String STArr = "";
+    boolean flagP1 = true;
+    boolean flagP2 = true;
+    static boolean flagWarn = false;
+    int livP = 0;
+    static String Err_War = "";
+    static boolean checkFlag = false;
+    static boolean FlagSyn = false;
+    String typeDeclErr; //variabile che ci permette di recuperare il tipo in caso di errori sintattici
+    boolean sintErr = false; // flag che ci permette di capire se si è verificato o meno un errore sintattico
 
 
-public void structProg(int levP, boolean flag, String trad) throws IOException{
+    static int countReg = 0;
+    static int countRegFP = 0;
+    static int countRTemp = 0;
+    int countCl = 1;
 
-   if(levP == 1){
+    ArrayList <String> vTrad = new ArrayList();
+    //struttura che permette di recuperare una dichiarazione nel caso in cui, in precedenza,
+    //ci sia stato un errore sintattico legato alla mancanza del ";"
+    ArrayList <String> dichRecup = new ArrayList();
+    HashMap <String,String> TabTrad = new HashMap();
 
-      if(flag == true){
-        Support.writeFile(true,"\n.data\n\n");        
-      }
-        Support.writeFile(true,trad+"\n");
-        ListIterator lsT = dichRecup.listIterator();
+    public void structProg(int levP, boolean flag, String trad) throws IOException{
+       if(levP == 1){
+          if(flag){
+            Support.writeFile(true,"\n.data\n\n");
+          }
+          Support.writeFile(true,trad+"\n");
+          ListIterator lsT = dichRecup.listIterator();
           while(lsT.hasNext()){
-            Support.writeFile(true,lsT.next().toString()+"\n");            
-          } 
-        flagP1 = false;
-        
-   }else if(levP == 2){
-
-      if(flag == true){
-          Support.writeFile(true,"\n.code\n\n");
-              
-          ListIterator lsT = vTrad.listIterator();
-          while(lsT.hasNext()){
-            Support.writeFile(true,lsT.next().toString()+"\n");            
-          }   
-      }
-    Support.writeFile(true,trad);    
-    flagP2 = false;
-   }else{
-    Support.writeFile(false,"\n\nend\n");   
-   }   
-}
-
+            Support.writeFile(true,lsT.next().toString()+"\n");
+          }
+          flagP1 = false;
+       }else if(levP == 2){
+          if(flag){
+              Support.writeFile(true,"\n.code\n\n");
+              ListIterator lsT = vTrad.listIterator();
+              while(lsT.hasNext()){
+                Support.writeFile(true,lsT.next().toString()+"\n");
+              }
+          }
+        Support.writeFile(true,trad);
+        flagP2 = false;
+       }else{
+        Support.writeFile(false,"\n\nend\n");
+       }
+    }
 :};
 
 
@@ -124,12 +116,12 @@ parser code{:
                 return 0;
           }
 
-          public void calcola_par() //viene fatto alla fine della lettura o per un fatal error
-         {
+          //viene fatto alla fine della lettura o per un fatal error
+          public void calcola_par() {
              int num_par=scan.countBrace2;
              PrintText pt=new PrintText();
              
-            if(num_par>0 || num_par<0) //non ci si ritrova con il n di parentesi
+            if(num_par!=0) //non ci si ritrova con il n di parentesi
             {
               if(num_par>0)
               {
@@ -148,18 +140,14 @@ parser code{:
                error.add(pt);
               }
             }
-               
-                
          }
-             public int returnLine()
-             {
-                return ((Scanner)this.getScanner()).getLine();
-             }
+         public int returnLine() {
+            return ((Scanner)this.getScanner()).getLine();
+            }
               
 //tutti i metodi successivi si appoggiano alla seconda report_error passando il mess e il tipo di ogg
 //per stampare la linea di un determinato terminale o non terminale
-             public void report_error(String message, int line)
-            {
+             public void report_error(String message, int line) {
                 buffer = new StringBuilder(message);
                 buffer.append("Output: \n");
                 cont_errori++;
@@ -497,7 +485,7 @@ variable_declarator ::=
                                             :}
 	|	variable_declarator_id:vdi EQ variable_initializer:vi {: 
                                                                         if(vdi.tipo.equals("ARRAY")){
-                                                                          ProdParser.declArr(vdi.testo, vi.testo);
+                                                                          ProdParser.arrayDeclarationHandler(vdi.testo, vi.testo);
                                                                         }else{
                                                                           Record rec = SymbolTable.getCurrRec(vdi.testo);
                                                                           rec.setValue(vi.testo); 

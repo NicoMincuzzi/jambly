@@ -189,13 +189,14 @@ public class Interpreter extends JFrame {
         FileReader fr = new FileReader(Path);
 
         Scanner scanner = new Scanner(fr);
-        parser p = new parser(scanner);
+        parser parser = new parser(scanner);
+        CUP$parser$actions cup$parser$actions = new CUP$parser$actions(parser);
         try {
-            p.parse();
-            p.calcola_par(); //per un errore sulle parentesi
-            p.ordina_list(); //ordina la lista degli errori
-            p.remove();   //per errori al di fuori del source program
-            p.print_error(); //stampa della lista di errori
+            parser.parse();
+            parser.calcola_par(); //per un errore sulle parentesi
+            parser.ordina_list(); //ordina la lista degli errori
+            parser.remove();   //per errori al di fuori del source program
+            parser.print_error(); //stampa della lista di errori
         } catch (Exception e) {
             e.printStackTrace();
         }
