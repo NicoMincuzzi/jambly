@@ -49,13 +49,8 @@ public class Main_Window extends JFrame {
 
         panel11.add(button1);
         panel12.add(button2);
-        //button2.setEnabled(false);
 
-        //if(new File("/home/nicola/Nicola/Progetti-Esercitazioni/Java/Compilatore/src/compilatore/ExprLex.java").exists() && 
-        //new File("/home/nicola/Nicola/Progetti-Esercitazioni/Java/Compilatore/src/compilatore/parser.java").exists() &&
-        //new File("/home/nicola/Nicola/Progetti-Esercitazioni/Java/Compilatore/src/compilatore/sym.java").exists()){
         button2.setEnabled(true);
-        //}
 
         button1.setPreferredSize(new Dimension(150, 40));
         button2.setPreferredSize(new Dimension(150, 40));
