@@ -71,23 +71,19 @@ public class Interpreter extends JFrame {
 
         browseButton.setPreferredSize(new Dimension(110, 30));
 
-        browseButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                try {
-                    browseButtonActionPerformed(evt);
-                } catch (IOException ex) {
-                    Logger.getLogger(Interpreter.class.getName()).log(Level.SEVERE, null, ex);
-                }
+        browseButton.addActionListener(evt -> {
+            try {
+                browseButtonActionPerformed(evt);
+            } catch (IOException ex) {
+                Logger.getLogger(Interpreter.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
 
-        runButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                try {
-                    runInterpreterButtonActionPerformed(evt);
-                } catch (IOException ex) {
-                    Logger.getLogger(Interpreter.class.getName()).log(Level.SEVERE, null, ex);
-                }
+        runButton.addActionListener(evt -> {
+            try {
+                runInterpreterButtonActionPerformed(evt);
+            } catch (IOException ex) {
+                Logger.getLogger(Interpreter.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
 
