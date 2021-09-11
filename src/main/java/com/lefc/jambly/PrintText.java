@@ -1,7 +1,5 @@
 package com.lefc.jambly;
 
-import java.io.IOException;
-
 public class PrintText implements Comparable<PrintText> {
     private String message;
     private String wrongString;
@@ -76,7 +74,7 @@ public class PrintText implements Comparable<PrintText> {
         setPos(linea);
     }
 
-    public void textAndLine(int pos_attuale, int colonna, int linea, char[] zzBuffer){
+    public void textAndLine(int pos_attuale, int colonna, int linea, char[] zzBuffer) {
         //capisce che è avvenuto l'errore solo una volta superato e quindi verrà restituito il token sbagliato
         //per soddisfare la sintassi o il lessico
         int start = pos_attuale - 1;

@@ -76,12 +76,6 @@ public class Support {
         }
     }
 
-    public static void writeFileErr(String TRAD) throws IOException {
-        FileWriter file = new FileWriter("FileErr.txt", true);
-        file.write(TRAD);
-        file.flush();
-    }
-
     public static void countExit(int errorCount) {
         numErr = errorCount;
     }

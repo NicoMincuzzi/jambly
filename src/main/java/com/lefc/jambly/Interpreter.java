@@ -164,8 +164,7 @@ public class Interpreter extends JFrame {
                 readFile("FileTrad.txt", 2);
             } else {
                 readFile("FileTrad.txt", 2);
-                AreaTxt2.append("\nCompilazione avvenuta correttamente!" +
-                        " Non si sono verificati errori sintattici!");
+                AreaTxt2.append("\nCompilazione avvenuta correttamente!" + " Non si sono verificati errori sintattici!");
             }
         } else {
             AreaTxt2.setForeground(Color.RED);
@@ -182,10 +181,7 @@ public class Interpreter extends JFrame {
     }
 
     private void runInterpreter() throws FileNotFoundException {
-        FileReader fr = new FileReader(Path);
-
-        Scanner scanner = new Scanner(fr);
-        parser parser = new parser(scanner);
+        parser parser = new parser(new Scanner(new FileReader(Path)));
         CUP$parser$actions cup$parser$actions = new CUP$parser$actions(parser);
         try {
             parser.parse();

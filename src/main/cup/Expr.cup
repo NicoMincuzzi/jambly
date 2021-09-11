@@ -62,17 +62,17 @@ action code{:
 
 parser code{:
     PrintText output = new PrintText();
-    public ArrayList<PrintText> error = new ArrayList<>(); //lista di errori con accesso casuale
-    int cont_errori = 0;  //contatore errori
+    public List<PrintText> error = new ArrayList<>();
+    int cont_errori = 0;
     boolean fatal = false;  //per un fatal error
-    Scanner scan = (Scanner) this.getScanner();  //ottengo lo scanner che stÃ  utilizzando il parser, per usare
+    Scanner scan = (Scanner) getScanner();
     // alcune funzioni del primo
 
     public void print_error() throws IOException {
         ErrorParser error_parser = new ErrorParser();
         error_parser.print_error(error, cont_errori);
     }
-          
+
     public void ordina_list() {
         Collections.sort(error);
     }
