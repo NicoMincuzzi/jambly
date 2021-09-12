@@ -3,20 +3,23 @@ package com.lefc.jambly;
 import java.util.HashMap;
 import java.util.ListIterator;
 
+import static com.lefc.jambly.SymbolTable.createTable;
+import static com.lefc.jambly.SymbolTable.getArrMap;
+
 public class UtilParser {
     private static int countBrace;
 
     public static void newScope() {
-        countBrace = countBrace + 1;
-        SymbolTable.createTable();
+        countBrace += 1;
+        createTable();
     }
 
     public static void delScope() {
-        ListIterator<HashMap<String, Record>> listItMap = SymbolTable.getArrMap().listIterator(countBrace);
+        ListIterator<HashMap<String, Record>> iterator = getArrMap().listIterator(countBrace);
 
-        if (listItMap.hasPrevious()) {
-            listItMap.previous();
-            listItMap.remove();
+        if (iterator.hasPrevious()) {
+            iterator.previous();
+            iterator.remove();
         }
         countBrace = countBrace - 1;
     }

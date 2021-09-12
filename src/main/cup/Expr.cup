@@ -1395,9 +1395,11 @@ additive_expression ::=
                                  /*SEZIONE RIGUARDANTE LE CONDIZIONI <, >, <=, >=*/
 relational_expression ::=
 		additive_expression:addespr {: RESULT = addespr; :}
-	|	relational_expression:relespr LT additive_expression:addespr {:CheckClass.checkOpCond(relespr.tipo,addespr.tipo); 
+	|	relational_expression:relespr LT additive_expression:addespr {:
 
-                                                                               if(checkFlag == true){ 
+	checkFlag = CheckClass.checkOpCond(relespr.tipo,addespr.tipo);
+
+                                                                               if(checkFlag){
                                                                                                                                                                                                                                                      
                                                                                     parser.report_error(Err_War,relespr);
                                                                                     checkFlag = false;
@@ -1423,9 +1425,9 @@ relational_expression ::=
                                                                                 }
                                                                               :}
 	|	relational_expression:relespr GT additive_expression:addespr {: 
-                                                                                CheckClass.checkOpCond(relespr.tipo,addespr.tipo);
+                                                                               checkFlag = CheckClass.checkOpCond(relespr.tipo,addespr.tipo);
                                                                                 
-                                                                                if(checkFlag == true){
+                                                                                if(checkFlag){
                                                                                                                                                                                                                                                        
                                                                                     parser.report_error(Err_War,relespr);
                                                                                     checkFlag = false;
@@ -1450,9 +1452,9 @@ relational_expression ::=
                                                                                 }
                                                                               :} 
 	|	relational_expression:relespr LTEQ additive_expression:addespr {:
-                                                                                CheckClass.checkOpCond(relespr.tipo,addespr.tipo);
+                                                                                checkFlag = CheckClass.checkOpCond(relespr.tipo,addespr.tipo);
 
-                                                                                if(checkFlag == true){
+                                                                                if(checkFlag){
                                                                                     
                                                                                     parser.report_error(Err_War,relespr);
                                                                                     checkFlag = false;
@@ -1477,9 +1479,9 @@ relational_expression ::=
                                                                                 }   
                                                                                 :}
 	|	relational_expression:relespr GTEQ additive_expression:addespr {: 
-                                                                                CheckClass.checkOpCond(relespr.tipo,addespr.tipo);
+                                                                                checkFlag = CheckClass.checkOpCond(relespr.tipo,addespr.tipo);
                                                                                 
-                                                                                if(checkFlag == true){ 
+                                                                                if(checkFlag){
                                                                                     
                                                                                     parser.report_error(Err_War,relespr);
                                                                                     checkFlag = false;

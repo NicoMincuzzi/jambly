@@ -4,10 +4,13 @@ import java.io.*;
 
 public class InterpreterRunner {
 
+    public static final String ERROR_FILE = "FileErr.txt";
+    public static final String TRANSLATION_FILE = "FileTrad.txt";
+
     public String run(String file) {
         InputStream targetStream = new ByteArrayInputStream(file.getBytes());
         parser parser = new parser(new Scanner(targetStream));
-        CUP$parser$actions cup$parser$actions = new CUP$parser$actions(parser);
+        new CUP$parser$actions(parser);
 
         String result = null;
         try {
@@ -19,10 +22,10 @@ public class InterpreterRunner {
             result = buildResult();
         } catch (Exception e) {
             e.printStackTrace();
-        }finally{
-            File f = new File("FileTrad.txt");
+        } finally {
+            File f = new File(TRANSLATION_FILE);
             f.delete();
-            f = new File("FileErr.txt");
+            f = new File(ERROR_FILE);
             f.delete();
         }
         return result;
@@ -31,25 +34,23 @@ public class InterpreterRunner {
     private String buildResult() throws IOException {
         String result;
         if (!CUP$parser$actions.FlagSyn && Support.getnumErr() < 5) {
-            if (new File("FileErr.txt").exists()) {
-                String errorFile = readFileTwo("FileErr.txt");
-                String translationFile = readFileTwo("FileTrad.txt");
+            if (new File(ERROR_FILE).exists()) {
+                String errorFile = readFileTwo(ERROR_FILE);
+                String translationFile = readFileTwo(TRANSLATION_FILE);
                 result = errorFile + translationFile;
             } else {
-                String translationFile = readFileTwo("FileTrad.txt");
+                String translationFile = readFileTwo(TRANSLATION_FILE);
                 String okTranslationMsg = "\nCompilazione avvenuta correttamente!" + " Non si sono verificati errori sintattici!";
                 result = translationFile + okTranslationMsg;
             }
         } else {
-            //AreaTxt2.setForeground(Color.RED);
-            result = readFileTwo("FileErr.txt");
+            result = readFileTwo(ERROR_FILE);
         }
         return result;
     }
 
     private String readFileTwo(String path) throws IOException {
-        FileReader f = new FileReader(path);
-        BufferedReader b = new BufferedReader(f);
+        BufferedReader b = new BufferedReader(new FileReader(path));
         StringBuilder result = new StringBuilder();
         while (true) {
             String line = b.readLine();
@@ -59,4 +60,5 @@ public class InterpreterRunner {
         }
         return result.toString();
     }
+
 }

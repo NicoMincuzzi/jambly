@@ -3,25 +3,23 @@ package com.lefc.jambly;
 import javax.swing.*;
 import java.awt.*;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static java.awt.Font.BOLD;
 import static java.nio.charset.StandardCharsets.US_ASCII;
+import static java.nio.file.Paths.get;
 
 public class Interpreter extends JFrame {
     private static String Path;
-
     private JButton browseButton;
     private JButton runButton;
     private JTextField textField;
-    private JTextArea AreaTxt1;
-    private JTextArea AreaTxt2;
+    private JTextArea SourceBox;
+    private JTextArea OutputBox;
 
     public Interpreter() {
         super("Java-Assembly Interpreter");
@@ -45,10 +43,10 @@ public class Interpreter extends JFrame {
         JPanel pan31 = new JPanel(new BorderLayout());
         JPanel pan311 = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JPanel pan312 = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        AreaTxt1 = new JTextArea();
-        JScrollPane scrollPan1 = new JScrollPane(AreaTxt1);
-        AreaTxt2 = new JTextArea();
-        JScrollPane scrollPan2 = new JScrollPane(AreaTxt2);
+        SourceBox = new JTextArea();
+        JScrollPane scrollPan1 = new JScrollPane(SourceBox);
+        OutputBox = new JTextArea();
+        JScrollPane scrollPan2 = new JScrollPane(OutputBox);
         JLabel sourceCodeLabel = new JLabel("  Source Code:");
         JLabel outputLabel = new JLabel("Output:");
         JPanel cuscinetto = new JPanel(new FlowLayout());
@@ -117,10 +115,10 @@ public class Interpreter extends JFrame {
         scrollPan1.setBounds(3, 3, 300, 200);
         pan311.add(scrollPan1);
 
-        AreaTxt1.setText("");
-        AreaTxt1.setLineWrap(true); //limita il testo al riquadro
-        AreaTxt1.setWrapStyleWord(true);//formatta correttamente il testo
-        AreaTxt1.setEditable(false);
+        SourceBox.setText("");
+        SourceBox.setLineWrap(true); //limita il testo al riquadro
+        SourceBox.setWrapStyleWord(true);//formatta correttamente il testo
+        SourceBox.setEditable(false);
 
         pan31.add(pan312, BorderLayout.EAST);
         pan312.setPreferredSize(new Dimension(440, 435));
@@ -129,14 +127,14 @@ public class Interpreter extends JFrame {
         scrollPan2.setBounds(3, 3, 300, 200);
         pan312.add(scrollPan2);
 
-        AreaTxt2.setText("");
-        AreaTxt2.setLineWrap(true); //limita il testo al riquadro
-        AreaTxt2.setWrapStyleWord(true);//formatta correttamente il testo
-        AreaTxt2.setEditable(false);
+        OutputBox.setText("");
+        OutputBox.setLineWrap(true); //limita il testo al riquadro
+        OutputBox.setWrapStyleWord(true);//formatta correttamente il testo
+        OutputBox.setEditable(false);
 
-        Font font = new Font("Verdana", Font.BOLD, 12);
-        AreaTxt1.setFont(font);
-        AreaTxt2.setFont(font);
+        Font font = new Font("Verdana", BOLD, 12);
+        SourceBox.setFont(font);
+        OutputBox.setFont(font);
 
         this.setSize(900, 600);
         Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
@@ -145,50 +143,36 @@ public class Interpreter extends JFrame {
         setLocation((int) x, (int) y);
         setResizable(false);
 
-        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         this.setVisible(true);
     }
 
     private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) throws IOException {
-        JFileChooser jFileChooser = new JFileChooser(Paths.get("./src/main/resources/assembly_files/").toAbsolutePath().toString());
+        JFileChooser jFileChooser = new JFileChooser(get("./src/main/resources/assembly_files/").toAbsolutePath().toString());
         jFileChooser.showOpenDialog(null);
 
-        File f = jFileChooser.getSelectedFile();
-        Path = f.getAbsolutePath();
+        Path = jFileChooser.getSelectedFile().getAbsolutePath();
         textField.setText(Path);
-        AreaTxt1.setText("");
+        SourceBox.setText("");
 
-        readFile(Path);
+        BufferedReader bufferedReader = new BufferedReader(new FileReader(Path));
+        while (true) {
+            String line = bufferedReader.readLine();
+            if (line == null)
+                break;
+            SourceBox.append(line + "\n");
+        }
         runButton.setEnabled(true);
     }
 
     private void runInterpreterButtonActionPerformed(java.awt.event.ActionEvent evt) throws IOException {
-        AreaTxt2.setText("");
-        String file = readFile(Path, US_ASCII);
+        OutputBox.setText("");
+        String file = new String(Files.readAllBytes(get(Path)), US_ASCII);
 
         String result = new InterpreterRunner().run(file);
-        AreaTxt2.append(result);
+        OutputBox.append(result);
 
         browseButton.setEnabled(false);
         runButton.setEnabled(false);
     }
-
-    private String readFile(String path, Charset encoding) throws IOException {
-        byte[] encoded = Files.readAllBytes(Paths.get(path));
-        return new String(encoded, encoding);
-    }
-
-    private void readFile(String path) throws IOException {
-        FileReader f = new FileReader(path);
-        BufferedReader b = new BufferedReader(f);
-
-        while (true) {
-            String s = b.readLine();
-            if (s == null)
-                break;
-            AreaTxt1.append(s + "\n");
-        }
-    }
-
-
 }
