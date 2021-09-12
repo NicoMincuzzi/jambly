@@ -13,16 +13,6 @@ public class Support {
         return listMod;
     }
 
-    public static int changeStrInt(String expression) {
-        int i = 0;
-        try {
-            i = new Integer(expression);
-        } catch (Exception e) {
-            System.out.println("Cannot convert string to int. " + e);
-        }
-        return i;
-    }
-
     /*Funzione che permette di dividere parole separate da spazi*/
     public static void sepWordWS(String s) {
         int i = 0;
@@ -52,10 +42,10 @@ public class Support {
         int i = 0;
         switch (tipo) {
             case "INTEGER":
-                i = changeStrInt(espr) * 4;
+                i = Integer.parseInt(espr) * 4;
                 break;
             case "DOUBLE":
-                i = changeStrInt(espr) * 8;
+                i = Integer.parseInt(espr) * 8;
                 break;
             default:
                 System.out.println("ERROR: tipo non supportato!");

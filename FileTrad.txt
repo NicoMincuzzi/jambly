@@ -1,0 +1,72 @@
+
+.data
+
+raggio .WORD 5d
+diametro .WORD ?
+raggioQuad .WORD ?
+pigreco EQU 3.14
+circonferenza .DOUBLE ?
+area .DOUBLE ?
+
+.code
+
+MOVE raggio, $s0
+MOVE diametro, $s1
+MOVE raggioQuad, $s2
+MOVE.D pigreco, $f0
+MOVE.D circonferenza, $f2
+MOVE.D area, $f4
+
+
+
+
+
+
+MUL $s1, 2, $s0
+MUL $s2, $s0, $s0
+SLTI $t0, $s0, 0
+BEQ $t0, $zero, ESCI1
+MTC1 $s1, $f6
+MUL.D $f2, $f0, $f6
+MTC1 $s2, $f8
+MUL.D $f4, $f0, $f8
+ESCI1:
+
+
+end
+
+.data
+
+raggio .WORD 5d
+diametro .WORD ?
+raggioQuad .WORD ?
+pigreco EQU 3.14
+circonferenza .DOUBLE ?
+area .DOUBLE ?
+
+.code
+
+MOVE raggio, $s0
+MOVE diametro, $s1
+MOVE raggioQuad, $s2
+MOVE.D pigreco, $f0
+MOVE.D circonferenza, $f2
+MOVE.D area, $f4
+
+
+
+
+
+
+MUL $s1, 2, $s0
+MUL $s2, $s0, $s0
+SLTI $t0, $s0, 0
+BEQ $t0, $zero, ESCI1
+MTC1 $s1, $f6
+MUL.D $f2, $f0, $f6
+MTC1 $s2, $f8
+MUL.D $f4, $f0, $f8
+ESCI1:
+
+
+end

@@ -2,10 +2,17 @@ package com.lefc.jambly;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static java.nio.charset.StandardCharsets.US_ASCII;
 
 public class Interpreter extends JFrame {
     private static String Path;
@@ -151,25 +158,16 @@ public class Interpreter extends JFrame {
         textField.setText(Path);
         AreaTxt1.setText("");
 
-        readFile(Path, 1);
+        readFile(Path);
         runButton.setEnabled(true);
     }
 
     private void runInterpreterButtonActionPerformed(java.awt.event.ActionEvent evt) throws IOException {
         AreaTxt2.setText("");
-        runInterpreter();
-        if (!CUP$parser$actions.FlagSyn && Support.getnumErr() < 5) {
-            if (new File("FileErr.txt").exists()) {
-                readFile("FileErr.txt", 2);
-                readFile("FileTrad.txt", 2);
-            } else {
-                readFile("FileTrad.txt", 2);
-                AreaTxt2.append("\nCompilazione avvenuta correttamente!" + " Non si sono verificati errori sintattici!");
-            }
-        } else {
-            AreaTxt2.setForeground(Color.RED);
-            readFile("FileErr.txt", 2);
-        }
+        String file = readFile(Path, US_ASCII);
+
+        String result = new InterpreterRunner().run(file);
+        AreaTxt2.append(result);
 
         File f = new File("FileTrad.txt");
         f.delete();
@@ -180,21 +178,12 @@ public class Interpreter extends JFrame {
         runButton.setEnabled(false);
     }
 
-    private void runInterpreter() throws FileNotFoundException {
-        parser parser = new parser(new Scanner(new FileReader(Path)));
-        CUP$parser$actions cup$parser$actions = new CUP$parser$actions(parser);
-        try {
-            parser.parse();
-            parser.calcola_par(); //per un errore sulle parentesi
-            parser.ordina_list(); //ordina la lista degli errori
-            parser.remove();   //per errori al di fuori del source program
-            parser.print_error(); //stampa della lista di errori
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    private String readFile(String path, Charset encoding) throws IOException {
+        byte[] encoded = Files.readAllBytes(Paths.get(path));
+        return new String(encoded, encoding);
     }
 
-    private void readFile(String path, int N) throws IOException {
+    private void readFile(String path) throws IOException {
         FileReader f = new FileReader(path);
         BufferedReader b = new BufferedReader(f);
 
@@ -202,11 +191,9 @@ public class Interpreter extends JFrame {
             String s = b.readLine();
             if (s == null)
                 break;
-            if (N == 1) {
-                AreaTxt1.append(s + "\n");
-            } else {
-                AreaTxt2.append(s + "\n");
-            }
+            AreaTxt1.append(s + "\n");
         }
     }
+
+
 }

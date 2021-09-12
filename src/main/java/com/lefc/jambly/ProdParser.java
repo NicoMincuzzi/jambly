@@ -7,8 +7,7 @@ public class ProdParser {
 
     public void modifierHandler(String mod_opt) {
         Support.sepWordWS(mod_opt);
-        CheckClass checkClass = new CheckClass();
-        checkClass.checkModifiers();
+        new CheckClass().checkModifiers();
     }
 
     /*FUNZIONE CHE GESTISCE LA DICHIARAZIONE DEGLI ARRAY*/

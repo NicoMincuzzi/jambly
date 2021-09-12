@@ -1,10 +1,12 @@
 package com.lefc.jambly;
 
+import com.lefc.jambly.repository.SemanticErrorRepository;
 import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import static java.util.Arrays.asList;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 
 class ErrorParserTest {
@@ -12,7 +14,9 @@ class ErrorParserTest {
     @Test
     @Ignore
     void print_error() throws Exception{
-        ErrorParser errorParser = new ErrorParser();
+        SemanticErrorRepository semanticError = mock(SemanticErrorRepository.class);
+
+        ErrorParser errorParser = new ErrorParser(semanticError);
         PrintText printText = new PrintText();
 
 
