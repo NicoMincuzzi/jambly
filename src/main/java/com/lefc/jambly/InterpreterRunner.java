@@ -16,24 +16,33 @@ public class InterpreterRunner {
             parser.ordina_list(); //ordina la lista degli errori
             parser.remove();   //per errori al di fuori del source program
             parser.print_error(); //stampa della lista di errori
-
-            if (!CUP$parser$actions.FlagSyn && Support.getnumErr() < 5) {
-                if (new File("FileErr.txt").exists()) {
-                    String errorFile = readFileTwo("FileErr.txt");
-                    String translationFile = readFileTwo("FileTrad.txt");
-                    result = errorFile + translationFile;
-                } else {
-                    String translationFile = readFileTwo("FileTrad.txt");
-                    String okTranslationMsg = "\nCompilazione avvenuta correttamente!" + " Non si sono verificati errori sintattici!";
-                    result = translationFile + okTranslationMsg;
-                }
-            } else {
-                //AreaTxt2.setForeground(Color.RED);
-                result = readFileTwo("FileErr.txt");
-            }
-
+            result = buildResult();
         } catch (Exception e) {
             e.printStackTrace();
+        }finally{
+            File f = new File("FileTrad.txt");
+            f.delete();
+            f = new File("FileErr.txt");
+            f.delete();
+        }
+        return result;
+    }
+
+    private String buildResult() throws IOException {
+        String result;
+        if (!CUP$parser$actions.FlagSyn && Support.getnumErr() < 5) {
+            if (new File("FileErr.txt").exists()) {
+                String errorFile = readFileTwo("FileErr.txt");
+                String translationFile = readFileTwo("FileTrad.txt");
+                result = errorFile + translationFile;
+            } else {
+                String translationFile = readFileTwo("FileTrad.txt");
+                String okTranslationMsg = "\nCompilazione avvenuta correttamente!" + " Non si sono verificati errori sintattici!";
+                result = translationFile + okTranslationMsg;
+            }
+        } else {
+            //AreaTxt2.setForeground(Color.RED);
+            result = readFileTwo("FileErr.txt");
         }
         return result;
     }

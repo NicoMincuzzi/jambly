@@ -169,11 +169,6 @@ public class Interpreter extends JFrame {
         String result = new InterpreterRunner().run(file);
         AreaTxt2.append(result);
 
-        File f = new File("FileTrad.txt");
-        f.delete();
-        f = new File("FileErr.txt");
-        f.delete();
-
         browseButton.setEnabled(false);
         runButton.setEnabled(false);
     }
