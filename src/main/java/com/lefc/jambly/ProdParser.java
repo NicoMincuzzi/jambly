@@ -10,7 +10,6 @@ public class ProdParser {
         new CheckClass().checkModifiers();
     }
 
-    /*FUNZIONE CHE GESTISCE LA DICHIARAZIONE DEGLI ARRAY*/
     public static void arrayDeclarationHandler(String vdi, String vi) {
         List<String> listValue = new ArrayList<>();
 
@@ -21,13 +20,11 @@ public class ProdParser {
         int i;
         if (vi.contains("new")) {
             i = vi.lastIndexOf(",");
-
             while (i != -1 || !vi.equals("")) {
-
                 if (vi.startsWith(" ", i + 1)) {
-                    elem = vi.substring(i + 2, vi.length());  //recupero valori numerici
+                    elem = vi.substring(i + 2);
                 } else {
-                    elem = vi.substring(i + 1, vi.length());  //recupero valori numerici
+                    elem = vi.substring(i + 1);
                 }
 
                 listValue.add(elem);
@@ -45,9 +42,9 @@ public class ProdParser {
 
             while (i != -1 || !vi.equals("")) {
                 if (vi.startsWith(" ", i + 1)) {
-                    elem = vi.substring(i + 2, vi.length());  //recupero valori numerici
+                    elem = vi.substring(i + 2);
                 } else {
-                    elem = vi.substring(i + 1, vi.length());  //recupero valori numerici
+                    elem = vi.substring(i + 1);
                 }
 
                 listValue.add(elem);

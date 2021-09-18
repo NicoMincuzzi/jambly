@@ -29,7 +29,7 @@ public class Traduzione {
             CUP$parser$actions.countReg++;
         }
 
-        rec.setRegister(Rg);
+        rec.setAssemblyRegister(Rg);
         return TR;
 
     }

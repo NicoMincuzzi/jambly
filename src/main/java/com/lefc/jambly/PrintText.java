@@ -11,7 +11,6 @@ public class PrintText implements Comparable<PrintText> {
         pos = -1;
     }
 
-    //ordinamento della lista degli errori
     @Override
     public int compareTo(PrintText o) {
         //confronto tra ogg chiamante e l'ogg passato
@@ -20,10 +19,6 @@ public class PrintText implements Comparable<PrintText> {
         } else {
             return (this.getPos() == o.getPos()) ? 0 : 1;
         }
-    }
-
-    public boolean equals_elem(PrintText T) {
-        return (this.getString().equals(T.getString()) && this.getPos() == T.getPos());
     }
 
     public String getMessage() {
@@ -74,7 +69,7 @@ public class PrintText implements Comparable<PrintText> {
         setPos(linea);
     }
 
-    public void textAndLine(int pos_attuale, int colonna, int linea, char[] zzBuffer) {
+    public void textAndLine(int pos_attuale, int linea, char[] zzBuffer) {
         //capisce che è avvenuto l'errore solo una volta superato e quindi verrà restituito il token sbagliato
         //per soddisfare la sintassi o il lessico
         int start = pos_attuale - 1;
@@ -84,18 +79,18 @@ public class PrintText implements Comparable<PrintText> {
         boolean flag = false;
 
         StringBuilder load = new StringBuilder("");
-        String wrongStr;
 
         //controllo errore prima parola inizio programma
-        if (end == 0) //errore prima stringa della prima parola nel caso in cui il codice è all'inizio
-        {
+        //errore prima stringa della prima parola nel caso in cui il codice è all'inizio
+        if (end == 0) {
             while (zzBuffer[end] != '\n') {
                 load.append(zzBuffer[end]); //carica carattere per carattere essendo un vettore di char[]
                 end++;
             }
-        } else {//nel caso in cui l'err si sia verificato a metà e l'err è stato rilevato dopo
-            if (zzBuffer[start] == '\t' || zzBuffer[start] == ' ')//controlla se c'è un tab o uno spazio vuoto
-            {   //torno indietro assicurandomi di restare nel codice e di non sfornare a -1
+        } else {
+            //nel caso in cui l'err si sia verificato a metà e l'err è stato rilevato dopo
+            //controlla se c'è un tab o uno spazio vuoto
+            if (zzBuffer[start] == '\t' || zzBuffer[start] == ' ') {   //torno indietro assicurandomi di restare nel codice e di non sfornare a -1
                 while ((zzBuffer[start] == '\t' || zzBuffer[start] == ' ') && (start - 1) != rif) { //diminuisco il valore di start
                     start--;
                 }
@@ -113,13 +108,13 @@ public class PrintText implements Comparable<PrintText> {
                         while (zzBuffer[start - 1] != '\n' && start != 1) {
                             start--;
                         }
-                        while (zzBuffer[start] != '\n')//leggi fino alla prossima riga dove una riga è \n .... \n
-                        {
+                        //leggi fino alla prossima riga dove una riga è \n .... \n
+                        while (zzBuffer[start] != '\n') {
                             load.append(zzBuffer[start]);
                             start++;
                         }
-                    } else  //errore nella riga precedente
-                    {
+                    } else {
+                        //errore nella riga precedente
                         if (zzBuffer[start] == '\n' || zzBuffer[start] == '\r') {
                             start--;
                             line--;
@@ -194,11 +189,7 @@ public class PrintText implements Comparable<PrintText> {
             }
         }
 
-        wrongStr = load.toString();
-        wrongStr = wrongStr.trim();
-        wrongStr = wrongStr.replaceAll("\n", "");
-
-        setString(wrongStr);
+        setString(load.toString().trim().replaceAll("\n", ""));
         if (flag)
             setPos(linea);
         else

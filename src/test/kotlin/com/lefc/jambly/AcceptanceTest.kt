@@ -8,7 +8,7 @@ import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.Files
 import java.nio.file.Paths
 
-class InterpreterRunnerTest {
+class AcceptanceTest {
 
     @Test
     fun case1Test() {

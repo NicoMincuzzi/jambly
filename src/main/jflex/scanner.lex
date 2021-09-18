@@ -64,7 +64,7 @@ import static com.lefc.jambly.sym.*;
      
    public PrintText text() throws IOException {
      PrintText printText=new PrintText();
-     printText.textAndLine(getCurrentPos(), getColumn(), getLine(),zzBuffer); //permette di ottenere il testo e il n di linea
+     printText.textAndLine(getCurrentPos(), getLine(),zzBuffer); //permette di ottenere il testo e il n di linea
          //1) posizione del buffer nel momento in cui viene sollevato l'errore, 2) colonna, 3) linea, 4) buffer 
      return printText;
    } 
@@ -73,10 +73,6 @@ public int countBrace2=0;
 public int pos_par_open=0;  //posizione dell'ultima parentesi graffa aperta
 public int pos_par_close=0;  //posizione dell'ultima parentesi graffa chiusa
 public int pos_vir=0;        //posizione dell'ultimo ";"
-public int get_brace()
-{
-  return countBrace2;
-}
 public int get_open_par()
 {
    return pos_par_open;

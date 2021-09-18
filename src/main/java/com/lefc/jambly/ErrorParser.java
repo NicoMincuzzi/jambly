@@ -4,7 +4,6 @@ import com.lefc.jambly.repository.SemanticErrorRepository;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class ErrorParser {
@@ -16,12 +15,9 @@ public class ErrorParser {
     }
 
     public void print_error(List<PrintText> error, int errorCounter) throws IOException {
-        Iterator<PrintText> iterator = error.iterator();
-
         semanticError.writeFileErr("ERRORI TROVATI: " + errorCounter + "\n");
         Support.countExit(errorCounter);
-        while (iterator.hasNext()) {
-            PrintText text = iterator.next();
+        for (PrintText text : error) {
             semanticError.writeFileErr("\n" + text.getMessage() + "OUTPUT ERROR:\n" + text.getString() + "\nRiga n." + text.getPos() + "\n");
         }
     }

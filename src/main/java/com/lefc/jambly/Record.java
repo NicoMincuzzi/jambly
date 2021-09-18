@@ -1,23 +1,30 @@
 package com.lefc.jambly;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class Record {
-    private String name;
     private String modifier = "null";
     private Object value; //valore della variabile(può essere int, double o String) o dimensione vettore all'occorenza
     private String type;
     private List<String> list;
-    private String register; //nome del registro che utilizzeremo in Assembly
-    private String regDim;
-    private boolean FA;
-    private HashMap<String, String> TabArrTemp = new HashMap<>();
+    private String assemblyRegister;
+    private final HashMap<String, String> TabArrTemp = new HashMap<>();
 
-    /*METODI CHE PERMETTONO DI OTTENERE I VARI ELEMENTI DEL RECORD*/
-    public String getName() {
-        return name;
+    public Record() {
+    }
+
+    public Record(String type, String register) {
+        this.type = type;
+        value = 0;
+        assemblyRegister = register;
+    }
+
+    public Record(String type, List<String> L, int value, String register) {
+        this.type = type;
+        this.value = value;
+        list = L;
+        assemblyRegister = register;
     }
 
     public String getModifier() {
@@ -37,40 +44,35 @@ public class Record {
     }
 
     public String getRegister() {
-        return register;
+        return assemblyRegister;
     }
 
-    public HashMap getTabRegArr() {
+    public HashMap<String, String> getTabRegArr() {
         return TabArrTemp;
     }
 
-    public void setName(String N) {
-        name = N;
+    public void setModifier(String modifier) {
+        this.modifier = modifier;
     }
 
-    public void setModifier(String M) {
-        modifier = M;
+    public void setValue(Object value) {
+        this.value = value;
     }
 
-    public void setValue(Object V) {
-        value = V;
-    }
-
-    public void setType(String T) {
-        type = T;
+    public void setType(String type) {
+        this.type = type;
     }
 
     public void setList(List<String> listValue) {
         list = listValue;
-        FA = !list.isEmpty();
     }
 
     public void setRegister(String R) {
-        register = R;
+        assemblyRegister = R;
     }
 
-    public void setRegDim(String RD) {
-        regDim = RD;
+    public void setAssemblyRegister(String R) {
+        assemblyRegister = R;
     }
 
     public boolean setArrayList(String value, int index) {
@@ -88,66 +90,6 @@ public class Record {
                 return false;
             }
         }
-    }
-
-    /*COSTRUTTORI DELLA CLASSE RECORD*/
-    public Record() {
-    }
-
-    public Record(String N) {
-        name = N;
-    }
-
-    //Record per la gestione di vettori
-    public Record(String T, ArrayList L, int D, String N) {
-        type = T;
-        value = D;
-        list = L;
-        name = N;
-        FA = true;
-    }
-
-    //Record per la gestione di vettori
-    public Record(String T, ArrayList L, int D, String N, String R) {
-        type = T;
-        value = D;
-        list = L;
-        name = N;
-        register = R;
-        FA = true;
-    }
-
-    //Record per la gestione di vettori
-    public Record(String T, ArrayList L, String D, String N) {
-        type = T;
-        value = D;
-        list = L;
-        name = N;
-        FA = true;
-    }
-
-    //Record per la gestione delle variabili
-    public Record(String T, String V, String N) {
-        type = T;
-        value = V;
-        name = N;
-        FA = false;
-    }
-
-    public Record(String T, String N) {
-        type = T;
-        value = 0;
-        name = N;
-        FA = false;
-    }
-
-    public Record(String T, String N, String R, int V) {
-        //il quarto parametro può essere un qualsiasi intero
-        type = T;
-        value = 0;
-        name = N;
-        register = R;
-        FA = false;
     }
 
     /*METODO CHE PERMETTE L'ELIMINAZIONE DI UN ELEMENTO DEL RECORD*/

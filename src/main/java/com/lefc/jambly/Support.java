@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Support {
+
     private static List<String> listMod;
     private static int numErr;
 
@@ -15,9 +16,9 @@ public class Support {
 
     /*Funzione che permette di dividere parole separate da spazi*/
     public static void sepWordWS(String s) {
-        int i = 0;
         listMod = new ArrayList<>();
         String str;
+        int i = 0;
         while (i != -1) {
             i = s.lastIndexOf(" ");
             str = s.substring(i + 1);
@@ -29,41 +30,33 @@ public class Support {
     }
 
     public static String getVar(String varad) {
-        String str;
         if (varad.contains("[]")) {
-            str = varad.substring(0, varad.indexOf("[]"));
-        } else {
-            str = varad.substring(0, varad.indexOf("=") - 1);
+            return varad.substring(0, varad.indexOf("[]"));
         }
-        return str;
+        return varad.substring(0, varad.indexOf("=") - 1);
     }
 
-    public static String calcOffset(String espr, String tipo) {
-        int i = 0;
-        switch (tipo) {
+    public static String calcOffset(String espr, String type) {
+        switch (type) {
             case "INTEGER":
-                i = Integer.parseInt(espr) * 4;
-                break;
+                return String.valueOf(Integer.parseInt(espr) * 4);
             case "DOUBLE":
-                i = Integer.parseInt(espr) * 8;
-                break;
+                return String.valueOf(Integer.parseInt(espr) * 8);
             default:
-                System.out.println("ERROR: tipo non supportato!");
                 break;
         }
-
-        return String.valueOf(i);
+        return String.valueOf(0);
     }
 
-    public static void writeFile(boolean flag, String TRAD) throws IOException {
+    public static void writeFile(boolean flag, String translation) throws IOException {
         FileWriter file = new FileWriter("FileTrad.txt", true);
         if (flag) {
-            file.write(TRAD);
+            file.write(translation);
             file.flush();
-        } else {
-            file.write(TRAD);
-            file.close();
+            return;
         }
+        file.write(translation);
+        file.close();
     }
 
     public static void countExit(int errorCount) {

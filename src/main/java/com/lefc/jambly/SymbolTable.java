@@ -2,11 +2,12 @@ package com.lefc.jambly;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.ListIterator;
 
 public class SymbolTable {
 
-    private static ArrayList<HashMap<String, Record>> listTable = new ArrayList<>();
+    private static final List<HashMap<String, Record>> listTable = new ArrayList<>();
     private static HashMap<String, Record> table;
 
     /*METODO PER LA RESTITUZIONE DEL CORRENTE RECORD*/
@@ -26,34 +27,34 @@ public class SymbolTable {
     }
 
     /*METODO CHE PERMETTE DI OTTENERE ARRAYLIST CONTENENTE TUTTE LE TABELLE*/
-    public static ArrayList<HashMap<String, Record>> getArrMap() {
+    public static List<HashMap<String, Record>> getArrMap() {
         return listTable;
     }
 
     public static Record retrieveVariableInsideScope(String variable) {
-        Record rec = new Record();
+        if (table.containsKey(variable)) {
+            return table.get(variable);
+        }
+
+        Record record = new Record();
         boolean flagT = false;
 
-        if (table.containsKey(variable)) {
-            rec = table.get(variable);
-        } else {
-            int h = listTable.size() - 1;
-            ListIterator<HashMap<String, Record>> listItMap = listTable.listIterator(h);
-            while (listItMap.hasPrevious() && !flagT) {
-                table = listItMap.previous();
-                if (table.containsKey(variable)) {
-                    flagT = true;
-                    rec = table.get(variable);
-                }
-                h--;
-                listItMap = listTable.listIterator(h);
+        int h = listTable.size() - 1;
+        ListIterator<HashMap<String, Record>> listItMap = listTable.listIterator(h);
+        while (listItMap.hasPrevious() && !flagT) {
+            table = listItMap.previous();
+            if (table.containsKey(variable)) {
+                flagT = true;
+                record = table.get(variable);
             }
-            if (!flagT) {
-                CUP$parser$actions.Err_War = "ERROR: la variabile non e' stata dichiarata in nessun scope!\n";
-                CUP$parser$actions.checkFlag = true;
-            }
+            h--;
+            listItMap = listTable.listIterator(h);
         }
-        return rec;
+        if (!flagT) {
+            CUP$parser$actions.Err_War = "ERROR: la variabile non e' stata dichiarata in nessun scope!\n";
+            CUP$parser$actions.checkFlag = true;
+        }
+        return record;
     }
 
     public static void addVariableToTable(String variable) {
@@ -61,7 +62,7 @@ public class SymbolTable {
             CUP$parser$actions.Err_War = "ERROR: la variabile e' stata gia' dichiarata!\n";
             CUP$parser$actions.checkFlag = true;
         } else {
-            table.put(variable, new Record(variable));
+            table.put(variable, new Record());
         }
     }
 }

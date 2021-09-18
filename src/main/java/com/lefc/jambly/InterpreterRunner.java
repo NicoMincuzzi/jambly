@@ -1,6 +1,7 @@
 package com.lefc.jambly;
 
 import java.io.*;
+import java.util.Collections;
 
 public class InterpreterRunner {
 
@@ -16,7 +17,7 @@ public class InterpreterRunner {
         try {
             parser.parse();
             parser.calcola_par(); //per un errore sulle parentesi
-            parser.ordina_list(); //ordina la lista degli errori
+            Collections.sort(parser.error);
             parser.remove();   //per errori al di fuori del source program
             parser.print_error(); //stampa della lista di errori
             result = buildResult();
@@ -32,21 +33,13 @@ public class InterpreterRunner {
     }
 
     private String buildResult() throws IOException {
-        String result;
         if (!CUP$parser$actions.FlagSyn && Support.getnumErr() < 5) {
             if (new File(ERROR_FILE).exists()) {
-                String errorFile = readFileTwo(ERROR_FILE);
-                String translationFile = readFileTwo(TRANSLATION_FILE);
-                result = errorFile + translationFile;
-            } else {
-                String translationFile = readFileTwo(TRANSLATION_FILE);
-                String okTranslationMsg = "\nCompilazione avvenuta correttamente!" + " Non si sono verificati errori sintattici!";
-                result = translationFile + okTranslationMsg;
+                return readFileTwo(ERROR_FILE) + readFileTwo(TRANSLATION_FILE);
             }
-        } else {
-            result = readFileTwo(ERROR_FILE);
+            return readFileTwo(TRANSLATION_FILE) + ("\nCompilazione avvenuta correttamente!" + " Non si sono verificati errori sintattici!");
         }
-        return result;
+        return readFileTwo(ERROR_FILE);
     }
 
     private String readFileTwo(String path) throws IOException {
