@@ -1,8 +1,7 @@
 # Jambly
 ![GitHub repo size](https://img.shields.io/github/repo-size/NicoMincuzzi/jambly)
 
-Simple interpreter from Java1.8 to MIPS32 Assembly instructions set.
-
+A simple compiler in which given a Java program it creates an assembly language programming in MIPS32.
 
 ## How to Contribute
 Make a pull request...
