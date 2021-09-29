@@ -33,16 +33,16 @@ public class InterpreterRunner {
     }
 
     private String buildResult() throws IOException {
-        if (!CUP$parser$actions.FlagSyn && Support.getnumErr() < 5) {
-            if (new File(ERROR_FILE).exists()) {
-                return readFileTwo(ERROR_FILE) + readFileTwo(TRANSLATION_FILE);
-            }
-            return readFileTwo(TRANSLATION_FILE) + ("\nCompilazione avvenuta correttamente!" + " Non si sono verificati errori sintattici!");
+        if (!new File(ERROR_FILE).exists()) {
+            return readFile(TRANSLATION_FILE) + ("\nCompilazione avvenuta correttamente!" + " Non si sono verificati errori sintattici!");
         }
-        return readFileTwo(ERROR_FILE);
+        if (CUP$parser$actions.FlagSyn || Support.getnumErr() > 5) {
+            return readFile(ERROR_FILE);
+        }
+        return readFile(ERROR_FILE) + readFile(TRANSLATION_FILE);
     }
 
-    private String readFileTwo(String path) throws IOException {
+    private String readFile(String path) throws IOException {
         BufferedReader b = new BufferedReader(new FileReader(path));
         StringBuilder result = new StringBuilder();
         while (true) {

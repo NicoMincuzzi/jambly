@@ -65,11 +65,10 @@ int cont_errori = 0;
 boolean fatal = false;
 Scanner scan = (Scanner) getScanner();
 
-public void print_error() throws IOException {
-    SemanticErrorRepository semanticError = new SemanticErrorRepository();
-    ErrorParser error_parser = new ErrorParser(semanticError);
-    error_parser.print_error(error, cont_errori);
-}
+    public void print_error() throws IOException {
+        SemanticErrorRepository semanticError = new SemanticErrorRepository();
+        new ErrorParser(semanticError).print_error(error, cont_errori);
+    }
 
 public void remove() {
     int pos = scan.getPos_vir();
@@ -152,26 +151,12 @@ public void calcola_par() {
      }
  }
 
-//chiamata in auto dal CUP, fatto override per passare il msg che vogliamo noi
-public void syntax_error(Symbol cur_token) {
-    report_error("ERRORE LESSICALE/SINTATTICO \n", null);
-}
-
-
-public void warning(String message, Obj check) {
-    report_error(message, check);
-}
-
-//chiamata in auto dalla unrecover_syntax_error, , fatto override per passare il msg che vogliamo noi
-public void report_fatal_error(String message, Object info) {
-    fatal = true;
-    report_error("FATAL ERROR: IMPOSSIBILE COMPLETARE L'ESECUZIONE, POICHE' E' STATA RAGGIUNTA LA FINE DEL FILE PREMATURAMENTE!", null);
-    CUP$parser$actions.FlagSyn = true;
-}
-
-public void report_fatal_error(String message) {
-    report_error(message, null);
-}
+    //chiamata in auto dalla unrecover_syntax_error, , fatto override per passare il msg che vogliamo noi
+    public void report_fatal_error(String message, Object info) {
+        fatal = true;
+        report_error("FATAL ERROR: IMPOSSIBILE COMPLETARE L'ESECUZIONE, POICHE' E' STATA RAGGIUNTA LA FINE DEL FILE PREMATURAMENTE!", null);
+        CUP$parser$actions.FlagSyn = true;
+    }
 :}
 
 
@@ -589,10 +574,9 @@ local_variable_declaration ::=
                                                      :}
 	|	FINAL type:tipo variable_declarators:vard   
                                                     {:
-                                                      String Rg;
-                                                      String TR;
+
                                                       String valueErr;
-                                                      String number = vard.testo.substring(vard.testo.indexOf("=")+2,vard.testo.length());
+                                                      String number = vard.testo.substring(vard.testo.indexOf("=") + 2);
                                                       vard.testo = Support.getVar(vard.testo);
 
                                                       Record rec = SymbolTable.getCurrRec(vard.testo);
@@ -606,43 +590,41 @@ local_variable_declaration ::=
                                                          checkFlag = false;  
 
                                                          if(tipo.tipo.equals("INTEGER")){
-                                                                valueErr = vard.testo.substring(vard.testo.indexOf("=")+2,vard.testo.indexOf("."));
+                                                                valueErr = vard.testo.substring(vard.testo.indexOf("=") + 2,vard.testo.indexOf("."));
                                                                 rec.setValue(valueErr);  
                                                          }
                                                       
-                                                      }else if(flagWarn ) {
+                                                      } else if (flagWarn) {
                                                          parser.report_error(Err_War,vard);
                                                          flagWarn = false;
                                                       }                                                      
                                                                                                        
-                                                      rec.setType(vard.tipo);                                                      
-                                                      
-                                                      
-                                                      if(vard.tipo.equals("DOUBLE")){
-                                                            Rg = "$f"+countRegFP;
-                                                            TR = "MOVE.D"+" "+vard.testo+","+" "+Rg;
+                                                      rec.setType(vard.tipo);
+
+                                                      String Rg;
+                                                      String TR;
+                                                      if (vard.tipo.equals("DOUBLE")) {
+                                                            Rg = "$f" + countRegFP;
+                                                            TR = "MOVE.D" + " " + vard.testo + "," + " " + Rg;
                                                             countRegFP = countRegFP + 2;
-                                                      }else{
-                                                            Rg = "$s"+countReg;
-                                                            TR = "MOVE"+" "+vard.testo+","+" "+Rg;
+                                                      } else {
+                                                            Rg = "$s" + countReg;
+                                                            TR = "MOVE" + " " + vard.testo + "," + " " + Rg;
                                                             countReg++;
                                                       }
-                                                          
-                                                          rec.setRegister(Rg);                                
-                                                          vTrad.add(TR);
-
-                                                      TRAD = vard.testo+" EQU "+number;
-                                                                 
+                                                      rec.setRegister(Rg);
+                                                      vTrad.add(TR);
+                                                      TRAD = vard.testo + " EQU " + number;
                                                       RESULT = new Obj(TRAD);                                                                                                                               
                                                      :}
 	;
 
 section_two ::= statement:stat {: 
-                                 if(sintErr == true){
+                                 if (sintErr) {
                                     livP = 1;
                                     flagP2 = false;
                                     sintErr = false;
-                                 }else{
+                                 } else {
                                     livP = 2;
                                     flagP2 = true;
                                  } 
@@ -675,7 +657,7 @@ empty_statement ::=
 expression_statement ::=        
 		statement_expression:statespr punteggiatura {: RESULT = statespr; :}
         |       simple_name:simname punteggiatura{: 
-                                                if(sintErr == true){
+                                                if(sintErr){
                                                     String TR;
                                                     SymbolTable.addVariableToTable(simname.testo);
                                                     Record rec = SymbolTable.getCurrRec(simname.testo);
@@ -694,7 +676,6 @@ expression_statement ::=
                                                 }else{
                                                     parser.report_error("PRESENZA DI UNA STRINGA PRIVA DI SENSO!\n",simname);
                                                 }
-                                                
                                                 RESULT = new Obj("");
                                                :}
 	;
@@ -708,25 +689,19 @@ statement_expression ::=
 if_then_statement ::=
 		IF TONDA_APERTA expression:espr TONDA_CHIUSA statement:statm {: 
                                                                           String esc = "ESCI"+countCl;
-
                                                                           if(!espr.tipo.equals("BOOLEAN")){
                                                                             parser.report_error("ERROR: IL BLOCCO DI SELEZIONE ACCETTA ESCLUSIVAMENTE IL TIPO BOOLEAN!\n",espr.linea);
-                                                                            checkFlag = false;                                                                            
-                                                                            
-                                                                            TRAD = "SLT\nBEQ "+esc+"\n"+statm.testo+"\n"+esc+":\n"; 
-
-                                                                          }else{ 
-
+                                                                            checkFlag = false;
+                                                                            TRAD = "SLT\nBEQ "+esc+"\n"+statm.testo+"\n"+esc+":\n";
+                                                                          }else{
                                                                             if(espr.testo.contains(".D")){                                                                              
                                                                               espr.testo = espr.testo.concat(", "+esc);  
                                                                             }else{
                                                                               espr.testo = espr.testo.replaceAll("OFFSET",esc); 
                                                                             }
-
                                                                             TRAD = espr.testo+"\n"+statm.testo+"\n"+esc+":\n";
                                                                           }
                                                                           countCl++;
-                                                                          
                                                                           RESULT = new Obj(TRAD);                                                                          
                                                                         :}
 	;
@@ -1062,7 +1037,7 @@ array_access ::=
                                                         }
                                                          
                                                         if(I1 > I2){                                                                     
-                                                                  parser.report_fatal_error("FATAL ERROR: L'INDICE SUPERA LA DIMENSIONE MASSIMA DEL VETTORE!\n");
+                                                                  parser.report_error("FATAL ERROR: L'INDICE SUPERA LA DIMENSIONE MASSIMA DEL VETTORE!\n", null);
                                                                   //SARÀ NECESSARIO USCIRE DAL PROGRAMMA!!!
                                                         } 
                                                          
@@ -1223,7 +1198,7 @@ multiplicative_expression ::=
                                                                                         TRAD = Traduzione.tradEspr(1,multespr.genere, unex.genere,
                                                                                                              multespr.testo,unex.testo,mlT);
                                                                                      
-                                                                                        parser.warning(Err_War,multespr);
+                                                                                        parser.report_error(Err_War, lhs);
                                                                                         flagWarn = false;
                                                                                     }else{
                                                                                         if(mlT.equals("DOUBLE")){
@@ -1242,17 +1217,14 @@ multiplicative_expression ::=
                                                                                    if(unex.genere.equals("NUMERO")){
                                                                                         if(Integer.parseInt(unex.testo) == 0){
 
-                                                                                            parser.report_fatal_error("FATAL ERROR: NON E' POSSIBILE EFFETTUARE LA DIVISIONE PER 0!\n");
-                                                                                            //USCIRE DAL PROGRAMMA!!!!
+                                                                                            parser.report_error("FATAL ERROR: NON E' POSSIBILE EFFETTUARE LA DIVISIONE PER 0!\n", null);
                                                                                         }
                                                                                    }else{
                                                                                      Record rec = SymbolTable.getCurrRec(unex.testo);  
                                                                                      if(rec.getValue().equals("0")){
-                                                                                        parser.report_fatal_error("FATAL ERROR: NON E' POSSIBILE EFFETTUARE LA DIVISIONE PER 0!\n");
+                                                                                        parser.report_error("FATAL ERROR: NON E' POSSIBILE EFFETTUARE LA DIVISIONE PER 0!\n", null);
                                                                                         FlagSyn = true;
-                                                                                            //USCIRE DAL PROGRAMMA!!!!
                                                                                      }
-                                                                                   
                                                                                    }
 
                                                                                    String dvT = CheckClass.checkTypeMD(multespr.tipo,unex.tipo); 
@@ -1268,7 +1240,7 @@ multiplicative_expression ::=
                                                                                         Traduzione.castFP(multespr.tipo,multespr.genere,multespr.testo,unex.genere,unex.testo);
                                                                                         TRAD = Traduzione.tradEspr(2,multespr.genere, unex.genere,
                                                                                                              multespr.testo,unex.testo,dvT);
-                                                                                        parser.warning(Err_War,multespr);
+                                                                                        parser.report_error(Err_War, lhs);
                                                                                         flagWarn = false;
                                                                                     }else{
                                                                                         if(dvT.equals("DOUBLE")){
@@ -1303,7 +1275,7 @@ additive_expression ::=
                                                                                          Traduzione.castFP(addespr.tipo,addespr.genere,addespr.testo,multespr.genere,multespr.testo);
                                                                                          TRAD = Traduzione.tradEspr(3,addespr.genere, multespr.genere,
                                                                                                              addespr.testo,multespr.testo,smT);
-                                                                                         parser.warning(Err_War,multespr);
+                                                                                         parser.report_error(Err_War, lhs);
                                                                                          flagWarn = false;
                                                                                       }else{
                                                                                          if(smT.equals("DOUBLE")){
@@ -1332,7 +1304,7 @@ additive_expression ::=
                                                                                          Traduzione.castFP(addespr.tipo,addespr.genere,addespr.testo,multespr.genere,multespr.testo);
                                                                                          TRAD = Traduzione.tradEspr(4,addespr.genere, multespr.genere,
                                                                                                              addespr.testo,multespr.testo,dfT);
-                                                                                         parser.warning(Err_War,multespr);                                                                                        
+                                                                                         parser.report_error(Err_War, lhs);
                                                                                          flagWarn = false;
                                                                                        }else{
                                                                                          if(dfT.equals("DOUBLE")){
@@ -1537,7 +1509,7 @@ assignment_expression ::=
 assignment ::=	left_hand_side:lhs EQ assignment_expression:assespr  {: 
 
 String valueErr;
-if (sintErr == true) {
+if (sintErr) {
     Record rec = SymbolTable.retrieveVariableInsideScope(lhs.testo);
     rec.setValue(assespr.testo);
 
@@ -1583,7 +1555,7 @@ if (sintErr == true) {
             boolean fg = rec.setArrayList(assespr.testo, ind);
 
             if (flagWarn) {
-                parser.warning(Err_War, lhs);
+                parser.report_error(Err_War, lhs);
                 flagWarn = false;
             }
 
@@ -1665,7 +1637,7 @@ if (sintErr == true) {
             rec.getTabRegArr().put(lhs.testo, ArrActTStore);
 
             if (flagWarn) {
-                parser.warning(Err_War, lhs);
+                parser.report_error(Err_War, lhs);
 
                 String APP = Traduzione.funct(assespr.genere, assespr.testo);
                 if (assespr.genere.equals("ESPRESSIONE")) {
@@ -1745,7 +1717,7 @@ if (sintErr == true) {
             }
 
             if (flagWarn) {
-                parser.warning(Err_War, lhs);
+                parser.report_error(Err_War, lhs);
 
                 String APP = Traduzione.funct(assespr.genere, assespr.testo);
             if (assespr.genere.equals("ARRAY_ACCESS")) {
@@ -1829,7 +1801,7 @@ if (sintErr == true) {
 
 left_hand_side ::=
 		name:nome {: 
-                            if(sintErr == true){
+                            if(sintErr){
                                     SymbolTable.addVariableToTable(nome.testo);
                             }
                             Record rec = SymbolTable.retrieveVariableInsideScope(nome.testo); 
