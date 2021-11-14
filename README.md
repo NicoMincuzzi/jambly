@@ -1,7 +1,7 @@
 # Jambly
 ![GitHub repo size](https://img.shields.io/github/repo-size/NicoMincuzzi/jambly)
 
-A simple code translator, which given a Java class it translate the above class in an assembly language programming in MIPS32.
+A simple code translator, which, given a Java class, translates the above class in an assembly language programming for MIPS32 architecture.
 
 ## Note
 
