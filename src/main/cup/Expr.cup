@@ -114,8 +114,7 @@ public void calcola_par() {
 
  }
 
- //chiamata in auto da syntax_error e fatal_error, per il controllo era necessario fare un override
- //crea oggetti di tipo PrintText
+ @Override
  public void report_error(String message, Object info) {
      cont_errori++; //incremento degli errori
      int pos = scan.getPos_vir();
@@ -151,12 +150,18 @@ public void calcola_par() {
      }
  }
 
-    //chiamata in auto dalla unrecover_syntax_error, , fatto override per passare il msg che vogliamo noi
-    public void report_fatal_error(String message, Object info) {
-        fatal = true;
-        report_error("FATAL ERROR: IMPOSSIBILE COMPLETARE L'ESECUZIONE, POICHE' E' STATA RAGGIUNTA LA FINE DEL FILE PREMATURAMENTE!", null);
-        CUP$parser$actions.FlagSyn = true;
-    }
+ @Override
+ public void syntax_error(Symbol cur_token) {
+     report_error("ERRORE LESSICALE/SINTATTICO \n", null);
+ }
+
+
+ @Override
+ public void report_fatal_error(String message, Object info) {
+    fatal = true;
+    report_error("FATAL ERROR: IMPOSSIBILE COMPLETARE L'ESECUZIONE, POICHE' E' STATA RAGGIUNTA LA FINE DEL FILE PREMATURAMENTE!", null);
+    CUP$parser$actions.FlagSyn = true;
+ }
 :}
 
 
@@ -1198,7 +1203,7 @@ multiplicative_expression ::=
                                                                                         TRAD = Traduzione.tradEspr(1,multespr.genere, unex.genere,
                                                                                                              multespr.testo,unex.testo,mlT);
                                                                                      
-                                                                                        parser.report_error(Err_War, lhs);
+                                                                                        parser.report_error(Err_War,multespr);
                                                                                         flagWarn = false;
                                                                                     }else{
                                                                                         if(mlT.equals("DOUBLE")){
@@ -1240,7 +1245,7 @@ multiplicative_expression ::=
                                                                                         Traduzione.castFP(multespr.tipo,multespr.genere,multespr.testo,unex.genere,unex.testo);
                                                                                         TRAD = Traduzione.tradEspr(2,multespr.genere, unex.genere,
                                                                                                              multespr.testo,unex.testo,dvT);
-                                                                                        parser.report_error(Err_War, lhs);
+                                                                                        parser.report_error(Err_War,multespr);
                                                                                         flagWarn = false;
                                                                                     }else{
                                                                                         if(dvT.equals("DOUBLE")){
@@ -1275,7 +1280,7 @@ additive_expression ::=
                                                                                          Traduzione.castFP(addespr.tipo,addespr.genere,addespr.testo,multespr.genere,multespr.testo);
                                                                                          TRAD = Traduzione.tradEspr(3,addespr.genere, multespr.genere,
                                                                                                              addespr.testo,multespr.testo,smT);
-                                                                                         parser.report_error(Err_War, lhs);
+                                                                                         parser.report_error(Err_War,multespr);
                                                                                          flagWarn = false;
                                                                                       }else{
                                                                                          if(smT.equals("DOUBLE")){
@@ -1304,7 +1309,7 @@ additive_expression ::=
                                                                                          Traduzione.castFP(addespr.tipo,addespr.genere,addespr.testo,multespr.genere,multespr.testo);
                                                                                          TRAD = Traduzione.tradEspr(4,addespr.genere, multespr.genere,
                                                                                                              addespr.testo,multespr.testo,dfT);
-                                                                                         parser.report_error(Err_War, lhs);
+                                                                                         parser.report_error(Err_War,multespr);
                                                                                          flagWarn = false;
                                                                                        }else{
                                                                                          if(dfT.equals("DOUBLE")){
