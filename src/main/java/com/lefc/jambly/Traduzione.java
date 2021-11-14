@@ -13,33 +13,27 @@ public class Traduzione {
         return RegFP;
     }
 
-    public static String createReg(String tipo, String var) {
+    public static String createReg(String type, String var) {
+        Record record = SymbolTable.getCurrRec(var);
+        String register;
 
-        Record rec = SymbolTable.getCurrRec(var);
-        String Rg;
-        String TR;
-
-        if (tipo.equals("DOUBLE")) {
-            Rg = "$f" + CUP$parser$actions.countRegFP;
-            TR = "MOVE.D" + " " + var + "," + " " + Rg;
+        if (type.equals("DOUBLE")) {
+            register = "$f" + CUP$parser$actions.countRegFP;
             CUP$parser$actions.countRegFP += 2;
-        } else {
-            Rg = "$s" + CUP$parser$actions.countReg;
-            TR = "MOVE" + " " + var + "," + " " + Rg;
-            CUP$parser$actions.countReg++;
+            record.setAssemblyRegister(register);
+            return "MOVE.D" + " " + var + "," + " " + register;
         }
-
-        rec.setAssemblyRegister(Rg);
-        return TR;
-
+        register = "$s" + CUP$parser$actions.countReg;
+        CUP$parser$actions.countReg++;
+        record.setAssemblyRegister(register);
+        return "MOVE" + " " + var + "," + " " + register;
     }
 
     //METODO PER LA TRADUZIONE DELLE DICHIARAZIONI DELLE VARIABILI E DEGLI ARRAY
     public static String tradDecl(String tipo, String varad) {
-        Record rec;
+
         String TIPO = "";
-        String VAR;
-        String VAL;
+        String variable;
         int z = 0;
 
         switch (tipo) {
@@ -53,73 +47,53 @@ public class Traduzione {
                 break;
         }
 
-        if (!varad.contains("[]")) { //NEL "THEN" SONO GESTITE LE VARIABILI
-            /*IL SEGUENTE "IF-ELSE" VERIFICA LA PRESENZA O MENO DEL SIMBOLO DI ASSEGNAZIONE*/
-            if (varad.contains("=")) {
-                VAR = varad.substring(0, varad.indexOf("=") - 1);
+        if (!varad.contains("[]")) {
+            variable = varad.contains("=") ? varad.substring(0, varad.indexOf("=") - 1) : varad;
+
+            Record record = SymbolTable.getCurrRec(variable);
+
+            assemblyOutput = (record.getValue().toString().equals("null")) ? variable + " " + TIPO + " " + "?" : variable + " " + TIPO + " " + record.getValue().toString() + "d";
+            return assemblyOutput;
+        }
+        if (varad.contains("new")) {
+
+            variable = varad.substring(0, varad.indexOf("[]"));
+            Record record = SymbolTable.getCurrRec(variable);
+
+            assemblyOutput = "dim" + " " + "EQU" + " " + record.getList().size() + "\n" + variable + " " + TIPO;
+            if (record.getList().isEmpty()) {
+                assemblyOutput += " " + "?";
             } else {
-                VAR = varad;
-            }
-
-            rec = SymbolTable.getCurrRec(VAR);
-            VAL = rec.getValue().toString();
-            /*IL SEGUENTE "IF-ELSE" VERIFICA LA PRESENZA O MENO DEL VALORE DELLA VARIABILE*/
-            if (VAL.equals("null")) {
-                assemblyOutput = VAR + " " + TIPO + " " + "?";
-            } else {
-                assemblyOutput = VAR + " " + TIPO + " " + VAL + "d";
-            }
-
-        } else { //NEL "ELSE" SONO GESTITI GLI ARRAY
-            if (varad.contains("new")) {
-
-                VAR = varad.substring(0, varad.indexOf("[]"));
-                Record rec3 = SymbolTable.getCurrRec(VAR);
-
-                if (rec3.getList().isEmpty()) {
-                    assemblyOutput = "dim" + " " + "EQU" + " " + rec3.getList().size() + "\n" + VAR + " " + TIPO + " " + "?";
-                } else {
-                    assemblyOutput = "dim" + " " + "EQU" + " " + rec3.getList().size() + "\n" + VAR + " " + TIPO;
-
-                    ListIterator it = rec3.getList().listIterator(rec3.getList().size()); //per ottenere la lista al contrario
-                    rec3.setValue(rec3.getList().size());
-                    /*IL SEGUENTE CICLO "WHILE" PERMETTE DI OTTENERE TUTTI I VALORI DELL'ARRAY*/
-                    while (it.hasPrevious()) {
-                        if (z == 0) {
-                            assemblyOutput = assemblyOutput + " " + it.previous().toString(); //per il primo elemento dell'array
-                        } else {
-                            assemblyOutput = assemblyOutput + "," + " " + it.previous().toString(); //per tutti gli altri elementi dell'array
-                        }
-                        z++;
+                ListIterator<String> it = record.getList().listIterator(record.getList().size()); //per ottenere la lista al contrario
+                record.setValue(record.getList().size());
+                while (it.hasPrevious()) {
+                    if (z == 0) {
+                        assemblyOutput += " " + it.previous();
+                    } else {
+                        assemblyOutput += "," + " " + it.previous();
                     }
+                    z++;
                 }
-
+            }
+        } else {
+            variable = varad.substring(0, varad.indexOf("[]"));
+            Record record = SymbolTable.getCurrRec(variable);
+            assemblyOutput = "dim" + " " + "EQU" + " " + record.getValue().toString() + "\n" + variable + " " + TIPO;
+            if (record.getList().isEmpty()) {
+                assemblyOutput += " " + "?";
             } else {
+                ListIterator<String> it = record.getList().listIterator(record.getList().size());
 
-                VAR = varad.substring(0, varad.indexOf("[]"));
-                Record rec3 = SymbolTable.getCurrRec(VAR);
-                VAL = rec3.getValue().toString();
-                /*IL SEGUENTE "IF-ELSE" VERIFICA LA PRESENZA O MENO DEI VALORI DELL'ARRAY*/
-                if (rec3.getList().isEmpty()) {
-                    assemblyOutput = "dim" + " " + "EQU" + " " + VAL + "\n" + VAR + " " + TIPO + " " + "?";
-                } else {
-                    assemblyOutput = "dim" + " " + "EQU" + " " + VAL + "\n" + VAR + " " + TIPO;
-
-                    ListIterator it = rec3.getList().listIterator(rec3.getList().size());
-
-                    /*IL SEGUENTE CICLO "WHILE" PERMETTE DI OTTENERE TUTTI I VALORI DELL'ARRAY*/
-                    while (it.hasPrevious()) {
-                        if (z == 0) {
-                            assemblyOutput = assemblyOutput + " " + it.previous().toString();
-                        } else {
-                            assemblyOutput = assemblyOutput + "," + " " + it.previous().toString();
-                        }
-                        z++;
+                while (it.hasPrevious()) {
+                    if (z == 0) {
+                        assemblyOutput = assemblyOutput + " " + it.previous();
+                    } else {
+                        assemblyOutput = assemblyOutput + "," + " " + it.previous();
                     }
+                    z++;
                 }
             }
         }
-
         return assemblyOutput;
     }
 
@@ -375,10 +349,10 @@ public class Traduzione {
         if (tipo1.equals("INTEGER")) {
             flagL = true;
             funct(gen1, testo1);
-        } else {
-            flagL = false;
-            funct(gen2, testo2);
+            return;
         }
+        flagL = false;
+        funct(gen2, testo2);
     }
 
     public static String funct(String gen, String testo) {
