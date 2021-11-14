@@ -5,7 +5,7 @@ A simple code translator, which given a Java class it translate the above class 
 
 ## Note
 
-For more details about how compile Kotlin and Java sources by Maven build tools, [here](https://kotlinlang.org/docs/maven.html). 
+For more details about how compile Kotlin and Java sources by Maven build tools, can be found [here](https://kotlinlang.org/docs/maven.html). 
 
 ## How to Contribute
 Make a pull request...
