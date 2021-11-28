@@ -32,6 +32,7 @@ public class InterpreterRunner {
             CUP$parser$actions.countReg = 0;
             CUP$parser$actions.countRegFP = 0;
             CUP$parser$actions.countRTemp = 0;
+            CUP$parser$actions.FlagSyn = false;
         }
         return result;
     }
