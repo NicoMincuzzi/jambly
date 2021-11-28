@@ -2,6 +2,9 @@ package com.lefc.jambly;
 
 import java.util.ListIterator;
 
+import static com.lefc.jambly.SymbolTable.getCurrRec;
+import static com.lefc.jambly.SymbolTable.retrieveVariableInsideScope;
+
 public class Traduzione {
 
     private static boolean flagL = false;
@@ -14,7 +17,7 @@ public class Traduzione {
     }
 
     public static String createReg(String type, String var) {
-        Record record = SymbolTable.getCurrRec(var);
+        Record record = getCurrRec(var);
         String register;
 
         if (type.equals("DOUBLE")) {
@@ -50,7 +53,7 @@ public class Traduzione {
         if (!varad.contains("[]")) {
             variable = varad.contains("=") ? varad.substring(0, varad.indexOf("=") - 1) : varad;
 
-            Record record = SymbolTable.getCurrRec(variable);
+            Record record = getCurrRec(variable);
 
             assemblyOutput = (record.getValue().toString().equals("null")) ? variable + " " + TIPO + " " + "?" : variable + " " + TIPO + " " + record.getValue().toString() + "d";
             return assemblyOutput;
@@ -58,7 +61,7 @@ public class Traduzione {
         if (varad.contains("new")) {
 
             variable = varad.substring(0, varad.indexOf("[]"));
-            Record record = SymbolTable.getCurrRec(variable);
+            Record record = getCurrRec(variable);
 
             assemblyOutput = "dim" + " " + "EQU" + " " + record.getList().size() + "\n" + variable + " " + TIPO;
             if (record.getList().isEmpty()) {
@@ -77,7 +80,7 @@ public class Traduzione {
             }
         } else {
             variable = varad.substring(0, varad.indexOf("[]"));
-            Record record = SymbolTable.getCurrRec(variable);
+            Record record = getCurrRec(variable);
             assemblyOutput = "dim" + " " + "EQU" + " " + record.getValue().toString() + "\n" + variable + " " + TIPO;
             if (record.getList().isEmpty()) {
                 assemblyOutput += " " + "?";
@@ -104,7 +107,7 @@ public class Traduzione {
         /*I SEGUENTI "IF-ELSE" ANNIDATI PERMETTONO DI TRATTARE TUTTE LE COMBINAZIONI POSSIBILI TRA VARIABILI, ARRAY E NUMERI*/
         switch (multgen) {
             case "VARIABILE": {
-                Record rec = SymbolTable.retrieveVariableInsideScope(multesto);
+                Record rec = retrieveVariableInsideScope(multesto);
 
                 if (ungen.equals("NUMERO")) {
                     if (I == 3) {
@@ -123,14 +126,14 @@ public class Traduzione {
                         assemblyOutput = untesto + "\n" + OpEspr(I, T) + " " + "RIS" + ", " + rec.getRegister() + ", " + UT;
                     }
                 } else {
-                    Record rec2 = SymbolTable.getCurrRec(untesto);
+                    Record rec2 = getCurrRec(untesto);
                     assemblyOutput = OpEspr(I, T) + " " + "RIS" + ", " + rec.getRegister() + ", " + rec2.getRegister();
                 }
 
                 break;
             }
             case "NUMERO": {
-                Record rec = SymbolTable.getCurrRec(untesto);
+                Record rec = getCurrRec(untesto);
                 if (I == 3) {
                     if (ungen.equals("VARIABILE")) {
                         assemblyOutput = OpEspr(I, T) + "I" + " " + "RIS" + ", " + multesto + ", " + rec.getRegister();
@@ -186,7 +189,7 @@ public class Traduzione {
                     UT = multesto.substring(l + 1, l + 4);
                 }
                 if (ungen.equals("VARIABILE")) {
-                    Record rec = SymbolTable.getCurrRec(untesto);
+                    Record rec = getCurrRec(untesto);
                     assemblyOutput = multesto + "\n" + OpEspr(I, T) + " " + "RIS" + ", " + UT + ", " + rec.getRegister();
                 } else if (ungen.equals("NUMERO")) {
                     if (I == 3) {
@@ -212,44 +215,42 @@ public class Traduzione {
 
     /*METODO PER LA TRADUZIONE DI ESPRESSIONI IN CUI ENTRAMBI I MEMBRI HANNO COME TIPO: DOUBLE (OVERLOADING)*/
     public static String tradEspr(String multgen, String ungen, String multesto, String untesto, String T, int I) {
-        String TRAD2;
+
         /*I SEGUENTI "IF-ELSE" ANNIDATI PERMETTONO DI TRATTARE TUTTE LE COMBINAZIONI POSSIBILI TRA VARIABILI, ARRAY E NUMERI*/
         switch (multgen) {
             case "VARIABILE": {
-                Record rec = SymbolTable.getCurrRec(multesto);
                 if (ungen.equals("NUMERO")) {
                     if (I == 3) {
                         assemblyOutput = "L.D." + "$f" + CUP$parser$actions.countRegFP + ", " + "const" + untesto + "\n" +
-                                OpEspr(I, T) + " " + "RIS" + ", " + rec.getRegister() + ", " + "$f" + CUP$parser$actions.countRegFP;
+                                OpEspr(I, T) + " " + "RIS" + ", " + getCurrRec(multesto).getRegister() + ", " + "$f" + CUP$parser$actions.countRegFP;
                     } else if (I == 4) {
                         assemblyOutput = "L.D." + "$f" + CUP$parser$actions.countRegFP + ", " + "const" + untesto + "\n" +
-                                OpEspr(I, T) + " " + "RIS" + ", " + rec.getRegister() + ", " + "$f" + CUP$parser$actions.countRegFP;
+                                OpEspr(I, T) + " " + "RIS" + ", " + getCurrRec(multesto).getRegister() + ", " + "$f" + CUP$parser$actions.countRegFP;
                     } else {
                         assemblyOutput = "L.D." + "$f" + CUP$parser$actions.countRegFP + ", " + "const" + untesto + "\n" +
-                                OpEspr(I, T) + " " + "RIS" + ", " + rec.getRegister() + ", " + "$f" + CUP$parser$actions.countRegFP;
+                                OpEspr(I, T) + " " + "RIS" + ", " + getCurrRec(multesto).getRegister() + ", " + "$f" + CUP$parser$actions.countRegFP;
                     }
                     CUP$parser$actions.countRegFP += 2;
                 } else if (ungen.equals("ARRAY_ACCESS")) {
                     if (untesto.startsWith("$f")) {
-                        assemblyOutput = OpEspr(I, T) + " " + "RIS" + ", " + rec.getRegister() + ", " + untesto;
+                        assemblyOutput = OpEspr(I, T) + " " + "RIS" + ", " + getCurrRec(multesto).getRegister() + ", " + untesto;
                     } else {
                         int l = untesto.lastIndexOf(" $f");
                         String UT = untesto.substring(l + 1, l + 4);
-                        assemblyOutput = untesto + "\n" + OpEspr(I, T) + " " + "RIS" + ", " + rec.getRegister() + ", " + UT;
+                        assemblyOutput = untesto + "\n" + OpEspr(I, T) + " " + "RIS" + ", " + getCurrRec(multesto).getRegister() + ", " + UT;
                     }
                 } else {
-                    Record rec2 = SymbolTable.getCurrRec(untesto);
-                    assemblyOutput = OpEspr(I, T) + " " + "RIS" + ", " + rec.getRegister() + ", " + rec2.getRegister();
+                    assemblyOutput = OpEspr(I, T) + " " + "RIS" + ", " + getCurrRec(multesto).getRegister() + ", " + getCurrRec(untesto).getRegister();
                 }
-                break;
+                return assemblyOutput;
             }
             case "NUMERO": {
-                Record rec = SymbolTable.getCurrRec(untesto);
+                String TRAD2;
                 assemblyOutput = "L.D." + "$f" + CUP$parser$actions.countRegFP + ", " + "const" + multesto + "\n";
                 if (I == 3) {
                     if (ungen.equals("VARIABILE")) {
                         assemblyOutput = assemblyOutput.concat(OpEspr(I, T) + " " + "RIS" + ", " + "$f" + CUP$parser$actions.countRegFP + ", " +
-                                rec.getRegister());
+                                getCurrRec(untesto).getRegister());
                     } else if (ungen.equals("ARRAY_ACCESS")) {
                         if (untesto.startsWith("$f")) {
                             assemblyOutput = assemblyOutput + "\n" + OpEspr(I, T) + " " + "RIS" + ", " + "$f" + CUP$parser$actions.countRegFP + ", " + untesto;
@@ -267,7 +268,7 @@ public class Traduzione {
                 } else if (I == 4) {
                     if (ungen.equals("VARIABILE")) {
                         assemblyOutput = assemblyOutput.concat(OpEspr(I, T) + " " + "RIS" + ", " + "$f" + CUP$parser$actions.countRegFP + ", " +
-                                rec.getRegister());
+                                getCurrRec(untesto).getRegister());
                     } else if (ungen.equals("ARRAY_ACCESS")) {
                         if (untesto.startsWith("$f")) {
                             assemblyOutput = assemblyOutput + "\n" + OpEspr(I, T) + " " + "RIS" + ", " + "$f" + CUP$parser$actions.countRegFP + ", " + untesto;
@@ -286,7 +287,7 @@ public class Traduzione {
                 } else {
                     if (ungen.equals("VARIABILE")) {
                         assemblyOutput = assemblyOutput.concat(OpEspr(I, T) + " " + "RIS" + ", " + "$f" + CUP$parser$actions.countRegFP + ", " +
-                                rec.getRegister());
+                                getCurrRec(untesto).getRegister());
                     } else if (ungen.equals("ARRAY_ACCESS")) {
                         if (untesto.startsWith("$f")) {
                             assemblyOutput = assemblyOutput + "\n" + OpEspr(I, T) + " " + "RIS" + ", " + "$f" + CUP$parser$actions.countRegFP + ", " + untesto;
@@ -303,7 +304,7 @@ public class Traduzione {
                     }
                 }
                 CUP$parser$actions.countRegFP += 4;
-                break;
+                return assemblyOutput;
             }
             case "ARRAY_ACCESS":
                 String UT;
@@ -316,7 +317,7 @@ public class Traduzione {
                 }
 
                 if (ungen.equals("VARIABILE")) {
-                    Record rec = SymbolTable.getCurrRec(untesto);
+                    Record rec = getCurrRec(untesto);
                     assemblyOutput = multesto + "\n" + OpEspr(I, T) + " " + "RIS" + ", " + UT + ", " + rec.getRegister();
                 } else if (ungen.equals("NUMERO")) {
                     if (I == 3) {
@@ -339,7 +340,7 @@ public class Traduzione {
                         assemblyOutput = multesto + "\n" + untesto + "\n" + OpEspr(I, T) + " " + "RIS" + ", " + UT + ", " + US;
                     }
                 }
-                break;
+                return assemblyOutput;
         }
         return assemblyOutput;
     }
@@ -375,399 +376,225 @@ public class Traduzione {
                 }
                 break;
             case "VARIABILE":
-                Record rec = SymbolTable.getCurrRec(testo);
+                Record rec = getCurrRec(testo);
                 APP = "MTC1" + " " + rec.getRegister() + ", " + "$f" + CUP$parser$actions.countRegFP + "\n";
                 break;
             default:
                 APP = "";
-                APP = APP + testo; //VA TESTATA!!!!!!!!
+                APP = APP + testo;
                 break;
         }
         RegFP = "$f" + CUP$parser$actions.countRegFP;
         CUP$parser$actions.countRegFP += 2;
-
         return APP;
     }
 
     /*METODO PER LA TRADUZIONE DI ESPRESSIONI IN CUI I MEMBRI HANNO COME TIPO: INTEGER-DOUBLE O VICEVERSA (OVERLOADING)*/
     public static String tradEspr(int I, String multgen, String ungen, String multesto, String untesto, String T) {
-        String TRAD2;
         /*IL SEGUENTE COSTRUTTO "IF-ELSE" VERIFICA, IN BASE AL BOOLEANO "flagL", SE IL PRIMO O IL SECONDO MEMBRO È UN INTERO O UN DOUBLE*/
         if (flagL) {
             /*I SEGUENTI "IF-ELSE" ANNIDATI PERMETTONO DI TRATTARE TUTTE LE COMBINAZIONI POSSIBILI TRA VARIABILI, ARRAY E NUMERI*/
-            if (multgen.equals("VARIABILE")) {
-                if (ungen.equals("NUMERO")) {
-                    if (I == 3) {
-                        assemblyOutput = "L.D." + "$f" + CUP$parser$actions.countRegFP + ", " + "const" + untesto + "\n" + APP + OpEspr(I, T) + " " + "RIS" +
-                                ", " + RegFP + ", " + "$f" + CUP$parser$actions.countRegFP;
-                    } else if (I == 4) {
-                        assemblyOutput = "L.D." + "$f" + CUP$parser$actions.countRegFP + ", " + "const" + untesto + "\n" + APP + OpEspr(I, T) + " " + "RIS" +
-                                ", " + RegFP + ", " + "$f" + CUP$parser$actions.countRegFP;
-                    } else {
-                        assemblyOutput = "L.D." + "$f" + CUP$parser$actions.countRegFP + ", " + "const" + untesto + "\n" + APP + OpEspr(I, T) + " " + "RIS" +
-                                ", " + RegFP + ", " + "$f" + CUP$parser$actions.countRegFP;
-                    }
-                    CUP$parser$actions.countRegFP += 2;
-                } else if (ungen.equals("ARRAY_ACCESS")) {
-                    if (untesto.startsWith("$f")) {
-                        assemblyOutput = APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + untesto;
-                    } else {
-                        int l = untesto.lastIndexOf(" $f");
-                        String UT = untesto.substring(l + 1, l + 4);
-                        assemblyOutput = untesto + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + UT;
-                    }
-                } else {
-                    Record rec2 = SymbolTable.getCurrRec(untesto);
-                    assemblyOutput = APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + rec2.getRegister();
-                }
-            } else if (multgen.equals("NUMERO")) {
-                Record rec = SymbolTable.getCurrRec(untesto);
-                if (I == 3) {
-                    if (ungen.equals("VARIABILE")) {
-                        assemblyOutput = APP.concat(OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + rec.getRegister());
-                    } else if (ungen.equals("ARRAY_ACCESS")) {
-                        if (untesto.startsWith("$f")) {
-                            assemblyOutput = assemblyOutput + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + untesto;
-                        } else {
-                            int l = untesto.lastIndexOf(" $f");
-                            String UT = untesto.substring(l + 1, l + 4);
-                            assemblyOutput = assemblyOutput + "\n" + untesto + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + UT;
-                        }
-                    } else {
-                        int value = CUP$parser$actions.countRegFP + 2;
-                        TRAD2 = "L.D." + "$f" + value + "const" + untesto + "\n";
-                        assemblyOutput = TRAD2 + "\n" + APP + "\n" + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + "$f" + value;
-                    }
-                } else if (I == 4) {
-                    if (ungen.equals("VARIABILE")) {
-                        assemblyOutput = APP.concat(OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + rec.getRegister());
-                    } else if (ungen.equals("ARRAY_ACCESS")) {
-                        if (untesto.startsWith("$f")) {
-                            assemblyOutput = assemblyOutput + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + untesto;
-                        } else {
-                            int l = untesto.lastIndexOf(" $f");
-                            String UT = untesto.substring(l + 1, l + 4);
-                            assemblyOutput = assemblyOutput + "\n" + untesto + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + UT;
-                        }
-                    } else {
-                        int value = CUP$parser$actions.countRegFP + 2;
-                        TRAD2 = "L.D." + "$f" + value + "const" + untesto + "\n";
-                        assemblyOutput = TRAD2 + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + "$f" + value;
-                    }
-                } else {
-                    if (ungen.equals("VARIABILE")) {
-                        assemblyOutput = APP.concat(OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + rec.getRegister());
-                    } else if (ungen.equals("ARRAY_ACCESS")) {
-                        if (untesto.startsWith("$f")) {
-                            assemblyOutput = assemblyOutput + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + untesto;
-                        } else {
-                            int l = untesto.lastIndexOf(" $f");
-                            String UT = untesto.substring(l + 1, l + 4);
-                            assemblyOutput = assemblyOutput + "\n" + untesto + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + UT;
-                        }
-                    } else {
-                        int value = CUP$parser$actions.countRegFP + 2;
-                        TRAD2 = "L.D." + "$f" + value + "const" + untesto + "\n";
-                        assemblyOutput = TRAD2 + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + "$f" + value;
-                    }
-                }
-                CUP$parser$actions.countRegFP += 4;
-            } else if (multgen.equals("ARRAY_ACCESS")) {
-                if (multesto.startsWith("$t")) {
-                    multesto = "";
-                }
-                if (ungen.equals("VARIABILE")) {
-
-                    Record rec = SymbolTable.getCurrRec(untesto);
-                    assemblyOutput = multesto + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + rec.getRegister();
-
-                } else if (ungen.equals("NUMERO")) {
-
-                    if (I == 3) {
-                        assemblyOutput = multesto + "\n" + "L.D." + "$f" + CUP$parser$actions.countRegFP + ", " + "const" + untesto + "\n" +
-                                APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + "$f" + CUP$parser$actions.countRegFP;
-                    } else if (I == 4) {
-                        assemblyOutput = multesto + "\n" + "L.D." + "$f" + CUP$parser$actions.countRegFP + ", " + "const" + untesto + "\n" +
-                                APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + "$f" + CUP$parser$actions.countRegFP;
-                    } else {
-                        assemblyOutput = multesto + "\n" + "L.D." + "$f" + CUP$parser$actions.countRegFP + ", " + "const" + untesto + "\n" +
-                                APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + "$f" + CUP$parser$actions.countRegFP;
-                    }
-
-                    CUP$parser$actions.countRegFP += 2;
-                } else {
-                    if (untesto.startsWith("$f")) {
-                        assemblyOutput = multesto + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + untesto; //va corretto e modificata il metodo funct()
-                    } else {
-                        int m = untesto.lastIndexOf(" $f");
-                        String US = untesto.substring(m + 1, m + 4);
-                        assemblyOutput = multesto + "\n" + untesto + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + US;
-                    }
-                }
-
-            }
-
-            return assemblyOutput;
-
-        } else {
-            /*I SEGUENTI "IF-ELSE" ANNIDATI PERMETTONO DI TRATTARE TUTTE LE COMBINAZIONI POSSIBILI TRA VARIABILI, ARRAY E NUMERI*/
             switch (multgen) {
                 case "VARIABILE":
-                    Record rec = SymbolTable.retrieveVariableInsideScope(multesto);
-
                     if (ungen.equals("NUMERO")) {
-                        if (I == 3) {
-                            assemblyOutput = APP + OpEspr(I, T) + " " + "RIS" + ", " + rec.getRegister() + ", " + RegFP;
-                        } else if (I == 4) {
-                            assemblyOutput = APP + OpEspr(I, T) + " " + "RIS" + ", " + rec.getRegister() + ", " + RegFP;
-                        } else {
-                            assemblyOutput = APP + OpEspr(I, T) + " " + "RIS" + ", " + rec.getRegister() + ", " + RegFP;
-                        }
-
+                        assemblyOutput = "L.D." + "$f" + CUP$parser$actions.countRegFP + ", " + "const" + untesto + "\n" + APP + OpEspr(I, T) + " " + "RIS" +
+                                ", " + RegFP + ", " + "$f" + CUP$parser$actions.countRegFP;
                         CUP$parser$actions.countRegFP += 2;
+                        return assemblyOutput;
                     } else if (ungen.equals("ARRAY_ACCESS")) {
-                        if (untesto.startsWith("$t")) {
-                            assemblyOutput = APP + OpEspr(I, T) + " " + "RIS" + ", " + rec.getRegister() + ", " + RegFP;
-                        } else {
-                            assemblyOutput = untesto + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + rec.getRegister() + ", " + RegFP;
+                        if (untesto.startsWith("$f")) {
+                            assemblyOutput = APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + untesto;
                         }
-                    } else {
-
-                        assemblyOutput = APP + OpEspr(I, T) + " " + "RIS" + ", " + rec.getRegister() + ", " + RegFP;
-
+                        return untesto + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " +
+                                untesto.substring(untesto.lastIndexOf(" $f") + 1, untesto.lastIndexOf(" $f") + 4);
                     }
-                    break;
+                    return APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + getCurrRec(untesto).getRegister();
                 case "NUMERO":
-
-                    assemblyOutput = "L.D." + "$f" + CUP$parser$actions.countRegFP + ", " + "const" + multesto + "\n";
-
                     if (I == 3) {
-
                         if (ungen.equals("VARIABILE")) {
-                            assemblyOutput = assemblyOutput + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " +
-                                    "$f" + CUP$parser$actions.countRegFP + ", " + RegFP;
+                            assemblyOutput = APP.concat(OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + getCurrRec(untesto).getRegister());
                         } else if (ungen.equals("ARRAY_ACCESS")) {
-
-                            if (untesto.startsWith("$t")) {
-                                assemblyOutput = assemblyOutput + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + "$f" + CUP$parser$actions.countRegFP + ", " + RegFP;
+                            if (untesto.startsWith("$f")) {
+                                assemblyOutput = assemblyOutput + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + untesto;
                             } else {
-                                assemblyOutput = assemblyOutput + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + "$f" + CUP$parser$actions.countRegFP + ", " + RegFP;
+                                assemblyOutput = assemblyOutput + "\n" + untesto + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " +
+                                        untesto.substring(untesto.lastIndexOf(" $f") + 1, untesto.lastIndexOf(" $f") + 4);
                             }
-
                         } else {
-                            assemblyOutput = assemblyOutput + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + "$f" + CUP$parser$actions.countRegFP + ", " + RegFP;
+                            int value = CUP$parser$actions.countRegFP + 2;
+                            assemblyOutput = ("L.D." + "$f" + value + "const" + untesto + "\n") + "\n" + APP + "\n" + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + "$f" + value;
                         }
-
                     } else if (I == 4) {
-
                         if (ungen.equals("VARIABILE")) {
-                            assemblyOutput = assemblyOutput + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " +
-                                    "$f" + CUP$parser$actions.countRegFP + ", " + RegFP;
+                            assemblyOutput = APP.concat(OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + getCurrRec(untesto).getRegister());
                         } else if (ungen.equals("ARRAY_ACCESS")) {
-
-                            if (untesto.startsWith("$t")) {
-                                assemblyOutput = assemblyOutput + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + "$f" + CUP$parser$actions.countRegFP + ", " + RegFP;
+                            if (untesto.startsWith("$f")) {
+                                assemblyOutput = assemblyOutput + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + untesto;
                             } else {
-                                assemblyOutput = assemblyOutput + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + "$f" + CUP$parser$actions.countRegFP + ", " + RegFP;
+                                assemblyOutput = assemblyOutput + "\n" + untesto + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " +
+                                        untesto.substring(untesto.lastIndexOf(" $f") + 1, untesto.lastIndexOf(" $f") + 4);
                             }
-
                         } else {
-                            assemblyOutput = assemblyOutput + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " +
-                                    "$f" + CUP$parser$actions.countRegFP + ", " + RegFP;
+                            int value = CUP$parser$actions.countRegFP + 2;
+                            assemblyOutput = ("L.D." + "$f" + value + "const" + untesto + "\n") +
+                                    "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + "$f" + value;
                         }
-
                     } else {
-
                         if (ungen.equals("VARIABILE")) {
-                            assemblyOutput = assemblyOutput + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " +
-                                    "$f" + CUP$parser$actions.countRegFP + ", " + RegFP;
+                            assemblyOutput = APP.concat(OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + getCurrRec(untesto).getRegister());
                         } else if (ungen.equals("ARRAY_ACCESS")) {
-
-                            if (untesto.startsWith("$t")) {
-                                assemblyOutput = assemblyOutput + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + "$f" + CUP$parser$actions.countRegFP + ", " + RegFP;
+                            if (untesto.startsWith("$f")) {
+                                assemblyOutput = assemblyOutput + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + untesto;
                             } else {
-                                assemblyOutput = assemblyOutput + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + "$f" + CUP$parser$actions.countRegFP + ", " + RegFP;
+                                int l = untesto.lastIndexOf(" $f");
+                                String UT = untesto.substring(l + 1, l + 4);
+                                assemblyOutput = assemblyOutput + "\n" + untesto + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + UT;
                             }
-
                         } else {
-                            assemblyOutput = assemblyOutput + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " +
-                                    "$f" + CUP$parser$actions.countRegFP + ", " + RegFP;
+                            int value = CUP$parser$actions.countRegFP + 2;
+                            String translation = "L.D." + "$f" + value + "const" + untesto + "\n";
+                            assemblyOutput = translation + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + "$f" + value;
                         }
-
                     }
-
                     CUP$parser$actions.countRegFP += 4;
-                    break;
+                    return assemblyOutput;
                 case "ARRAY_ACCESS":
-
-                    String UT;
-                    if (multesto.startsWith("$f")) {
-                        UT = multesto;
+                    if (multesto.startsWith("$t"))
                         multesto = "";
-                    } else {
-                        int l = multesto.lastIndexOf(" $f");
-                        UT = multesto.substring(l + 1, l + 4);
-                    }
-
                     if (ungen.equals("VARIABILE")) {
-
-                        assemblyOutput = multesto + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + UT + ", " + RegFP;
-
+                        return multesto + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + getCurrRec(untesto).getRegister();
                     } else if (ungen.equals("NUMERO")) {
-                        if (I == 3) {
-                            assemblyOutput = APP + OpEspr(I, T) + " " + "RIS" + ", " + UT + ", " + RegFP;
-                        } else if (I == 4) {
-                            assemblyOutput = APP + OpEspr(I, T) + " " + "RIS" + ", " + UT + ", " + RegFP;
-                        } else {
-                            assemblyOutput = APP + OpEspr(I, T) + " " + "RIS" + ", " + UT + ", " + RegFP;
-                        }
-
+                        assemblyOutput = multesto + "\n" + "L.D." + "$f" + CUP$parser$actions.countRegFP + ", " + "const" + untesto + "\n" +
+                                APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + "$f" + CUP$parser$actions.countRegFP;
                         CUP$parser$actions.countRegFP += 2;
+                        return assemblyOutput;
                     } else {
-                        if (untesto.startsWith("$t")) {
-                            assemblyOutput = multesto + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + "$f" + UT + ", " + RegFP;
-                        } else {
-                            assemblyOutput = multesto + "\n" + untesto + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + UT + ", " + RegFP;
+                        if (untesto.startsWith("$f")) {
+                            return multesto + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " + untesto;
                         }
+                        return multesto + "\n" + untesto + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + RegFP + ", " +
+                                untesto.substring(untesto.lastIndexOf(" $f") + 1, untesto.lastIndexOf(" $f") + 4);
                     }
-
-                    break;
             }
-
-            return assemblyOutput;
         }
+        /*I SEGUENTI "IF-ELSE" ANNIDATI PERMETTONO DI TRATTARE TUTTE LE COMBINAZIONI POSSIBILI TRA VARIABILI, ARRAY E NUMERI*/
+        switch (multgen) {
+            case "VARIABILE":
+                Record record = retrieveVariableInsideScope(multesto);
+                if (ungen.equals("NUMERO")) {
+                    CUP$parser$actions.countRegFP += 2;
+                    return APP + OpEspr(I, T) + " " + "RIS" + ", " + record.getRegister() + ", " + RegFP;
+                } else if (ungen.equals("ARRAY_ACCESS")) {
+                    if (untesto.startsWith("$t")) {
+                        return APP + OpEspr(I, T) + " " + "RIS" + ", " + record.getRegister() + ", " + RegFP;
+                    }
+                    return untesto + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + record.getRegister() + ", " + RegFP;
+                }
+                return APP + OpEspr(I, T) + " " + "RIS" + ", " + record.getRegister() + ", " + RegFP;
+            case "NUMERO":
+                assemblyOutput = "L.D." + "$f" + CUP$parser$actions.countRegFP + ", " + "const" + multesto + "\n";
+                assemblyOutput = assemblyOutput + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + "$f" + CUP$parser$actions.countRegFP + ", " + RegFP;
+                CUP$parser$actions.countRegFP += 4;
+                return assemblyOutput;
+            case "ARRAY_ACCESS":
+                String UT;
+                if (multesto.startsWith("$f")) {
+                    UT = multesto;
+                    multesto = "";
+                } else {
+                    UT = multesto.substring(multesto.lastIndexOf(" $f") + 1, multesto.lastIndexOf(" $f") + 4);
+                }
 
+                if (ungen.equals("VARIABILE")) {
+                    return multesto + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + UT + ", " + RegFP;
+                } else if (ungen.equals("NUMERO")) {
+                    CUP$parser$actions.countRegFP += 2;
+                    return APP + OpEspr(I, T) + " " + "RIS" + ", " + UT + ", " + RegFP;
+                }
+                if (untesto.startsWith("$t")) {
+                    assemblyOutput = multesto + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + "$f" + UT + ", " + RegFP;
+                    return assemblyOutput;
+                }
+                return multesto + "\n" + untesto + "\n" + APP + OpEspr(I, T) + " " + "RIS" + ", " + UT + ", " + RegFP;
+        }
+        return assemblyOutput;
     }
-
 
     /*METODO PER LA SELEZIONE DEL TIPO DI OPERAZIONE*/
     public static String OpEspr(int I, String T) {
         if (I == 1) {
             if (T.equals("DOUBLE")) {
                 return "MUL.D";
-            } else {
-                return "MUL";
             }
+            return "MUL";
         } else if (I == 2) {
             if (T.equals("DOUBLE")) {
                 return "DIV.D";
-            } else {
-                return "DIV";
             }
+            return "DIV";
         } else if (I == 3) {
             if (T.equals("DOUBLE")) {
                 return "ADD.D";
-            } else {
-                return "ADD";
             }
-        } else {
-            if (T.equals("DOUBLE")) {
-                return "SUB.D";
-            } else {
-                return "SUB";
-            }
+            return "ADD";
         }
-
+        if (T.equals("DOUBLE")) {
+            return "SUB.D";
+        }
+        return "SUB";
     }
 
     /*METODO PER LA TRADUZIONE DI ESPRESSIONI BINARIE CON ENTRAMBI GLI ELEMENTI DI TIPO INTEGER*/
     public static String tradRel(String G_L, String G_R, String T_L, String T_R, String RTemp, int I, String Tp_L, String Tp_R) {
-        String REG;
-        Record rec;
         switch (G_L) {
             case "VARIABILE":
-                rec = SymbolTable.retrieveVariableInsideScope(T_L);
-
-                assemblyOutput = selGenBinR(G_R, G_L, "", T_R, rec.getRegister(), RTemp, I, Tp_R);
-
+                Record record = retrieveVariableInsideScope(T_L);
+                assemblyOutput = selGenBinR(G_R, G_L, "", T_R, record.getRegister(), RTemp, I, Tp_R);
                 break;
             case "ARRAY_ACCESS":
-                REG = getRegArr(T_L, Tp_L);
-                if (T_L.startsWith("$")) {
-                    T_L = "";
-                } else {
-                    T_L = T_L + "\n";
-                }
-                assemblyOutput = selGenBinR(G_R, G_L, T_L, T_R, REG, RTemp, I, Tp_R);
-
+                String registry = getRegArr(T_L, Tp_L);
+                T_L = (T_L.startsWith("$")) ? "" : T_L + "\n";
+                assemblyOutput = selGenBinR(G_R, G_L, T_L, T_R, registry, RTemp, I, Tp_R);
                 break;
             case "NUMERO":
-
                 assemblyOutput = selGenBinR(G_R, G_L, T_L, T_R, T_L, RTemp, I, Tp_R);
-
                 break;
             default:
                 System.out.println("ERROR:genere non supportato!");
                 System.exit(0);
         }
-
         return assemblyOutput;
     }
 
     /*METODO CHE PERMETTE DI SELEZIONARE IL GENERE DEL SECONDO MEMBRO (QUELLO DI DESTRA)*/
     public static String selGenBinR(String G_R, String G_L, String T_L, String T_R, String Reg_1, String R_T, int I, String Tp_R) {
-
-        String REG;
-        Record rec;
-
         switch (G_R) {
             case "VARIABILE":
-                rec = SymbolTable.getCurrRec(T_R);
+                Record currentRecord = getCurrRec(T_R);
                 T_R = "";
-
-                assemblyOutput = tradBInt(T_L, T_R, R_T, Reg_1, rec.getRegister(), I, G_L, G_R);
-
+                assemblyOutput = tradBInt(T_L, T_R, R_T, Reg_1, currentRecord.getRegister(), I, G_L, G_R);
                 break;
             case "ARRAY_ACCESS":
-                REG = getRegArr(T_R, Tp_R);
+                String registry = getRegArr(T_R, Tp_R);
                 if (T_R.startsWith("$")) {
                     T_R = "";
                 } else {
                     T_R = T_R + "\n";
                 }
-                assemblyOutput = tradBInt(T_L, T_R, R_T, Reg_1, REG, I, G_L, G_R);
-
+                assemblyOutput = tradBInt(T_L, T_R, R_T, Reg_1, registry, I, G_L, G_R);
                 break;
             case "NUMERO":
-
                 assemblyOutput = tradRelZero(T_L, "", R_T, Reg_1, T_R, I, G_L, G_R);
-
                 break;
             default:
                 System.out.println("ERROR:genere non supportato!");
                 System.exit(0);
         }
-
-        return assemblyOutput;
-    }
-
-    /*METODO CHE EFFETTUA LA TRADUZIONE VERA E PROPRIA DELL'ESPR BINARIA, NEL CASO IN CUI ENTRAMBI I MEMBRI SONO INTEGER*/
-    public static String tradBInt(String T_L, String T_R, String R_T, String Reg_1, String Reg_2, int I, String Gen_1, String Gen_2) {
-
-        if (Gen_1.equals("NUMERO") || Gen_2.equals("NUMERO")) {
-
-            if (I == 3 || I == 4) {
-                assemblyOutput = T_L + T_R + "SLTI" + " " + R_T + ", " + Reg_1 + ", " + Reg_2 + "\n" + "BEQ" + " " + R_T + ", " + "$zero, " + "OFFSET" +
-                        "\n" + "BEQ" + " " + Reg_1 + ", " + Reg_2 + ", " + "OFFSET";
-            } else {
-                assemblyOutput = T_L + T_R + "SLTI" + " " + R_T + ", " + Reg_1 + ", " + Reg_2 + "\n" + "BEQ" + " " + R_T + ", " + "$zero, " + "OFFSET";
-            }
-
-        } else {
-
-            if (I == 3 || I == 4) {
-                assemblyOutput = T_L + T_R + "SLT" + " " + R_T + ", " + Reg_1 + ", " + Reg_2 + "\n" + "BEQ" + " " + R_T + ", " + "$zero, " + "OFFSET" +
-                        "\n" + "BEQ" + " " + Reg_1 + ", " + Reg_2 + ", " + "OFFSET";
-            } else {
-                assemblyOutput = T_L + T_R + "SLT" + " " + R_T + ", " + Reg_1 + ", " + Reg_2 + "\n" + "BEQ" + " " + R_T + ", " + "$zero, " + "OFFSET";
-            }
-
-        }
-
         return assemblyOutput;
     }
 
     /*METODO CHE PERMETTE LA TRADUZIONE DI RELAZIONI BINARIE, NELLA QUALI IL SECONDO MEMBRO È PARI A 0 O UN NUMERO*/
+
     public static String tradRelZero(String T_L, String T_R, String R_T, String Reg_1, String Reg_2, int I, String Gen_1, String Gen_2) {
 
         if (I == 1 && T_R.equals("0")) {
@@ -781,50 +608,52 @@ public class Traduzione {
         } else {
             assemblyOutput = tradBInt(T_L, T_R, R_T, Reg_1, Reg_2, I, Gen_1, Gen_2);
         }
-
         return assemblyOutput;
     }
 
+    /*METODO CHE EFFETTUA LA TRADUZIONE VERA E PROPRIA DELL'ESPR BINARIA, NEL CASO IN CUI ENTRAMBI I MEMBRI SONO INTEGER*/
+    private static String tradBInt(String T_L, String T_R, String R_T, String Reg_1, String Reg_2, int I, String Gen_1, String Gen_2) {
+        if (Gen_1.equals("NUMERO") || Gen_2.equals("NUMERO")) {
+            if (I == 3 || I == 4) {
+                assemblyOutput = T_L + T_R + "SLTI" + " " + R_T + ", " + Reg_1 + ", " + Reg_2 + "\n" + "BEQ" + " " + R_T + ", " + "$zero, " + "OFFSET" +
+                        "\n" + "BEQ" + " " + Reg_1 + ", " + Reg_2 + ", " + "OFFSET";
+                return assemblyOutput;
+            }
+            return T_L + T_R + "SLTI" + " " + R_T + ", " + Reg_1 + ", " + Reg_2 + "\n" + "BEQ" + " " + R_T + ", " + "$zero, " + "OFFSET";
+        }
+        if (I == 3 || I == 4) {
+            assemblyOutput = T_L + T_R + "SLT" + " " + R_T + ", " + Reg_1 + ", " + Reg_2 + "\n" + "BEQ" + " " + R_T + ", " + "$zero, " + "OFFSET" +
+                    "\n" + "BEQ" + " " + Reg_1 + ", " + Reg_2 + ", " + "OFFSET";
+            return assemblyOutput;
+        }
+        return T_L + T_R + "SLT" + " " + R_T + ", " + Reg_1 + ", " + Reg_2 + "\n" + "BEQ" + " " + R_T + ", " + "$zero, " + "OFFSET";
+    }
 
     /*METODO PER LA TRADUZIONE DI ESPRESSIONI BINARIE CON ENTRAMBI GLI ELEMENTI DI TIPO DOUBLE*/
     public static String tradRel(String G_L, String G_R, String T_L, String T_R, int I, String Tp_L) {
-
-        String REG;
-
         switch (G_L) {
             case "VARIABILE":
-
-                Record rec = SymbolTable.getCurrRec(T_L);  //ottengo il record corrispondente alla variabile
-
-                assemblyOutput = selGenR("", T_L, G_R, T_R, rec.getRegister(), Tp_L, I, false);
-
+                Record currentRecord = getCurrRec(T_L);
+                assemblyOutput = selGenR("", T_L, G_R, T_R, currentRecord.getRegister(), Tp_L, I, false);
                 break;
             case "ARRAY_ACCESS":
-
-                REG = getRegArr(T_L, Tp_L); //estraggo il registro corrispondente all'array
-
+                String REG;
+                REG = getRegArr(T_L, Tp_L);
                 if (T_L.startsWith("$")) {
                     T_L = "";
                 } else {
                     T_L = T_L + "\n";
                 }
-
                 assemblyOutput = selGenR("", T_L, G_R, T_R, REG, Tp_L, I, true);
-
                 break;
             case "NUMERO":
-
                 String NUM = funct(G_L, T_L);  //assegno al numero un registro
-
                 assemblyOutput = selGenR("", NUM, G_R, T_R, RegFP, Tp_L, I, true);
-
                 break;
             default:
-
                 System.out.println("ERROR:genere non supportato!");
                 System.exit(0);
         }
-
         return assemblyOutput;
     }
 
@@ -844,7 +673,7 @@ public class Traduzione {
 
         switch (G_R) {
             case "VARIABILE":
-                Record rec = SymbolTable.getCurrRec(T_R);
+                Record rec = getCurrRec(T_R);
                 testo_3 = T_3;
 
                 assemblyOutput = selLogOp(I, testo_1, testo_2, testo_3, REG_1, rec.getRegister());
@@ -962,7 +791,7 @@ public class Traduzione {
         } else {
             switch (gen_L) {
                 case "VARIABILE":
-                    Record rec = SymbolTable.getCurrRec(testo_L);
+                    Record rec = getCurrRec(testo_L);
 
                     assemblyOutput = selGen("", testo_L, gen_R, testo_R, rec.getRegister(), tipo_L, I, false);
 
@@ -1054,7 +883,7 @@ public class Traduzione {
 
         switch (G_L) {
             case "VARIABILE":
-                rec = SymbolTable.getCurrRec(T_L);
+                rec = getCurrRec(T_L);
 
                 assemblyOutput = selGBinREQNEQ(G_R, "", T_R, Tp_L, Tp_R, rec.getRegister(), I, "");
 
@@ -1101,7 +930,7 @@ public class Traduzione {
 
         switch (G_R) {
             case "VARIABILE":
-                rec = SymbolTable.getCurrRec(T_R);
+                rec = getCurrRec(T_R);
                 T_R = "";
 
                 assemblyOutput = tradBIntEQNEQ(T_3, T_L, T_R, Tp_L, Tp_R, Reg_1, rec.getRegister(), I);
@@ -1192,7 +1021,7 @@ public class Traduzione {
         } else {
             switch (G_L) {
                 case "VARIABILE":
-                    rec = SymbolTable.getCurrRec(T_L);
+                    rec = getCurrRec(T_L);
                     assemblyOutput = selGBinREQNEQ2(G_R, "", T_R, Tp_L, Tp_R, rec.getRegister(), I, "");
                     break;
                 case "ARRAY_ACCESS":
