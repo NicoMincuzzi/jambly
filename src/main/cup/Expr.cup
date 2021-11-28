@@ -6,7 +6,6 @@ import com.lefc.jambly.repository.SemanticErrorRepository;
 import java_cup.runtime.Symbol;
 
 action code{:
-    String ArrActTStore = "";
     String ArrActTemp = "";
     String TRAD = "";
     String STArr = "";
@@ -392,11 +391,11 @@ variable_declarator ::=
 		variable_declarator_id:vdi {: 
                                              if(vdi.tipo.equals("ARRAY")){
                                                vdi.testo = vdi.testo.replace("[]", "");
-                                               Record rec = SymbolTable.getCurrRec(vdi.testo);
-                                               rec.setValue("null");
+                                               Record record = SymbolTable.getCurrRec(vdi.testo);
+                                               record.setValue("null");
                                              }else{
-                                                Record rec = SymbolTable.getCurrRec(vdi.testo);
-                                                rec.setValue("null"); 
+                                                Record record = SymbolTable.getCurrRec(vdi.testo);
+                                                record.setValue("null"); 
                                              }
 
                                              RESULT = vdi; 
@@ -405,8 +404,8 @@ variable_declarator ::=
                                                                         if(vdi.tipo.equals("ARRAY")){
                                                                           ProdParser.arrayDeclarationHandler(vdi.testo, vi.testo);
                                                                         }else{
-                                                                          Record rec = SymbolTable.getCurrRec(vdi.testo);
-                                                                          rec.setValue(vi.testo); 
+                                                                          Record record = SymbolTable.getCurrRec(vdi.testo);
+                                                                          record.setValue(vi.testo); 
                                                                         }
                                                                         
                                                                         RESULT = new Obj(vdi.testo+" = "+vi.testo, vi.tipo);                           
@@ -500,7 +499,7 @@ local_variable_declaration_statement ::=
 	;
 local_variable_declaration ::=
 		type:tipo variable_declarators:vard  {:  
-                                                        Record rec;
+                                                        Record record;
                                                         String Rg;
                                                         String TR;
                                                         String VAR;
@@ -514,8 +513,8 @@ local_variable_declaration ::=
                                                             }else{
                                                                 vard.tipo = tipo.tipo;
                                                             }
-                                                          rec = SymbolTable.getCurrRec(vard.testo);
-                                                          rec.setType(vard.tipo);
+                                                          record = SymbolTable.getCurrRec(vard.testo);
+                                                          record.setType(vard.tipo);
 
                                                           TR = Traduzione.createReg(vard.tipo,vard.testo);                                                          
                                                           vTrad.add(TR);
@@ -533,7 +532,7 @@ local_variable_declaration ::=
                                                           } 
 
                                                           VAR = Support.getVar(vard.testo);
-                                                          rec = SymbolTable.retrieveVariableInsideScope(VAR);
+                                                          record = SymbolTable.retrieveVariableInsideScope(VAR);
 
                                                           vard.tipo = CheckClass.checkTypeA(tipo.tipo,vard.tipo,vard.testo);
 
@@ -543,7 +542,7 @@ local_variable_declaration ::=
 
                                                                 if(tipo.tipo.equals("INTEGER")){
                                                                     valueErr = vard.testo.substring(vard.testo.indexOf("=")+2,vard.testo.indexOf("."));
-                                                                    rec.setValue(valueErr);  
+                                                                    record.setValue(valueErr);  
                                                                     
                                                                 }
                                                           }else if(flagWarn) {
@@ -552,7 +551,7 @@ local_variable_declaration ::=
                                                           }
 
                                                           
-                                                          rec.setType(vard.tipo);
+                                                          record.setType(vard.tipo);
                                                           
                                                           if(vard.testo.contains("[]")){                                                    
                                                                 
@@ -584,9 +583,9 @@ local_variable_declaration ::=
                                                       String number = vard.testo.substring(vard.testo.indexOf("=") + 2);
                                                       vard.testo = Support.getVar(vard.testo);
 
-                                                      Record rec = SymbolTable.getCurrRec(vard.testo);
-                                                      rec.setModifier("final");
-                                                      rec.setValue(number);
+                                                      Record record = SymbolTable.getCurrRec(vard.testo);
+                                                      record.setModifier("final");
+                                                      record.setValue(number);
 
                                                       CheckClass.checkTypeA(tipo.tipo,vard.tipo,vard.testo);
 
@@ -596,7 +595,7 @@ local_variable_declaration ::=
 
                                                          if(tipo.tipo.equals("INTEGER")){
                                                                 valueErr = vard.testo.substring(vard.testo.indexOf("=") + 2,vard.testo.indexOf("."));
-                                                                rec.setValue(valueErr);  
+                                                                record.setValue(valueErr);  
                                                          }
                                                       
                                                       } else if (flagWarn) {
@@ -604,7 +603,7 @@ local_variable_declaration ::=
                                                          flagWarn = false;
                                                       }                                                      
                                                                                                        
-                                                      rec.setType(vard.tipo);
+                                                      record.setType(vard.tipo);
 
                                                       String Rg;
                                                       String TR;
@@ -617,7 +616,7 @@ local_variable_declaration ::=
                                                             TR = "MOVE" + " " + vard.testo + "," + " " + Rg;
                                                             countReg++;
                                                       }
-                                                      rec.setRegister(Rg);
+                                                      record.setRegister(Rg);
                                                       vTrad.add(TR);
                                                       TRAD = vard.testo + " EQU " + number;
                                                       RESULT = new Obj(TRAD);                                                                                                                               
@@ -665,10 +664,10 @@ expression_statement ::=
                                                 if(sintErr){
                                                     String TR;
                                                     SymbolTable.addVariableToTable(simname.testo);
-                                                    Record rec = SymbolTable.getCurrRec(simname.testo);
+                                                    Record record = SymbolTable.getCurrRec(simname.testo);
                                                                                                     
-                                                    rec.setType(typeDeclErr);
-                                                    rec.setValue("null"); 
+                                                    record.setType(typeDeclErr);
+                                                    record.setValue("null"); 
                                                     simname.tipo = typeDeclErr;
 
                                                     TR = Traduzione.createReg(simname.tipo,simname.testo);
@@ -928,12 +927,12 @@ primary_no_new_array ::=
 	|	array_access:arracc {: 
                                       String T = "";
                                       String D = arracc.testo.substring(0, arracc.testo.indexOf("["));
-                                      Record rec = SymbolTable.retrieveVariableInsideScope(D);
+                                      Record record = SymbolTable.retrieveVariableInsideScope(D);
 
-                                      if(rec.getTabRegArr().containsKey(arracc.testo)){
-                                         TRAD = (String) rec.getTabRegArr().get(arracc.testo);                                       
+                                      if(record.getTabRegArr().containsKey(arracc.testo)){
+                                         TRAD = (String) record.getTabRegArr().get(arracc.testo);                                       
                                       }else{
-                                        rec.getTabRegArr().put(arracc.testo,ArrActTemp);
+                                        record.getTabRegArr().put(arracc.testo,ArrActTemp);
 
                                       if(arracc.tipo.equals("INTEGER")){
                                          T = "LW"; 
@@ -995,7 +994,7 @@ array_access ::=
                                                          String indice;
                                                          ArrayList listvalue = new ArrayList();
 
-                                                         Record rec = SymbolTable.retrieveVariableInsideScope(nome.testo);
+                                                         Record record = SymbolTable.retrieveVariableInsideScope(nome.testo);
 
                                                          if(checkFlag){ 
                                                                                                                                                                                                                                                                                          
@@ -1008,11 +1007,11 @@ array_access ::=
                                                               }
 
                                                               SymbolTable.getTable().put(nome.testo,new Record("INTEGER",listvalue,100,regRandom));
-                                                              rec = SymbolTable.retrieveVariableInsideScope(nome.testo);
+                                                              record = SymbolTable.retrieveVariableInsideScope(nome.testo);
                                                               countReg++;
                                                          }
    
-                                                        nome.tipo = rec.getType();
+                                                        nome.tipo = record.getType();
                                                          
                                                         if(!espr.tipo.equals("INTEGER")){
                                                             parser.report_error("ERROR: LA DIMENSIONE DEL VETTORE DEVE ESSERE UN NUMERO INTERO!\n",espr);
@@ -1021,23 +1020,23 @@ array_access ::=
                                                             if(espr.genere.equals("NUMERO")){
                                                                 espr.testo = espr.testo.substring(0,espr.testo.indexOf("."));
                                                                 I1 = Integer.parseInt(espr.testo);
-                                                                I2 = Integer.parseInt(rec.getValue().toString());
+                                                                I2 = Integer.parseInt(record.getValue().toString());
                                                             }else{
                                                                 recE = SymbolTable.getCurrRec(espr.testo);
                                                                 indice = recE.getValue().toString().substring(0,recE.getValue().toString().indexOf("."));
                                                                 I1 = Integer.parseInt(indice);
-                                                                I2 = Integer.parseInt(rec.getValue().toString());
+                                                                I2 = Integer.parseInt(record.getValue().toString());
                                                             }
                                                          
                                                         }else{ 
                                                              
                                                             if(espr.genere.equals("NUMERO")){
                                                                 I1 = Integer.parseInt(espr.testo);
-                                                                I2 = Integer.parseInt(rec.getValue().toString());
+                                                                I2 = Integer.parseInt(record.getValue().toString());
                                                             }else{
                                                                 recE = SymbolTable.retrieveVariableInsideScope(espr.testo);                                                                    
                                                                 I1 = Integer.parseInt(recE.getValue().toString());
-                                                                I2 = Integer.parseInt(rec.getValue().toString());
+                                                                I2 = Integer.parseInt(record.getValue().toString());
                                                             }                                            
                                                         }
                                                          
@@ -1048,19 +1047,19 @@ array_access ::=
                                                          
                                                         
                                                          String prod = nome.testo+"["+espr.testo+"]";
-                                                         if(!rec.getTabRegArr().containsKey(prod)){
+                                                         if(!record.getTabRegArr().containsKey(prod)){
 
                                                          if(espr.genere.equals("NUMERO")){
 
                                                            if(nome.tipo.equals("DOUBLE")){
                                                               TRAD = "$f"+countRegFP+", "+Support.calcOffset(espr.testo,nome.tipo)+
-                                                                                                              "("+rec.getRegister()+")";
+                                                                                                              "("+record.getRegister()+")";
                                                               TabTrad.put("ARRAY_ACCESS_I",TRAD);
                                                               ArrActTemp = "$f"+countRegFP;
                                                               countRegFP = countRegFP + 2;
                                                            }else{
                                                               TRAD = "$t"+countRTemp+", "+Support.calcOffset(espr.testo,nome.tipo)+
-                                                                                                              "("+rec.getRegister()+")";
+                                                                                                              "("+record.getRegister()+")";
                                                               TabTrad.put("ARRAY_ACCESS_I",TRAD);
                                                               ArrActTemp ="$t"+countRTemp;
                                                               countRTemp++;
@@ -1073,7 +1072,7 @@ array_access ::=
                                                                int countRTempS = countRTemp+1;
 
                                                                TRAD = "MULT "+"$t"+countRTempS+", "+recE.getRegister()+", "+4+"\n"+
-                                                                   "ADD "+"$t"+countRTempS+", "+"$t"+countRTempS+", "+rec.getRegister()+"\n"+
+                                                                   "ADD "+"$t"+countRTempS+", "+"$t"+countRTempS+", "+record.getRegister()+"\n"+
                                                                    "$t"+countRTemp+", "+"0("+"$t"+countRTempS+")";
 
                                                                TabTrad.put("ARRAY_ACCESS",TRAD);
@@ -1084,7 +1083,7 @@ array_access ::=
                                                              
                                                                 TRAD = "MULT "+"$t"+countRTemp+", "+recE.getRegister()+", "+8+"\n"+
                                                                        "MTC1 "+"$t"+countRTemp+", "+"$f"+countRegFP+"\n"+ 
-                                                                       "ADD.D "+"$f"+countRegFP+", "+"$f"+countRegFP+", "+rec.getRegister()+"\n"+
+                                                                       "ADD.D "+"$f"+countRegFP+", "+"$f"+countRegFP+", "+record.getRegister()+"\n"+
                                                                        "TEMP"+", "+"0("+"$f"+countRegFP+")";                                                                   
                                                                 countRegFP = countRegFP + 2;
                                                                 TRAD = TRAD.replace("TEMP","$f"+Integer.toString(countRegFP));
@@ -1111,7 +1110,7 @@ array_access ::=
 postfix_expression ::=
 		primary:prim {: RESULT = prim; :}
 	|	name:nome {:  
-                             Record rec = SymbolTable.retrieveVariableInsideScope(nome.testo);
+                             Record record = SymbolTable.retrieveVariableInsideScope(nome.testo);
 
                              if(checkFlag){
                                                                                                                                                                                                                                   
@@ -1120,11 +1119,11 @@ postfix_expression ::=
 
                                 String regRandom = "$s"+countReg;                                
                                 SymbolTable.getTable().put(nome.testo,new Record("INTEGER",regRandom));
-                                rec = SymbolTable.retrieveVariableInsideScope(nome.testo);
+                                record = SymbolTable.retrieveVariableInsideScope(nome.testo);
                                 countReg++;
                              }
   
-                             nome.tipo = rec.getType();
+                             nome.tipo = record.getType();
                              
                              RESULT = new Obj(nome.testo,nome.tipo,"VARIABILE"); 
                           :} 
@@ -1139,8 +1138,8 @@ postincrement_expression ::=
                                                     parser.report_error("ERROR: IL TIPO DI TALE VARIABILE DEVE ESSERE NECESSARIAMENTE UN INTERO!\n",postespr);
                                                } 
                                                 
-                                                Record rec = SymbolTable.getCurrRec(postespr.testo);   
-                                                TRAD = "ADDI"+" "+rec.getRegister()+", "+rec.getRegister()+", "+"1";
+                                                Record record = SymbolTable.getCurrRec(postespr.testo);   
+                                                TRAD = "ADDI"+" "+record.getRegister()+", "+record.getRegister()+", "+"1";
 
                                                RESULT = new Obj(TRAD,postespr.tipo);
                                             :}             
@@ -1154,8 +1153,8 @@ postdecrement_expression ::=
                                                     
                                                  } 
                                                    
-                                                Record rec = SymbolTable.getCurrRec(postespr.testo);   
-                                                TRAD = "ADDI"+" "+rec.getRegister()+", "+rec.getRegister()+", "+"-1";
+                                                Record record = SymbolTable.getCurrRec(postespr.testo);   
+                                                TRAD = "ADDI"+" "+record.getRegister()+", "+record.getRegister()+", "+"-1";
 
                                                 RESULT = new Obj(TRAD,postespr.tipo);
                                                :}
@@ -1225,8 +1224,8 @@ multiplicative_expression ::=
                                                                                             parser.report_error("FATAL ERROR: NON E' POSSIBILE EFFETTUARE LA DIVISIONE PER 0!\n", null);
                                                                                         }
                                                                                    }else{
-                                                                                     Record rec = SymbolTable.getCurrRec(unex.testo);  
-                                                                                     if(rec.getValue().equals("0")){
+                                                                                     Record record = SymbolTable.getCurrRec(unex.testo);  
+                                                                                     if(record.getValue().equals("0")){
                                                                                         parser.report_error("FATAL ERROR: NON E' POSSIBILE EFFETTUARE LA DIVISIONE PER 0!\n", null);
                                                                                         FlagSyn = true;
                                                                                      }
@@ -1515,8 +1514,8 @@ assignment ::=	left_hand_side:lhs EQ assignment_expression:assespr  {:
 
 String valueErr;
 if (sintErr) {
-    Record rec = SymbolTable.retrieveVariableInsideScope(lhs.testo);
-    rec.setValue(assespr.testo);
+    Record record = SymbolTable.retrieveVariableInsideScope(lhs.testo);
+    record.setValue(assespr.testo);
 
     lhs.tipo = CheckClass.checkTypeA(typeDeclErr, assespr.tipo, lhs.testo);
 
@@ -1526,14 +1525,14 @@ if (sintErr) {
 
         if (lhs.tipo.equals("INTEGER")) {
             valueErr = assespr.testo.substring(assespr.testo.indexOf("=") + 2, assespr.testo.indexOf("."));
-            rec.setValue(valueErr);
+            record.setValue(valueErr);
         }
     } else if (flagWarn) {
         parser.report_error(Err_War, lhs);
         flagWarn = false;
     }
 
-    rec.setType(lhs.tipo);
+    record.setType(lhs.tipo);
     vTrad.add(Traduzione.createReg(lhs.tipo, lhs.testo));
 
     TRAD = Traduzione.tradDecl(lhs.tipo, lhs.testo);
@@ -1545,7 +1544,7 @@ if (sintErr) {
 
         String var = lhs.testo.substring(0, lhs.testo.indexOf("["));
 
-        Record rec = SymbolTable.retrieveVariableInsideScope(var); //ottengo l'indirzzo del record
+        Record record = SymbolTable.retrieveVariableInsideScope(var); //ottengo l'indirzzo del record
 
         String num = lhs.testo.substring(lhs.testo.indexOf("[") + 1, lhs.testo.indexOf("]"));
 
@@ -1557,7 +1556,7 @@ if (sintErr) {
 
         if (lhs.genere.equals("ARRAY_ACCESS_I")) {
             int ind = Integer.parseInt(num);
-            boolean fg = rec.setArrayList(assespr.testo, ind);
+            boolean fg = record.setArrayList(assespr.testo, ind);
 
             if (flagWarn) {
                 parser.report_error(Err_War, lhs);
@@ -1565,11 +1564,11 @@ if (sintErr) {
             }
 
             if (fg) {
-                rec.remElem(ind + 1);
+                record.removeElement(ind + 1);
             }
         }
 
-        if (rec.getTabRegArr().containsKey(lhs.testo)) {
+        if (record.getTabRegArr().containsKey(lhs.testo)) {
             if (lhs.tipo.equals("INTEGER")) {
               switch (assespr.genere) {
                 case "ESPRESSIONE":
@@ -1583,7 +1582,7 @@ if (sintErr) {
                   TRAD = STArr.replace("REGT", rec2.getRegister());
                   break;
                 case "ARRAY_ACCESS":
-                  if (rec.getTabRegArr().containsValue(assespr.testo)) {
+                  if (record.getTabRegArr().containsValue(assespr.testo)) {
                     TRAD = STArr.replace("REGT", assespr.testo);
                   } else {
                     int m = assespr.testo.lastIndexOf(" $t");
@@ -1613,7 +1612,7 @@ if (sintErr) {
                   break;
                 case "ARRAY_ACCESS":
 
-                  if (rec.getTabRegArr().containsValue(assespr.testo)) {
+                  if (record.getTabRegArr().containsValue(assespr.testo)) {
                     TRAD = STArr.replace("REGT", assespr.testo);
                   } else {
                     int m = assespr.testo.lastIndexOf(" $f");
@@ -1637,9 +1636,9 @@ if (sintErr) {
                 l = lhs.testo.lastIndexOf(" $t");
             }
 
-            ArrActTStore = lhs.testo.substring(lhs.testo.indexOf("(") + 1, lhs.testo.length() - 1);
+            String ArrActTStore = lhs.testo.substring(lhs.testo.indexOf("(") + 1, lhs.testo.length() - 1);
             UT = lhs.testo.substring(l + 1, l + 4);
-            rec.getTabRegArr().put(lhs.testo, ArrActTStore);
+            record.getTabRegArr().put(lhs.testo, ArrActTStore);
 
             if (flagWarn) {
                 parser.report_error(Err_War, lhs);
@@ -1713,9 +1712,9 @@ if (sintErr) {
             }
         }
     } else {
-        Record rec = SymbolTable.retrieveVariableInsideScope(lhs.testo); //Ã¨ per ottenere SOLO il record
+        Record record = SymbolTable.retrieveVariableInsideScope(lhs.testo); //Ã¨ per ottenere SOLO il record
 
-        if (rec.getModifier().equals("null")) {
+        if (record.getModifier().equals("null")) {
             if (checkFlag) {
                 parser.report_error(Err_War, lhs);
                 checkFlag = false;
@@ -1727,14 +1726,14 @@ if (sintErr) {
                 String APP = Traduzione.funct(assespr.genere, assespr.testo);
             if (assespr.genere.equals("ARRAY_ACCESS")) {
                     if (assespr.testo.startsWith("$t")) {
-                        TRAD = APP + Traduzione.OpEspr(3, rec.getType()) + " " +
-                                rec.getRegister() + ", $zero" + ", " + Traduzione.getRegFP();
+                        TRAD = APP + Traduzione.OpEspr(3, record.getType()) + " " +
+                                record.getRegister() + ", $zero" + ", " + Traduzione.getRegFP();
                     } else {
-                        TRAD = assespr.testo + "\n" + APP + Traduzione.OpEspr(3, rec.getType()) + " " +
-                                rec.getRegister() + ", $zero" + ", " + Traduzione.getRegFP();
+                        TRAD = assespr.testo + "\n" + APP + Traduzione.OpEspr(3, record.getType()) + " " +
+                                record.getRegister() + ", $zero" + ", " + Traduzione.getRegFP();
                     }
                 } else {
-                    TRAD = APP + Traduzione.OpEspr(3, rec.getType()) + " " + rec.getRegister() +
+                    TRAD = APP + Traduzione.OpEspr(3, record.getType()) + " " + record.getRegister() +
                             ", $zero" + ", " + Traduzione.getRegFP();
                 }
                 flagWarn = false;
@@ -1743,54 +1742,54 @@ if (sintErr) {
 
                     if (assespr.genere.equals("ESPRESSIONE")) {
 
-                        TRAD = assespr.testo.replace("RIS", rec.getRegister());
+                        TRAD = assespr.testo.replace("RIS", record.getRegister());
 
                     } else if (assespr.genere.equals("VARIABILE")) {
 
                         Record rec2 = SymbolTable.retrieveVariableInsideScope(assespr.testo);
-                        TRAD = Traduzione.OpEspr(3, rec.getType()) + " " + rec.getRegister() +
+                        TRAD = Traduzione.OpEspr(3, record.getType()) + " " + record.getRegister() +
                                 ", $zero" + ", " + rec2.getRegister();
 
                     } else if (assespr.genere.equals("ARRAY_ACCESS")) {
 
                         if (assespr.testo.startsWith("$t")) {
-                            TRAD = Traduzione.OpEspr(3, rec.getType()) + " " +
-                                    rec.getRegister() + ", $zero" + ", " + assespr.testo;
+                            TRAD = Traduzione.OpEspr(3, record.getType()) + " " +
+                                    record.getRegister() + ", $zero" + ", " + assespr.testo;
                         } else {
                             int l = assespr.testo.lastIndexOf(" $t");
                             String UT = assespr.testo.substring(l + 1, l + 4);
-                            TRAD = assespr.testo + "\n" + Traduzione.OpEspr(3, rec.getType()) + " " +
-                                    rec.getRegister() + ", $zero" + ", " + UT;
+                            TRAD = assespr.testo + "\n" + Traduzione.OpEspr(3, record.getType()) + " " +
+                                    record.getRegister() + ", $zero" + ", " + UT;
                         }
 
                     } else {
-                        rec.setValue(assespr.testo);
-                        TRAD = Traduzione.OpEspr(3, rec.getType()) + "I" + " " + rec.getRegister() +
+                        record.setValue(assespr.testo);
+                        TRAD = Traduzione.OpEspr(3, record.getType()) + "I" + " " + record.getRegister() +
                                 ", $zero" + ", " + assespr.testo;
                     }
                 } else {
 
                     if (assespr.genere.equals("ESPRESSIONE")) {
-                        TRAD = assespr.testo.replace("RIS", rec.getRegister());
+                        TRAD = assespr.testo.replace("RIS", record.getRegister());
                     } else if (assespr.genere.equals("VARIABILE")) {
                         Record rec2 = SymbolTable.getCurrRec(assespr.testo);
-                        TRAD = Traduzione.OpEspr(3, rec.getType()) + " " + rec.getRegister() +
+                        TRAD = Traduzione.OpEspr(3, record.getType()) + " " + record.getRegister() +
                                 ", $zero" + ", " + rec2.getRegister();
                     } else if (assespr.genere.equals("ARRAY_ACCESS")) {
 
                         if (assespr.testo.startsWith("$f")) {
-                            TRAD = Traduzione.OpEspr(3, rec.getType()) + " " +
-                                    rec.getRegister() + ", $zero" + ", " + assespr.testo;
+                            TRAD = Traduzione.OpEspr(3, record.getType()) + " " +
+                                    record.getRegister() + ", $zero" + ", " + assespr.testo;
                         } else {
                             int l = assespr.testo.lastIndexOf(" $f");
                             String UT = assespr.testo.substring(l + 1, l + 4);
-                            TRAD = assespr.testo + "\n" + Traduzione.OpEspr(3, rec.getType()) + " " +
-                                    rec.getRegister() + ", $zero" + ", " + UT;
+                            TRAD = assespr.testo + "\n" + Traduzione.OpEspr(3, record.getType()) + " " +
+                                    record.getRegister() + ", $zero" + ", " + UT;
                         }
 
                     } else {
-                        rec.setValue(assespr.testo);
-                        TRAD = Traduzione.OpEspr(3, rec.getType()) + "I" + " " + rec.getRegister() +
+                        record.setValue(assespr.testo);
+                        TRAD = Traduzione.OpEspr(3, record.getType()) + "I" + " " + record.getRegister() +
                                 ", $zero" + ", " + assespr.testo;
                     }
                 }
@@ -1809,7 +1808,7 @@ left_hand_side ::=
                             if(sintErr){
                                     SymbolTable.addVariableToTable(nome.testo);
                             }
-                            Record rec = SymbolTable.retrieveVariableInsideScope(nome.testo); 
+                            Record record = SymbolTable.retrieveVariableInsideScope(nome.testo); 
 
                             if(checkFlag){ 
                                 
@@ -1818,12 +1817,12 @@ left_hand_side ::=
                                 
                                 String regRandom = "$s"+countReg;                                
                                 SymbolTable.getTable().put(nome.testo,new Record("INTEGER", regRandom));
-                                rec = SymbolTable.retrieveVariableInsideScope(nome.testo);
+                                record = SymbolTable.retrieveVariableInsideScope(nome.testo);
                                 countReg++;
 
                             }
                            
-                            nome.tipo = rec.getType();
+                            nome.tipo = record.getType();
 
                             RESULT = nome;
                            :}
@@ -1839,10 +1838,10 @@ left_hand_side ::=
                                       }
                                       
                                       String D = arracc.testo.substring(0, arracc.testo.indexOf("["));
-                                      Record rec = SymbolTable.retrieveVariableInsideScope(D);
+                                      Record record = SymbolTable.retrieveVariableInsideScope(D);
 
-                                      if(rec.getTabRegArr().containsKey(arracc.testo)){                                         
-                                            STArr = T+" "+"REGT "+"0("+rec.getTabRegArr().get(arracc.testo)+")";                                       
+                                      if(record.getTabRegArr().containsKey(arracc.testo)){                                         
+                                            STArr = T+" "+"REGT "+"0("+record.getTabRegArr().get(arracc.testo)+")";                                       
                                       }else{ 
                                         
                                             if(TabTrad.containsKey("ARRAY_ACCESS_I")){

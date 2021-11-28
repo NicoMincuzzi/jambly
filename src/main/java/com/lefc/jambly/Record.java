@@ -93,7 +93,7 @@ public class Record {
     }
 
     /*METODO CHE PERMETTE L'ELIMINAZIONE DI UN ELEMENTO DEL RECORD*/
-    public void remElem(int index) {
+    public void removeElement(int index) {
         list.remove(index);
     }
 }
