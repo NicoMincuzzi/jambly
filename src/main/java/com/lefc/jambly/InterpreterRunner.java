@@ -1,7 +1,8 @@
 package com.lefc.jambly;
 
 import java.io.*;
-import java.util.Collections;
+
+import static java.util.Collections.sort;
 
 public class InterpreterRunner {
 
@@ -17,7 +18,7 @@ public class InterpreterRunner {
         try {
             parser.parse();
             parser.calcola_par(); //per un errore sulle parentesi
-            Collections.sort(parser.error);
+            sort(parser.error);
             parser.remove();   //per errori al di fuori del source program
             parser.print_error(); //stampa della lista di errori
             result = buildResult();
@@ -28,6 +29,9 @@ public class InterpreterRunner {
             f.delete();
             f = new File(ERROR_FILE);
             f.delete();
+            CUP$parser$actions.countReg = 0;
+            CUP$parser$actions.countRegFP = 0;
+            CUP$parser$actions.countRTemp = 0;
         }
         return result;
     }
