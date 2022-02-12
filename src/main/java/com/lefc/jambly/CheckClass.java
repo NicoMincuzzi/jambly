@@ -75,8 +75,7 @@ public class CheckClass {
         return false;
     }
 
-    /*METODO PER IL CONTROLLO DEL TIPO ==, != */
-    public static void checkEQNEQ(String type1, String type2) {
+    public static void isValidEqualsOrNotEqualsComparison(String type1, String type2) {
         if (type1.equals("STRING") && !type2.equals("STRING") ||
                 !type1.equals("STRING") && type2.equals("STRING") ||
                 type1.equals("BOOLEAN") && !type2.equals("BOOLEAN") ||

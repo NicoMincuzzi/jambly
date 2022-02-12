@@ -1406,7 +1406,7 @@ relational_expression ::=
 equality_expression ::=
 		relational_expression:relex {: RESULT = relex; :}
 	|	equality_expression:eqespr EQEQ relational_expression:relespr {: 
-                                                                                CheckClass.checkEQNEQ(eqespr.tipo,relespr.tipo); 
+                                                                                CheckClass.isValidEqualsOrNotEqualsComparison(eqespr.tipo,relespr.tipo);
 
                                                                                 if(checkFlag){
                                                                                     
@@ -1432,7 +1432,7 @@ equality_expression ::=
                                                                               :}
         
 	|	equality_expression:eqespr NOTEQ relational_expression:relespr {: 
-                                                                                CheckClass.checkEQNEQ(eqespr.tipo,relespr.tipo);
+                                                                                CheckClass.isValidEqualsOrNotEqualsComparison(eqespr.tipo,relespr.tipo);
 
                                                                                 if(checkFlag){
                                                                                     
