@@ -13,52 +13,32 @@ public class ProdParser {
     }
 
     public static void arrayDeclarationHandler(String vdi, String vi) {
+        Record record = SymbolTable.getCurrRec(vdi.replace("[]", ""));
+
         List<String> listValue = new ArrayList<>();
 
-        vdi = vdi.replace("[]", "");
-        Record rec = SymbolTable.getCurrRec(vdi);
+        int i = vi.lastIndexOf(",");
+        while (i != -1 || !vi.equals("")) {
+            listValue.add((vi.startsWith(" ", i + 1)) ? vi.substring(i + 2) : vi.substring(i + 1));
 
-        String elem;
-        int i;
-        if (vi.contains("new")) {
-            i = vi.lastIndexOf(",");
-            while (i != -1 || !vi.equals("")) {
-                if (vi.startsWith(" ", i + 1)) {
-                    elem = vi.substring(i + 2);
-                } else {
-                    elem = vi.substring(i + 1);
-                }
-
-                listValue.add(elem);
-
+            if (vi.contains("new")) {
                 if (i != -1) {
                     vi = vi.substring(vi.indexOf("]") + 1, i);
                     i = vi.lastIndexOf(",");
-                } else {
-                    vi = "";
+                    continue;
                 }
-            }
-            rec.setList(listValue);
-        } else {
-            i = vi.lastIndexOf(",");
-
-            while (i != -1 || !vi.equals("")) {
-                if (vi.startsWith(" ", i + 1)) {
-                    elem = vi.substring(i + 2);
-                } else {
-                    elem = vi.substring(i + 1);
-                }
-
-                listValue.add(elem);
+            } else {
                 if (i != -1) {
                     vi = vi.substring(0, i);
                     i = vi.lastIndexOf(",");
-                } else {
-                    vi = "";
+                    continue;
                 }
             }
-            rec.setValue(listValue.size());
-            rec.setList(listValue);
+            vi = "";
         }
+        if (!vi.contains("new"))
+            record.setValue(listValue.size());
+
+        record.setList(listValue);
     }
 }
