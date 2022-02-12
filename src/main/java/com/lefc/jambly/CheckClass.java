@@ -1,46 +1,33 @@
 package com.lefc.jambly;
 
-import java.util.ListIterator;
+import java.util.List;
 
-import static com.lefc.jambly.Support.getArrList;
 
 public class CheckClass {
 
     public static final int MAX_MODIFIERS_NUMBER = 3;
     public static final int MIN_MODIFIERS_NUMBER = 0;
 
-    public void checkModifiers() {
-        ListIterator<String> it = getArrList().listIterator();
-        if (getArrList().size() <= MAX_MODIFIERS_NUMBER && getArrList().size() > MIN_MODIFIERS_NUMBER) {
-            String modifier1 = it.next();
-            String modifier2;
-            while (it.hasNext()) {
-                modifier2 = it.next();
-                if (modifier1.equals(modifier2) || modifier1.equals("public") && modifier2.equals("private") ||
-                        modifier1.equals("private") && modifier2.equals("public")) {
-                    CUP$parser$actions.Err_War = "Error: Modificatori uguali o dello stesso tipo!\n";
-                    CUP$parser$actions.checkFlag = true;
-                }
-            }
-            if (getArrList().size() > 2) {
-                it = getArrList().listIterator(1);
-                modifier1 = it.next();
-                modifier2 = it.next();
-                if (modifier1.equals(modifier2) || modifier1.equals("public") && modifier2.equals("private") || modifier1.equals("private") && modifier2.equals("public")) {
-                    CUP$parser$actions.Err_War = "Error: Modificatori uguali o dello stesso tipo!\n";
-                    CUP$parser$actions.checkFlag = true;
-                }
-            }
-            return;
+    public boolean checkModifiers(List<String> arrList) {
+        boolean result = CUP$parser$actions.checkFlag;
+        if (arrList.size() > MAX_MODIFIERS_NUMBER || arrList.size() <= MIN_MODIFIERS_NUMBER) {
+            CUP$parser$actions.Err_War = "Error: almeno un modificatore/al massimo tre modificatori!\n";
+            result = true;
         }
-        CUP$parser$actions.Err_War = "Error: almeno un modificatore/al massimo tre modificatori!\n";
-        CUP$parser$actions.checkFlag = true;
+
+        if (arrList.contains("private") && arrList.contains("public")) {
+            CUP$parser$actions.Err_War = "Error: Modificatori uguali o dello stesso tipo!\n";
+            result = true;
+        }
+
+        return result;
     }
 
     /*METODO PER IL CONTROLLO DEL TIPO NELLE ESPRESSIONI*/
     public static String checkTypeMD(String leftType, String rightType) {
         if (!leftType.equals(rightType)) {
-            if (leftType.equals("INTEGER") && rightType.equals("DOUBLE") || leftType.equals("DOUBLE") && rightType.equals("INTEGER")) {
+            if (leftType.equals("INTEGER") && rightType.equals("DOUBLE") ||
+                    leftType.equals("DOUBLE") && rightType.equals("INTEGER")) {
                 CUP$parser$actions.Err_War = "WARNING: tipi differenti! Si provvederà ad effettuare un cast per la risoluzione del problema!\n";
                 CUP$parser$actions.flagWarn = true;
                 return "DOUBLE";

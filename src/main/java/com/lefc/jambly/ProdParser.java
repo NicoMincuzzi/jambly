@@ -3,11 +3,13 @@ package com.lefc.jambly;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.lefc.jambly.Support.getArrList;
+
 public class ProdParser {
 
     public void modifierHandler(String mod_opt) {
         Support.sepWordWS(mod_opt);
-        new CheckClass().checkModifiers();
+        CUP$parser$actions.checkFlag = new CheckClass().checkModifiers(getArrList());
     }
 
     public static void arrayDeclarationHandler(String vdi, String vi) {
