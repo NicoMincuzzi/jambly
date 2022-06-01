@@ -61,8 +61,8 @@ public class SymbolTable {
         if (table.containsKey(variable)) {
             CUP$parser$actions.Err_War = "ERROR: la variabile e' stata gia' dichiarata!\n";
             CUP$parser$actions.checkFlag = true;
-        } else {
-            table.put(variable, new Record());
+            return;
         }
+        table.put(variable, new Record());
     }
 }

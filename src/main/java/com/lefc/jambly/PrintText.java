@@ -1,5 +1,7 @@
 package com.lefc.jambly;
 
+import static java.util.Arrays.asList;
+
 public class PrintText implements Comparable<PrintText> {
     private String message;
     private String wrongString;
@@ -16,9 +18,8 @@ public class PrintText implements Comparable<PrintText> {
         //confronto tra ogg chiamante e l'ogg passato
         if (this.getPos() < o.getPos()) {
             return -1;  //ordinamento in base al n di riga in modo da averli come nel source
-        } else {
-            return (this.getPos() == o.getPos()) ? 0 : 1;
         }
+        return (this.getPos() == o.getPos()) ? 0 : 1;
     }
 
     public String getMessage() {
@@ -47,7 +48,6 @@ public class PrintText implements Comparable<PrintText> {
 
     public void textAndLine(int linea, char[] zzBuffer) {
         StringBuilder load = new StringBuilder("");
-        String wrongStr;
         int start = 0;
         int point = 0;
 
@@ -62,11 +62,8 @@ public class PrintText implements Comparable<PrintText> {
             load.append(zzBuffer[start]);
             start++;
         }
-        wrongStr = load.toString();
-        wrongStr = wrongStr.trim();
-        wrongStr = wrongStr.replaceAll("\n", "");
-        setString(wrongStr);
-        setPos(linea);
+        wrongString = load.toString().trim().replaceAll("\n", "");
+        pos = linea;
     }
 
     public void textAndLine(int pos_attuale, int linea, char[] zzBuffer) {
@@ -75,10 +72,9 @@ public class PrintText implements Comparable<PrintText> {
         int start = pos_attuale - 1;
         int end = pos_attuale;
         int line = linea;
-        int rif = 0;
         boolean flag = false;
 
-        StringBuilder load = new StringBuilder("");
+        StringBuilder load = new StringBuilder();
 
         //controllo errore prima parola inizio programma
         //errore prima stringa della prima parola nel caso in cui il codice è all'inizio
@@ -91,11 +87,11 @@ public class PrintText implements Comparable<PrintText> {
             //nel caso in cui l'err si sia verificato a metà e l'err è stato rilevato dopo
             //controlla se c'è un tab o uno spazio vuoto
             if (zzBuffer[start] == '\t' || zzBuffer[start] == ' ') {   //torno indietro assicurandomi di restare nel codice e di non sfornare a -1
-                while ((zzBuffer[start] == '\t' || zzBuffer[start] == ' ') && (start - 1) != rif) { //diminuisco il valore di start
+                while ((zzBuffer[start] == '\t' || zzBuffer[start] == ' ') && start - 1 != 0) { //diminuisco il valore di start
                     start--;
                 }
                 //controllo errore inizio programma stessa riga
-                if (start - 1 == rif) {
+                if (start - 1 == 0) {
                     flag = true;
 
                     while (zzBuffer[end] != '\n') {
@@ -119,29 +115,26 @@ public class PrintText implements Comparable<PrintText> {
                             start--;
                             line--;
                             //va indietro finchè non trova un carattere o se finisce il file
-                            while ((zzBuffer[start] == '\t' || zzBuffer[start] == ' ' ||
-                                    zzBuffer[start] == '\n' || zzBuffer[start] == '\r') && start - 1 != rif) {
+                            while (asList('\t', ' ', '\n', '\r').contains(zzBuffer[start]) && start - 1 != 0) {
                                 if (zzBuffer[start] == '\n')
                                     line--;
                                 start--;
                             }
                             //errore programma inizia diverse righe dopo
-                            if ((start - 1) == rif) {
-                                while (zzBuffer[start] == '\t' || zzBuffer[start] == ' ' ||
-                                        zzBuffer[start] == '\n' || zzBuffer[start] == '\r') {
+                            if ((start - 1) == 0) {
+                                while (asList('\t', ' ', '\n', '\r').contains(zzBuffer[start])) {
                                     start++;
                                 }
                                 while (zzBuffer[start] != '\n') {
                                     load.append(zzBuffer[start]);
                                     start++;
                                 }
-                            } else
-                            //errore riga precedente
-                            {
+                            } else {
+                                //errore riga precedente
                                 load.append(zzBuffer[start]);
                                 start--;
-                                while (zzBuffer[start] != '\n') //carico la riga al contrario
-                                {
+                                //carico la riga al contrario
+                                while (zzBuffer[start] != '\n') {
                                     load.append(zzBuffer[start]);
                                     start--;
                                 }
@@ -154,17 +147,15 @@ public class PrintText implements Comparable<PrintText> {
                 if (zzBuffer[start] == '\n' || zzBuffer[start] == '\r') {
                     start--;
                     line--;
-                    while ((zzBuffer[start] == '\t' || zzBuffer[start] == ' ' ||
-                            zzBuffer[start] == '\n' || zzBuffer[start] == '\r') && start - 1 != rif) {
+                    while (asList('\t', ' ', '\n', '\r').contains(zzBuffer[start]) && start - 1 != 0) {
                         if (zzBuffer[start] == '\n')
                             line--;
                         start--;
                     }
 
-                    if ((start - 1) == rif) {
+                    if ((start - 1) == 0) {
                         flag = true;
-                        while (zzBuffer[start] == '\t' || zzBuffer[start] == ' ' ||
-                                zzBuffer[start] == '\n' || zzBuffer[start] == '\r') {
+                        while (asList('\t', ' ', '\n', '\r').contains(zzBuffer[start])) {
                             start++;
                         }
                         while (zzBuffer[start] != '\n') {

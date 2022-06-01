@@ -83,12 +83,11 @@ public class Record {
             if (index == 0) {
                 list.add(value);
                 return false;
-            } else {
-                list.add(value);
-                CUP$parser$actions.Err_War = "WARNING: array vuoto!!! L'elemento è stato inserito nella prima posizione libera!\n";
-                CUP$parser$actions.flagWarn = true;
-                return false;
             }
+            list.add(value);
+            CUP$parser$actions.Err_War = "WARNING: array vuoto!!! L'elemento è stato inserito nella prima posizione libera!\n";
+            CUP$parser$actions.flagWarn = true;
+            return false;
         }
     }
 

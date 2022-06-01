@@ -50,7 +50,8 @@ public class CheckClass {
         }
         if (!leftType.equals(rightType)) {
             if (leftType.equals("DOUBLE") && rightType.equals("INTEGER")) {
-                CUP$parser$actions.Err_War = "WARNING: tipi differenti! Si provederà ad effettuare" + " un cast per la risoluzione del problema!\n";
+                CUP$parser$actions.Err_War = "WARNING: tipi differenti! Si provederà ad effettuare" +
+                        " un cast per la risoluzione del problema!\n";
                 CUP$parser$actions.flagWarn = true;
                 return "DOUBLE";
             } else if (leftType.equals("INTEGER") && rightType.equals("DOUBLE")) {

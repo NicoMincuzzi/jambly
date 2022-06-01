@@ -22,8 +22,7 @@ public class ProdParser {
                     ? lastCommaInSentence + 2
                     : lastCommaInSentence + 1;
 
-            String result = vi.substring(index);
-            listValue.add(result);
+            listValue.add(vi.substring(index));
 
             if (vi.contains("new")) {
                 if (lastCommaInSentence != -1) {

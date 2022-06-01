@@ -15,8 +15,7 @@ public class InterpreterRunner {
     private parser parser;
 
     public String run(String file) {
-        InputStream targetStream = new ByteArrayInputStream(file.getBytes());
-        Scanner scanner = new Scanner(targetStream);
+        Scanner scanner = new Scanner(new ByteArrayInputStream(file.getBytes()));
         this.scanner = scanner;
         parser parser = new parser(scanner);
         this.parser = parser;
@@ -25,15 +24,10 @@ public class InterpreterRunner {
         String result = null;
         try {
             parser.parse();
-
             checkBrackets();
-
             sort(parser.error);
-
             remove();   //per errori al di fuori del source program
-
             new ErrorParser(new SemanticErrorRepository()).print(this.parser.error, this.parser.cont_errori);
-
             result = buildResult();
         } catch (Exception e) {
             e.printStackTrace();
@@ -101,5 +95,4 @@ public class InterpreterRunner {
         }
         return result.toString();
     }
-
 }
