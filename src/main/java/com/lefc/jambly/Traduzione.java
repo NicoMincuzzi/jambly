@@ -24,22 +24,21 @@ public class Traduzione {
             register = "$f" + CUP$parser$actions.countRegFP;
             CUP$parser$actions.countRegFP += 2;
             record.setAssemblyRegister(register);
-            return "MOVE.D" + " " + var + ", " + register;
+            return "MOVE.D " + var + ", " + register;
         }
         register = "$s" + CUP$parser$actions.countReg;
         CUP$parser$actions.countReg++;
         record.setAssemblyRegister(register);
-        return "MOVE" + " " + var + ", " + register;
+        return "MOVE " + var + ", " + register;
     }
 
     //METODO PER LA TRADUZIONE DELLE DICHIARAZIONI DELLE VARIABILI E DEGLI ARRAY
-    public static String tradDecl(String tipo, String varad) {
-
+    public static String tradDecl(String type, String statement) {
         String TIPO = "";
         String variable;
         int z = 0;
 
-        switch (tipo) {
+        switch (type) {
             case "INTEGER":
                 TIPO = ".WORD";
                 break;
@@ -50,52 +49,43 @@ public class Traduzione {
                 break;
         }
 
-        if (!varad.contains("[]")) {
-            variable = varad.contains("=") ? varad.substring(0, varad.indexOf("=") - 1) : varad;
+        if (!statement.contains("[]")) {
+            variable = statement.contains("=") ? statement.substring(0, statement.indexOf("=") - 1) : statement;
 
             Record record = getCurrRec(variable);
 
             assemblyOutput = (record.getValue().toString().equals("null")) ? variable + " " + TIPO + " ?" : variable + " " + TIPO + " " + record.getValue().toString() + "d";
             return assemblyOutput;
         }
-        if (varad.contains("new")) {
-
-            variable = varad.substring(0, varad.indexOf("[]"));
+        if (statement.contains("new")) {
+            variable = statement.substring(0, statement.indexOf("[]"));
             Record record = getCurrRec(variable);
 
             assemblyOutput = "dim EQU " + record.getList().size() + "\n" + variable + " " + TIPO;
             if (record.getList().isEmpty()) {
                 assemblyOutput += " ?";
-            } else {
-                ListIterator<String> it = record.getList().listIterator(record.getList().size()); //per ottenere la lista al contrario
-                record.setValue(record.getList().size());
-                while (it.hasPrevious()) {
-                    if (z == 0) {
-                        assemblyOutput += " " + it.previous();
-                    } else {
-                        assemblyOutput += ", " + it.previous();
-                    }
-                    z++;
-                }
+                return assemblyOutput;
             }
-        } else {
-            variable = varad.substring(0, varad.indexOf("[]"));
-            Record record = getCurrRec(variable);
-            assemblyOutput = "dim EQU " + record.getValue().toString() + "\n" + variable + " " + TIPO;
-            if (record.getList().isEmpty()) {
-                assemblyOutput += " ?";
-            } else {
-                ListIterator<String> it = record.getList().listIterator(record.getList().size());
+            ListIterator<String> it = record.getList().listIterator(record.getList().size()); //per ottenere la lista al contrario
+            record.setValue(record.getList().size());
+            while (it.hasPrevious()) {
+                assemblyOutput += (z == 0) ? " " + it.previous() : ", " + it.previous();
+                z++;
+            }
+            return assemblyOutput;
+        }
+        variable = statement.substring(0, statement.indexOf("[]"));
+        Record record = getCurrRec(variable);
+        assemblyOutput = "dim EQU " + record.getValue().toString() + "\n" + variable + " " + TIPO;
+        if (record.getList().isEmpty()) {
+            assemblyOutput += " ?";
+            return assemblyOutput;
+        }
 
-                while (it.hasPrevious()) {
-                    if (z == 0) {
-                        assemblyOutput = assemblyOutput + " " + it.previous();
-                    } else {
-                        assemblyOutput = assemblyOutput + ", " + it.previous();
-                    }
-                    z++;
-                }
-            }
+        ListIterator<String> it = record.getList().listIterator(record.getList().size());
+        while (it.hasPrevious()) {
+            assemblyOutput = (z == 0) ? assemblyOutput + " " + it.previous() : assemblyOutput + ", " + it.previous();
+            z++;
         }
         return assemblyOutput;
     }
@@ -529,16 +519,12 @@ public class Traduzione {
                 assemblyOutput = selGenBinR(G_R, G_L, "", T_R, record.getRegister(), RTemp, I, Tp_R);
                 break;
             case "ARRAY_ACCESS":
-                String registry = getRegArr(T_L, Tp_L);
-                T_L = (T_L.startsWith("$")) ? "" : T_L + "\n";
-                assemblyOutput = selGenBinR(G_R, G_L, T_L, T_R, registry, RTemp, I, Tp_R);
+                String registry = retrieveArrayRegister(T_L, Tp_L);
+                assemblyOutput = selGenBinR(G_R, G_L, (T_L.startsWith("$")) ? "" : T_L + "\n", T_R, registry, RTemp, I, Tp_R);
                 break;
             case "NUMERO":
                 assemblyOutput = selGenBinR(G_R, G_L, T_L, T_R, T_L, RTemp, I, Tp_R);
                 break;
-            default:
-                System.out.println("ERROR:genere non supportato!");
-                System.exit(0);
         }
         return assemblyOutput;
     }
@@ -552,7 +538,7 @@ public class Traduzione {
                 assemblyOutput = tradBInt(T_L, T_R, R_T, Reg_1, currentRecord.getRegister(), I, G_L, G_R);
                 break;
             case "ARRAY_ACCESS":
-                String registry = getRegArr(T_R, Tp_R);
+                String registry = retrieveArrayRegister(T_R, Tp_R);
                 if (T_R.startsWith("$")) {
                     T_R = "";
                 } else {
@@ -563,15 +549,11 @@ public class Traduzione {
             case "NUMERO":
                 assemblyOutput = tradRelZero(T_L, "", R_T, Reg_1, T_R, I, G_L, G_R);
                 break;
-            default:
-                System.out.println("ERROR:genere non supportato!");
-                System.exit(0);
         }
         return assemblyOutput;
     }
 
     /*METODO CHE PERMETTE LA TRADUZIONE DI RELAZIONI BINARIE, NELLA QUALI IL SECONDO MEMBRO È PARI A 0 O UN NUMERO*/
-
     public static String tradRelZero(String T_L, String T_R, String R_T, String Reg_1, String Reg_2, int I, String Gen_1, String Gen_2) {
 
         if (I == 1 && T_R.equals("0")) {
@@ -591,19 +573,18 @@ public class Traduzione {
     /*METODO CHE EFFETTUA LA TRADUZIONE VERA E PROPRIA DELL'ESPR BINARIA, NEL CASO IN CUI ENTRAMBI I MEMBRI SONO INTEGER*/
     private static String tradBInt(String T_L, String T_R, String R_T, String Reg_1, String Reg_2, int I, String Gen_1, String Gen_2) {
         if (Gen_1.equals("NUMERO") || Gen_2.equals("NUMERO")) {
+            String t = T_L + T_R + "SLTI " + R_T + ", " + Reg_1 + ", " + Reg_2 + "\nBEQ " + R_T + ", $zero, OFFSET";
             if (I == 3 || I == 4) {
-                assemblyOutput = T_L + T_R + "SLTI" + " " + R_T + ", " + Reg_1 + ", " + Reg_2 + "\n" + "BEQ" + " " + R_T + ", " + "$zero, " + "OFFSET" +
-                        "\n" + "BEQ" + " " + Reg_1 + ", " + Reg_2 + ", " + "OFFSET";
-                return assemblyOutput;
+                return t + "\nBEQ " + Reg_1 + ", " + Reg_2 + ", OFFSET";
             }
-            return T_L + T_R + "SLTI" + " " + R_T + ", " + Reg_1 + ", " + Reg_2 + "\n" + "BEQ" + " " + R_T + ", " + "$zero, " + "OFFSET";
+            return t;
         }
+
+        String s = T_L + T_R + "SLT " + R_T + ", " + Reg_1 + ", " + Reg_2 + "\nBEQ " + R_T + ", $zero, OFFSET";
         if (I == 3 || I == 4) {
-            assemblyOutput = T_L + T_R + "SLT" + " " + R_T + ", " + Reg_1 + ", " + Reg_2 + "\n" + "BEQ" + " " + R_T + ", " + "$zero, " + "OFFSET" +
-                    "\n" + "BEQ" + " " + Reg_1 + ", " + Reg_2 + ", " + "OFFSET";
-            return assemblyOutput;
+            return s + "\nBEQ " + Reg_1 + ", " + Reg_2 + ", OFFSET";
         }
-        return T_L + T_R + "SLT" + " " + R_T + ", " + Reg_1 + ", " + Reg_2 + "\n" + "BEQ" + " " + R_T + ", " + "$zero, " + "OFFSET";
+        return s;
     }
 
     /*METODO PER LA TRADUZIONE DI ESPRESSIONI BINARIE CON ENTRAMBI GLI ELEMENTI DI TIPO DOUBLE*/
@@ -615,7 +596,7 @@ public class Traduzione {
                 break;
             case "ARRAY_ACCESS":
                 String REG;
-                REG = getRegArr(T_L, Tp_L);
+                REG = retrieveArrayRegister(T_L, Tp_L);
                 if (T_L.startsWith("$")) {
                     T_L = "";
                 } else {
@@ -627,17 +608,13 @@ public class Traduzione {
                 String NUM = funct(G_L, T_L);  //assegno al numero un registro
                 assemblyOutput = selGenR("", NUM, G_R, T_R, RegFP, Tp_L, I, true);
                 break;
-            default:
-                System.out.println("ERROR:genere non supportato!");
-                System.exit(0);
         }
         return assemblyOutput;
     }
 
     /*METODO CHE PERMETTE LA SELEZIONE DEL TERMINE DESTRO DI TIPO DOUBLE*/
-    public static String selGenR(String T_3, String T_L, String G_R, String T_R, String REG_1, String Tp_L, int I, boolean FLAG) {
-
-        String REG = "";
+    private static String selGenR(String T_3, String T_L, String G_R, String T_R, String REG_1, String Tp_L, int I, boolean FLAG) {
+        String REG;
         String testo_1;
         String testo_2 = "";
         String testo_3 = "";
@@ -650,86 +627,43 @@ public class Traduzione {
 
         switch (G_R) {
             case "VARIABILE":
-                Record rec = getCurrRec(T_R);
-                testo_3 = T_3;
-
-                assemblyOutput = selLogOp(I, testo_1, testo_2, testo_3, REG_1, rec.getRegister());
-
+                assemblyOutput = selectBinaryOperation(I, testo_1, testo_2, T_3, REG_1, getCurrRec(T_R).getRegister());
                 break;
             case "ARRAY_ACCESS":
-                REG = getRegArr(T_R, Tp_L);
-
+                REG = retrieveArrayRegister(T_R, Tp_L);
                 if (T_R.startsWith("$")) {
                     testo_2 = "";
                 } else {
                     testo_2 = T_R + "\n";
                 }
-
-                testo_3 = T_3;
-
-                assemblyOutput = selLogOp(I, testo_1, testo_2, testo_3, REG_1, REG);
-
+                assemblyOutput = selectBinaryOperation(I, testo_1, testo_2, T_3, REG_1, REG);
                 break;
             case "NUMERO":
-                testo_2 = "L.D." + "$f" + CUP$parser$actions.countRegFP + ", " + "const" + T_R + "\n";
-                REG = "$f" + CUP$parser$actions.countRegFP;
-
-                assemblyOutput = selLogOp(I, testo_1, testo_2, testo_3, REG_1, REG);
-
+                assemblyOutput = selectBinaryOperation(I, testo_1, "L.D.$f" + CUP$parser$actions.countRegFP + ", const" + T_R + "\n", testo_3, REG_1, "$f" + CUP$parser$actions.countRegFP);
                 CUP$parser$actions.countRegFP += 2;
                 break;
-            default:
-
-                System.out.println("ERROR:genere non supportato!");
-                System.exit(0);
-
         }
-
         return assemblyOutput;
     }
 
-
-    /*METODO CHE PERMETTE DI SELEZIONARE L'OPERAZIONE BINARIA DESIDERATA*/
-    public static String selLogOp(int I, String testo1, String testo2, String testo3, String Reg_1, String Reg_2) {
+    private static String selectBinaryOperation(int I, String testo1, String testo2, String testo3, String Reg_1, String Reg_2) {
         if (I == 1) {
-            assemblyOutput = createTrad(testo1, testo2, testo3, "LT", Reg_1, Reg_2);
+            assemblyOutput = testo1 + testo2 + testo3 + "C.LT.D " + Reg_1 + ", " + Reg_2;
         } else if (I == 2) {
-            assemblyOutput = createTrad(testo1, testo2, testo3, "GT", Reg_1, Reg_2);
+            assemblyOutput = testo1 + testo2 + testo3 + "C.GT.D " + Reg_1 + ", " + Reg_2;
         } else if (I == 3) {
-            assemblyOutput = createTrad(testo1, testo2, testo3, "LE", Reg_1, Reg_2);
+            assemblyOutput = testo1 + testo2 + testo3 + "C.LE.D " + Reg_1 + ", " + Reg_2;
         } else {
-            assemblyOutput = createTrad(testo1, testo2, testo3, "GE", Reg_1, Reg_2);
+            assemblyOutput = testo1 + testo2 + testo3 + "C.GE.D " + Reg_1 + ", " + Reg_2;
         }
         return assemblyOutput;
     }
 
-    /*METODO CHE PERMETTE IL RECUPERO DEL REGISTRO CHE IDENTIFICA L'ARRAY*/
-    public static String getRegArr(String testo, String tipo) {
-        int i;
-        String RegArr;
-
+    private static String retrieveArrayRegister(String testo, String tipo) {
         if (tipo.equals("INTEGER")) {
-            if (testo.startsWith("$t")) {
-                RegArr = testo;
-            } else {
-                i = testo.lastIndexOf(" $t");
-                RegArr = testo.substring(i + 1, i + 4);
-            }
-        } else {
-            if (testo.startsWith("$f")) {
-                RegArr = testo;
-            } else {
-                i = testo.lastIndexOf(" $f");
-                RegArr = testo.substring(i + 1, i + 4);
-            }
+            return (testo.startsWith("$t")) ? testo : testo.substring(testo.lastIndexOf(" $t") + 1, testo.lastIndexOf(" $t") + 4);
         }
-        return RegArr;
-    }
-
-    /*METODO CHE PERMETTE LA TRADUZIONE DELL'ESPRESSIONE BINARIA*/
-    public static String createTrad(String testo1, String testo2, String testo3, String Log_Op, String Reg_1, String Reg_2) {
-        assemblyOutput = testo1 + testo2 + testo3 + "C." + Log_Op + ".D " + Reg_1 + ", " + Reg_2;
-        return assemblyOutput;
+        return (testo.startsWith("$f")) ? testo : testo.substring(testo.lastIndexOf(" $f") + 1, testo.lastIndexOf(" $f") + 4);
     }
 
     /*METODO PER LA TRADUZIONE DI ESPRESSIONI BINARIE CON ELEMENTI DI TIPO INTEGER/DOUBLE E VICEVERSA*/
@@ -739,74 +673,50 @@ public class Traduzione {
             switch (gen_L) {
                 case "VARIABILE":
                     String tradVar = funct(gen_L, testo_L);
-
                     assemblyOutput = selGenR(tradVar, testo_L, gen_R, testo_R, RegFP, tipo_L, I, false);
-
                     break;
                 case "ARRAY_ACCESS":
                     String tradArr = funct(gen_L, testo_L);
-
                     if (testo_L.startsWith("$")) {
                         testo_L = "";
                     } else {
                         testo_L = testo_L + "\n";
                     }
-
                     assemblyOutput = selGenR(tradArr, testo_L, gen_R, testo_R, RegFP, tipo_R, I, true);
-
                     break;
                 case "NUMERO":
                     String NUM = funct(gen_L, testo_L);
-
                     assemblyOutput = selGenR(NUM, "", gen_R, testo_R, RegFP, tipo_L, I, false);
-
                     break;
-                default:
-                    System.out.println("ERROR:genere non supportato!");
-                    System.exit(0);
             }
-        } else {
-            switch (gen_L) {
-                case "VARIABILE":
-                    Record rec = getCurrRec(testo_L);
-
-                    assemblyOutput = selGen("", testo_L, gen_R, testo_R, rec.getRegister(), tipo_L, I, false);
-
-                    break;
-                case "ARRAY_ACCESS":
-                    REG = getRegArr(testo_L, tipo_L);
-
-                    if (testo_L.startsWith("$")) {
-                        testo_L = "";
-                    } else {
-                        testo_L = testo_L + "\n";
-                    }
-
-                    assemblyOutput = selGen("", testo_L, gen_R, testo_R, REG, tipo_L, I, true);
-
-                    break;
-                case "NUMERO":
-                    String NUM = "L.D." + "$f" + CUP$parser$actions.countRegFP + ", " + "const" + testo_L + "\n";
-                    REG = "$f" + CUP$parser$actions.countRegFP;
-                    CUP$parser$actions.countRegFP += 2;
-
-                    assemblyOutput = selGen(NUM, "", gen_R, testo_R, REG, tipo_L, I, false);
-
-                    break;
-                default:
-                    System.out.println("ERROR:genere non supportato!");
-                    System.exit(0);
-            }
+            return assemblyOutput;
         }
-
+        switch (gen_L) {
+            case "VARIABILE":
+                assemblyOutput = selGen("", testo_L, gen_R, testo_R, getCurrRec(testo_L).getRegister(), I, false);
+                break;
+            case "ARRAY_ACCESS":
+                REG = retrieveArrayRegister(testo_L, tipo_L);
+                if (testo_L.startsWith("$")) {
+                    testo_L = "";
+                } else {
+                    testo_L = testo_L + "\n";
+                }
+                assemblyOutput = selGen("", testo_L, gen_R, testo_R, REG, I, true);
+                break;
+            case "NUMERO":
+                String NUM = "L.D.$f" + CUP$parser$actions.countRegFP + ", const" + testo_L + "\n";
+                REG = "$f" + CUP$parser$actions.countRegFP;
+                CUP$parser$actions.countRegFP += 2;
+                assemblyOutput = selGen(NUM, "", gen_R, testo_R, REG, I, false);
+                break;
+        }
         return assemblyOutput;
     }
 
     /*METODO CHE PERMETTE LA SELEZIONE DEL TERMINE DESTRO DI TIPO INTEGER*/
-    public static String selGen(String T_3, String T_L, String G_R, String T_R, String REG_1, String Tp_L, int I, boolean FLAG) {
-        //String REG = "";
+    public static String selGen(String T_3, String T_L, String G_R, String T_R, String REG_1, int I, boolean FLAG) {
         String testo_1;
-        String testo_2 = "";
         String testo_3 = "";
 
         if (FLAG) {
@@ -817,158 +727,52 @@ public class Traduzione {
 
         switch (G_R) {
             case "VARIABILE":
-                String tradVar = funct(G_R, T_R);
-                testo_2 = tradVar;
-                testo_3 = T_3;
-
-                assemblyOutput = selLogOp(I, testo_1, testo_2, testo_3, REG_1, RegFP);
-
+                assemblyOutput = selectBinaryOperation(I, testo_1, funct(G_R, T_R), T_3, REG_1, RegFP);
                 break;
             case "ARRAY_ACCESS":
                 String tradArr = funct(G_R, T_R);
-
-                if (T_L.startsWith("$")) {
-                    testo_2 = "\n" + tradArr;
-                } else {
-                    testo_2 = T_R + "\n" + tradArr;
-                }
-
-                testo_3 = T_3;
-
-                assemblyOutput = selLogOp(I, testo_1, testo_2, testo_3, REG_1, RegFP);
-
+                assemblyOutput = selectBinaryOperation(I, testo_1, (T_L.startsWith("$")) ? "\n" + tradArr : T_R + "\n" + tradArr, T_3, REG_1, RegFP);
                 break;
             case "NUMERO":
-                String NUM = funct(G_R, T_R);
-                testo_2 = NUM;
-                assemblyOutput = selLogOp(I, testo_1, testo_2, testo_3, REG_1, RegFP);
-
+                assemblyOutput = selectBinaryOperation(I, testo_1, funct(G_R, T_R), testo_3, REG_1, RegFP);
                 break;
-            default:
-                System.out.println("ERROR:genere non supportato!");
-                System.exit(0);
         }
-
         return assemblyOutput;
     }
 
-
     public static String tradEQNEQ(String G_L, String G_R, String T_L, String T_R, String Tp_L, String Tp_R, int I) {
-
-        String REG;
-        Record rec;
-
         switch (G_L) {
             case "VARIABILE":
-                rec = getCurrRec(T_L);
-
-                assemblyOutput = selGBinREQNEQ(G_R, "", T_R, Tp_L, Tp_R, rec.getRegister(), I, "");
-
+                assemblyOutput = selGBinREQNEQ(G_R, "", T_R, Tp_L, Tp_R, getCurrRec(T_L).getRegister(), I, "");
                 break;
             case "ARRAY_ACCESS":
-                REG = getRegArr(T_L, Tp_L);
-
-                if (T_L.startsWith("$")) {
-                    T_L = "";
-                } else {
-                    T_L = T_L + "\n";
-                }
-
-                assemblyOutput = selGBinREQNEQ(G_R, T_L, T_R, Tp_L, Tp_R, REG, I, "");
-
+                assemblyOutput = selGBinREQNEQ(G_R, (T_L.startsWith("$")) ? "" : T_L + "\n", T_R, Tp_L, Tp_R, retrieveArrayRegister(T_L, Tp_L), I, "");
                 break;
             case "NUMERO":
-
                 if (Tp_L.equals("INTEGER")) {
-
                     assemblyOutput = selGBinREQNEQ(G_R, "", T_R, Tp_L, Tp_R, T_L, I, "");
                 } else {
                     String NUM = "L.D." + "$f" + CUP$parser$actions.countRegFP + ", " + "const" + T_L + "\n";
-                    REG = "$f" + CUP$parser$actions.countRegFP;
                     CUP$parser$actions.countRegFP += 2;
-
-                    assemblyOutput = selGBinREQNEQ(G_R, NUM, T_R, Tp_L, Tp_R, REG, I, "");
+                    assemblyOutput = selGBinREQNEQ(G_R, NUM, T_R, Tp_L, Tp_R, "$f" + CUP$parser$actions.countRegFP, I, "");
                 }
-
                 break;
-            default:
-                System.out.println("ERROR:genere non supportato!");
-                System.exit(0);
         }
-
         return assemblyOutput;
     }
 
-
-    public static String selGBinREQNEQ(String G_R, String T_L, String T_R, String Tp_L, String Tp_R, String Reg_1, int I, String T_3) {
-
-        String REG;
-        Record rec;
-
-        switch (G_R) {
-            case "VARIABILE":
-                rec = getCurrRec(T_R);
-                T_R = "";
-
-                assemblyOutput = tradBIntEQNEQ(T_3, T_L, T_R, Tp_L, Tp_R, Reg_1, rec.getRegister(), I);
-
-                break;
-            case "ARRAY_ACCESS":
-                REG = getRegArr(T_R, Tp_R);
-
-                if (T_R.startsWith("$")) {
-                    T_R = "";
-                } else {
-                    T_R = T_R + "\n";
-                }
-
-                assemblyOutput = tradBIntEQNEQ(T_3, T_L, T_R, Tp_L, Tp_R, Reg_1, REG, I);
-
-                break;
-            case "NUMERO":
-
-                if (Tp_R.equals("INTEGER")) {
-
-                    assemblyOutput = tradBIntEQNEQ(T_3, T_L, "", Tp_L, Tp_R, Reg_1, T_R, I);
-                } else {
-                    String NUM = "L.D." + "$f" + CUP$parser$actions.countRegFP + ", " + "const" + T_R + "\n";
-                    REG = "$f" + CUP$parser$actions.countRegFP;
-                    CUP$parser$actions.countRegFP += 2;
-
-                    assemblyOutput = tradBIntEQNEQ(T_3, T_L, NUM, Tp_L, Tp_R, Reg_1, REG, I);
-
-                }
-                break;
-            default:
-                System.out.println("ERROR:genere non supportato!");
-                System.exit(0);
-        }
-
-        return assemblyOutput;
-    }
-
-
-    public static String tradBIntEQNEQ(String T_3, String T_L, String T_R, String Tp_L, String Tp_R, String Reg_1, String Reg_2, int I) {
-
+    private static String tradBIntEQNEQ(String T_3, String T_L, String T_R, String Tp_L, String Tp_R, String Reg_1, String Reg_2, int I) {
         if (Tp_L.equals("INTEGER") && Tp_R.equals("INTEGER")) {
-            if (I == 1) {
-                assemblyOutput = T_L + T_R + "BNE" + " " + Reg_1 + ", " + Reg_2 + ", " + "OFFSET";
-            } else {
-                assemblyOutput = T_L + T_R + "BQE" + " " + Reg_1 + ", " + Reg_2 + ", " + "OFFSET";
-            }
+            assemblyOutput = (I == 1) ? T_L + T_R + "BNE " : T_L + T_R + "BQE ";
+            assemblyOutput += Reg_1 + ", " + Reg_2 + ", OFFSET";
         } else {
-            if (I == 1) {
-                assemblyOutput = T_L + T_R + T_3 + "C.NE.D" + " " + Reg_1 + ", " + Reg_2;
-            } else {
-                assemblyOutput = T_L + T_R + T_3 + "C.EQ.D" + " " + Reg_1 + ", " + Reg_2;
-            }
+            assemblyOutput = (I == 1) ? T_L + T_R + T_3 + "C.NE.D " : T_L + T_R + T_3 + "C.EQ.D ";
+            assemblyOutput += Reg_1 + ", " + Reg_2;
         }
         return assemblyOutput;
     }
-
 
     public static String tradEQNEQFPI(String G_L, String G_R, String T_L, String T_R, String Tp_L, String Tp_R, int I) {
-        String REG;
         Record rec;
         if (Tp_L.equals("INTEGER") && Tp_R.equals("DOUBLE")) {
             switch (G_L) {
@@ -986,67 +790,63 @@ public class Traduzione {
                     assemblyOutput = selGBinREQNEQ(G_R, T_L, T_R, Tp_L, Tp_R, RegFP, I, tradArr);
                     break;
                 case "NUMERO":
-                    String NUM = "L.D." + "$f" + CUP$parser$actions.countRegFP + ", " + "const" + T_L + "\n";
-                    REG = "$f" + CUP$parser$actions.countRegFP;
+                    String NUM = "L.D.$f" + CUP$parser$actions.countRegFP + ", const" + T_L + "\n";
                     CUP$parser$actions.countRegFP += 2;
-                    assemblyOutput = selGBinREQNEQ(G_R, NUM, T_R, Tp_L, Tp_R, REG, I, "");
+                    assemblyOutput = selGBinREQNEQ(G_R, NUM, T_R, Tp_L, Tp_R, "$f" + CUP$parser$actions.countRegFP, I, "");
                     break;
-                default:
-                    System.out.println("ERROR:genere non supportato!");
-                    System.exit(0);
             }
-        } else {
-            switch (G_L) {
-                case "VARIABILE":
-                    rec = getCurrRec(T_L);
-                    assemblyOutput = selGBinREQNEQ2(G_R, "", T_R, Tp_L, Tp_R, rec.getRegister(), I, "");
-                    break;
-                case "ARRAY_ACCESS":
-                    REG = getRegArr(T_L, Tp_L);
-                    if (T_L.startsWith("$")) {
-                        T_L = "";
-                    } else {
-                        T_L = T_L + "\n";
-                    }
-                    assemblyOutput = selGBinREQNEQ2(G_R, T_L, T_R, Tp_L, Tp_R, REG, I, "");
-                    break;
-                case "NUMERO":
-                    String NUM = "L.D." + "$f" + CUP$parser$actions.countRegFP + ", " + "const" + T_L + "\n";
-                    REG = "$f" + CUP$parser$actions.countRegFP;
-                    CUP$parser$actions.countRegFP += 2;
-                    assemblyOutput = selGBinREQNEQ2(G_R, NUM, T_R, Tp_L, Tp_R, REG, I, "");
-                    break;
-                default:
-                    System.out.println("ERROR:genere non supportato!");
-                    System.exit(0);
-            }
+            return assemblyOutput;
+        }
+        switch (G_L) {
+            case "VARIABILE":
+                rec = getCurrRec(T_L);
+                assemblyOutput = selGBinREQNEQ2(G_R, "", T_R, Tp_L, Tp_R, rec.getRegister(), I);
+                break;
+            case "ARRAY_ACCESS":
+                assemblyOutput = selGBinREQNEQ2(G_R, (T_L.startsWith("$")) ? "" : T_L + "\n", T_R, Tp_L, Tp_R, retrieveArrayRegister(T_L, Tp_L), I);
+                break;
+            case "NUMERO":
+                String NUM = "L.D.$f" + CUP$parser$actions.countRegFP + ", const" + T_L + "\n";
+                CUP$parser$actions.countRegFP += 2;
+                assemblyOutput = selGBinREQNEQ2(G_R, NUM, T_R, Tp_L, Tp_R, "$f" + CUP$parser$actions.countRegFP, I);
+                break;
         }
         return assemblyOutput;
     }
 
-    public static String selGBinREQNEQ2(String G_R, String T_L, String T_R, String Tp_L, String Tp_R, String Reg_1, int I, String T_3) {
+    private static String selGBinREQNEQ(String G_R, String T_L, String T_R, String Tp_L, String Tp_R, String Reg_1, int I, String T_3) {
         switch (G_R) {
             case "VARIABILE":
+                assemblyOutput = tradBIntEQNEQ(T_3, T_L, "", Tp_L, Tp_R, Reg_1, getCurrRec(T_R).getRegister(), I);
+                break;
+            case "ARRAY_ACCESS":
+                assemblyOutput = tradBIntEQNEQ(T_3, T_L, (T_R.startsWith("$")) ? "" : T_R + "\n", Tp_L, Tp_R, Reg_1, retrieveArrayRegister(T_R, Tp_R), I);
+                break;
+            case "NUMERO":
+                if (Tp_R.equals("INTEGER")) {
+                    assemblyOutput = tradBIntEQNEQ(T_3, T_L, "", Tp_L, Tp_R, Reg_1, T_R, I);
+                } else {
+                    String NUM = "L.D.$f" + CUP$parser$actions.countRegFP + ", const" + T_R + "\n";
+                    CUP$parser$actions.countRegFP += 2;
+                    assemblyOutput = tradBIntEQNEQ(T_3, T_L, NUM, Tp_L, Tp_R, Reg_1, "$f" + CUP$parser$actions.countRegFP, I);
+                }
+                break;
+        }
+        return assemblyOutput;
+    }
+
+    private static String selGBinREQNEQ2(String G_R, String T_L, String T_R, String Tp_L, String Tp_R, String Reg_1, int I) {
+        switch (G_R) {
+            case "VARIABILE":
+            case "NUMERO":
                 String tradVar = funct(G_R, T_R);
-                T_R = "";
-                assemblyOutput = tradBIntEQNEQ(tradVar, T_L, T_R, Tp_L, Tp_R, Reg_1, RegFP, I);
+                assemblyOutput = tradBIntEQNEQ(tradVar, T_L, "", Tp_L, Tp_R, Reg_1, RegFP, I);
                 break;
             case "ARRAY_ACCESS":
                 String tradArr = funct(G_R, T_R);
-                if (T_R.startsWith("$")) {
-                    T_R = "";
-                } else {
-                    T_R = T_R + "\n";
-                }
+                T_R = (T_R.startsWith("$")) ? "" : T_R + "\n";
                 assemblyOutput = tradBIntEQNEQ(tradArr, T_L, T_R, Tp_L, Tp_R, Reg_1, RegFP, I);
                 break;
-            case "NUMERO":
-                String tradNum = funct(G_R, T_R);
-                assemblyOutput = tradBIntEQNEQ(tradNum, T_L, "", Tp_L, Tp_R, Reg_1, RegFP, I);
-                break;
-            default:
-                System.out.println("ERROR:genere non supportato!");
-                System.exit(0);
         }
         return assemblyOutput;
     }
