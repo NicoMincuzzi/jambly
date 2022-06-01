@@ -16,21 +16,25 @@ public class ProdParser {
         Record record = SymbolTable.getCurrRec(vdi.replace("[]", ""));
 
         List<String> listValue = new ArrayList<>();
+        int lastCommaInSentence = vi.lastIndexOf(",");
+        while (lastCommaInSentence != -1 || !vi.equals("")) {
+            int index = (vi.startsWith(" ", lastCommaInSentence + 1))
+                    ? lastCommaInSentence + 2
+                    : lastCommaInSentence + 1;
 
-        int i = vi.lastIndexOf(",");
-        while (i != -1 || !vi.equals("")) {
-            listValue.add((vi.startsWith(" ", i + 1)) ? vi.substring(i + 2) : vi.substring(i + 1));
+            String result = vi.substring(index);
+            listValue.add(result);
 
             if (vi.contains("new")) {
-                if (i != -1) {
-                    vi = vi.substring(vi.indexOf("]") + 1, i);
-                    i = vi.lastIndexOf(",");
+                if (lastCommaInSentence != -1) {
+                    vi = vi.substring(vi.indexOf("]") + 1, lastCommaInSentence);
+                    lastCommaInSentence = vi.lastIndexOf(",");
                     continue;
                 }
             } else {
-                if (i != -1) {
-                    vi = vi.substring(0, i);
-                    i = vi.lastIndexOf(",");
+                if (lastCommaInSentence != -1) {
+                    vi = vi.substring(0, lastCommaInSentence);
+                    lastCommaInSentence = vi.lastIndexOf(",");
                     continue;
                 }
             }

@@ -2,8 +2,11 @@ package com.lefc.jambly;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Support {
 
@@ -16,17 +19,7 @@ public class Support {
 
     /*Funzione che permette di dividere parole separate da spazi*/
     public static void sepWordWS(String s) {
-        listMod = new ArrayList<>();
-        String str;
-        int i = 0;
-        while (i != -1) {
-            i = s.lastIndexOf(" ");
-            str = s.substring(i + 1);
-            listMod.add(str);
-            if (i != -1) {
-                s = s.substring(0, i);
-            }
-        }
+        listMod = Arrays.stream(s.split(" ")).collect(Collectors.toList());
     }
 
     public static String getVar(String varad) {

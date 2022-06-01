@@ -2,6 +2,8 @@ package com.lefc.jambly;
 
 import java.util.List;
 
+import static java.util.Arrays.asList;
+
 
 public class CheckClass {
 
@@ -68,7 +70,8 @@ public class CheckClass {
 
     /*METODO PER IL CONTROLLO DEL TIPO NELLE RELAZIONI <, >, <=, >=*/
     public static boolean checkOpCond(String type1, String type2) {
-        if (type1.equals("STRING") || type2.equals("STRING") || type1.equals("BOOLEAN") || type2.equals("BOOLEAN")) {
+        List<String> checkValue = asList("STRING", "BOOLEAN");
+        if (checkValue.contains(type1) || checkValue.contains(type2)) {
             CUP$parser$actions.Err_War = "ERROR: tipi degli operandi errati per un operatore binario!\n";
             return true;
         }
