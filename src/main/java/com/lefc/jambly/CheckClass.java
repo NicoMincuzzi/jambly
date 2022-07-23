@@ -21,15 +21,13 @@ public class CheckClass {
             CUP$parser$actions.Err_War = "Error: Modificatori uguali o dello stesso tipo!\n";
             result = true;
         }
-
         return result;
     }
 
-    /*METODO PER IL CONTROLLO DEL TIPO NELLE ESPRESSIONI*/
-    public static String checkTypeMD(String leftType, String rightType) {
+
+    public static String checkExpressionType(String leftType, String rightType) {
         if (!leftType.equals(rightType)) {
-            if (leftType.equals("INTEGER") && rightType.equals("DOUBLE") ||
-                    leftType.equals("DOUBLE") && rightType.equals("INTEGER")) {
+            if (asList("INTEGER","DOUBLE").contains(leftType) && asList("INTEGER","DOUBLE").contains(rightType)) {
                 CUP$parser$actions.Err_War = "WARNING: tipi differenti! Si provvederà ad effettuare un cast per la risoluzione del problema!\n";
                 CUP$parser$actions.flagWarn = true;
                 return "DOUBLE";

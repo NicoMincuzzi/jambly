@@ -1,9 +1,13 @@
 package com.lefc.jambly;
-import java.io.*;
-import java.util.*;
+
+import com.lefc.jambly.domain.MinusMinusExpression;
 import com.lefc.jambly.model.Obj;
-import com.lefc.jambly.repository.SemanticErrorRepository;
 import java_cup.runtime.Symbol;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 action code{:
     String ArrActTemp = "";
@@ -1108,18 +1112,10 @@ postincrement_expression ::=
                             
 	;
 postdecrement_expression ::=
-		postfix_expression:postespr MINUSMINUS {: 
-                                                 if(!postespr.tipo.equals("INTEGER")){  
-                                                                                                    
-                                                    parser.report_error("ERROR: IL TIPO DI TALE VARIABILE DEVE ESSERE NECESSARIAMENTE UN INTERO!\n",postespr);
-                                                    
-                                                 } 
-                                                   
-                                                Record record = SymbolTable.getCurrRec(postespr.testo);   
-                                                TRAD = "ADDI"+" "+record.getRegister()+", "+record.getRegister()+", "+"-1";
-
-                                                RESULT = new Obj(TRAD,postespr.tipo);
-                                               :}
+		postfix_expression:postespr MINUSMINUS {:
+            TRAD = new MinusMinusExpression().calculate(postespr, parser);
+            RESULT = new Obj(TRAD,postespr.tipo);
+        :}
 	;
 
 unary_expression ::=
@@ -1134,22 +1130,12 @@ unary_expression_not_plus_minus ::=
                                   /*CAST DI UNA VARIABILE */
 cast_expression ::=
 		TONDA_APERTA primitive_type:primtype dims_opt TONDA_CHIUSA unary_expression:unespr
-                                                                                 /*{: 
-                                                                                      if(primtype.tipo.equals("BOOLEAN") && !enespr.tipo.equals(BOOLEAN)){
-                                                                                      
-                                                                                         parser.report_error("Error: non è possibile effettuare il cast!!!\n",unespr);
-
-                                                                                      }else{                                                                                                                                                                           
-                                                                                       RESULT = new Obj();
-                                                                                      }
-                                                                                      
-                                                                                    :}*/
 	;
 
                    /*ESPRESSIONI CON OPERAZIONI DI MOLTIPLICAZIONE E DIVISIONE*/
 multiplicative_expression ::=
 		unary_expression:unex {: RESULT = unex; :}
-	|	multiplicative_expression:multespr PER unary_expression:unex {:  String mlT = CheckClass.checkTypeMD(multespr.tipo,unex.tipo); 
+	|	multiplicative_expression:multespr PER unary_expression:unex {:  String mlT = CheckClass.checkExpressionType(multespr.tipo,unex.tipo);
 
                                                                                   if(checkFlag){
                                                                                                                                                                                                                                                                                                                                       
@@ -1193,7 +1179,7 @@ multiplicative_expression ::=
                                                                                      }
                                                                                    }
 
-                                                                                   String dvT = CheckClass.checkTypeMD(multespr.tipo,unex.tipo); 
+                                                                                   String dvT = CheckClass.checkExpressionType(multespr.tipo,unex.tipo);
                                                                                      
                                                                                    if(checkFlag){   
                                                                                                                                                                                                                                                     
@@ -1227,7 +1213,7 @@ multiplicative_expression ::=
                         /*ESPRESSIONI CON OPERAZIONI DI SOMMA E DIFFERENZA*/
 additive_expression ::=
 		multiplicative_expression:multex {: RESULT = multex; :}
-	|	additive_expression:addespr PIU multiplicative_expression:multespr {: String smT = CheckClass.checkTypeMD(addespr.tipo,multespr.tipo); 
+	|	additive_expression:addespr PIU multiplicative_expression:multespr {: String smT = CheckClass.checkExpressionType(addespr.tipo,multespr.tipo);
                                                                                       
                                                                                       if(checkFlag){   
                                                                                                                                                                                                                                                      
@@ -1256,7 +1242,7 @@ additive_expression ::=
                                                                                       RESULT = new Obj(TRAD,smT,"ESPRESSIONE",((Scanner) parser.getScanner()).getLine());
                                                                                       }
                                                                                     :}
-	|	additive_expression:addespr MENO multiplicative_expression:multespr {: String dfT = CheckClass.checkTypeMD(addespr.tipo,multespr.tipo); 
+	|	additive_expression:addespr MENO multiplicative_expression:multespr {: String dfT = CheckClass.checkExpressionType(addespr.tipo,multespr.tipo);
                                                                                        
                                                                                        if(checkFlag){ 
                                                                                                                                                                                                                                                         
