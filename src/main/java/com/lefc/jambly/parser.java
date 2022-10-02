@@ -1086,22 +1086,22 @@ class CUP$parser$actions {
     public void structProg(int levP, boolean flag, String trad) throws IOException{
        if(levP == 1){
           if(flag){
-            Support.writeFile(true,"\n.data\n\n");
+            Support.writeFile("\n.data\n\n");
           }
-          Support.writeFile(true,trad+"\n");
+          Support.writeFile(trad+"\n");
          for (String s : dichRecup) {
-           Support.writeFile(true, s + "\n");
+           Support.writeFile(s + "\n");
          }
           flagP1 = false;
           return;
        }
       if(flag){
-        Support.writeFile(true,"\n.code\n\n");
+        Support.writeFile("\n.code\n\n");
         for (String s : vTrad) {
-          Support.writeFile(true, s + "\n");
+          Support.writeFile(s + "\n");
         }
       }
-    Support.writeFile(true,trad);
+    Support.writeFile(trad);
     flagP2 = false;
     }
 
@@ -3906,7 +3906,7 @@ if (sintErr) {
                 RESULT = (Obj) ((java_cup.runtime.Symbol) CUP$parser$stack.elementAt(CUP$parser$top-2)).value;
 		 
                                                                                           UtilParser.delScope();
-                                                                                          Support.writeFile(false,"\n\nend\n");
+                                                                                          Support.writeFile("\n\nend\n");
                                                                                         
               CUP$parser$result = new java_cup.runtime.Symbol(18/*class_body*/, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-3)).left, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-0)).right, RESULT);
             }

@@ -39,22 +39,22 @@ action code{:
     public void structProg(int levP, boolean flag, String trad) throws IOException{
        if(levP == 1){
           if(flag){
-            Support.writeFile(true,"\n.data\n\n");
+            Support.writeFile("\n.data\n\n");
           }
-          Support.writeFile(true,trad+"\n");
+          Support.writeFile(trad+"\n");
          for (String s : dichRecup) {
-           Support.writeFile(true, s + "\n");
+           Support.writeFile(s + "\n");
          }
           flagP1 = false;
           return;
        }
       if(flag){
-        Support.writeFile(true,"\n.code\n\n");
+        Support.writeFile("\n.code\n\n");
         for (String s : vTrad) {
-          Support.writeFile(true, s + "\n");
+          Support.writeFile(s + "\n");
         }
       }
-    Support.writeFile(true,trad);
+    Support.writeFile(trad);
     flagP2 = false;
     }
 :};
@@ -322,7 +322,7 @@ class_declaration ::=
 	;
 class_body ::=	LBRACE {: UtilParser.newScope(); :} class_body_declarations_opt RBRACE {: 
                                                                                           UtilParser.delScope();
-                                                                                          Support.writeFile(false,"\n\nend\n");
+                                                                                          Support.writeFile("\n\nend\n");
                                                                                         :}
 	;
 class_body_declarations_opt ::= 

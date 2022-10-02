@@ -2,8 +2,6 @@ package com.lefc.jambly;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,13 +39,8 @@ public class Support {
         return String.valueOf(0);
     }
 
-    public static void writeFile(boolean flag, String translation) throws IOException {
+    public static void writeFile(String translation) throws IOException {
         FileWriter file = new FileWriter("FileTrad.txt", true);
-        if (flag) {
-            file.write(translation);
-            file.flush();
-            return;
-        }
         file.write(translation);
         file.close();
     }
