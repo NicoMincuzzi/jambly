@@ -10,7 +10,7 @@ import static java.util.Collections.sort;
 public class InterpreterRunner {
 
     public static final String ERROR_FILE = "FileErr.txt";
-    public static final String TRANSLATION_FILE = "FileTrad.txt";
+    public static String TRANSLATION_RESULT = "";
     private Scanner scanner;
     private parser parser;
 
@@ -32,9 +32,8 @@ public class InterpreterRunner {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            File f = new File(TRANSLATION_FILE);
-            f.delete();
-            f = new File(ERROR_FILE);
+            TRANSLATION_RESULT = "";
+            File f = new File(ERROR_FILE);
             f.delete();
             CUP$parser$actions.countReg = 0;
             CUP$parser$actions.countRegFP = 0;
@@ -76,12 +75,12 @@ public class InterpreterRunner {
 
     private String buildResult() throws IOException {
         if (!new File(ERROR_FILE).exists()) {
-            return readFile(TRANSLATION_FILE) + ("\nCompilazione avvenuta correttamente!" + " Non si sono verificati errori sintattici!");
+            return TRANSLATION_RESULT + ("\nCompilazione avvenuta correttamente!" + " Non si sono verificati errori sintattici!");
         }
         if (CUP$parser$actions.FlagSyn || Support.getnumErr() > 5) {
             return readFile(ERROR_FILE);
         }
-        return readFile(ERROR_FILE) + readFile(TRANSLATION_FILE);
+        return readFile(ERROR_FILE) + TRANSLATION_RESULT;
     }
 
     private String readFile(String path) throws IOException {

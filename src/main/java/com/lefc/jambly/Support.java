@@ -1,7 +1,5 @@
 package com.lefc.jambly;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,12 +35,6 @@ public class Support {
                 break;
         }
         return String.valueOf(0);
-    }
-
-    public static void writeFile(String translation) throws IOException {
-        FileWriter file = new FileWriter("FileTrad.txt", true);
-        file.write(translation);
-        file.close();
     }
 
     public static void countExit(int errorCount) {
