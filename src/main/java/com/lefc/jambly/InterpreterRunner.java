@@ -44,13 +44,12 @@ public class InterpreterRunner {
     }
 
     private void checkBrackets() {
-        PrintText printText = new PrintText();
-
         int numberOfBrackets = scanner.countBrace2;
         if (numberOfBrackets == 0) {
             return;
         }
 
+        PrintText printText = new PrintText();
         if (numberOfBrackets > 0) {
             printText.setString("Parentesi in difetto");
             int i = (scanner.get_close_par() != 0) ? scanner.get_close_par() : scanner.get_open_par();

@@ -1,10 +1,6 @@
 package com.lefc.jambly;
 
-import java.util.HashMap;
-import java.util.ListIterator;
-
 import static com.lefc.jambly.SymbolTable.createTable;
-import static com.lefc.jambly.SymbolTable.getArrMap;
 
 public class UtilParser {
     private static int countBrace;
@@ -15,12 +11,7 @@ public class UtilParser {
     }
 
     public static void delScope() {
-        ListIterator<HashMap<String, Record>> iterator = getArrMap().listIterator(countBrace);
-
-        if (iterator.hasPrevious()) {
-            iterator.previous();
-            iterator.remove();
-        }
+        SymbolTable.retrieveAll().remove(countBrace - 1);
         countBrace = countBrace - 1;
     }
 }

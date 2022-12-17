@@ -8,16 +8,16 @@ import static java.util.Arrays.asList;
 public class CheckClass {
 
     public static final int MAX_MODIFIERS_NUMBER = 3;
-    public static final int MIN_MODIFIERS_NUMBER = 0;
+    public static final int MIN_MODIFIERS_NUMBER = 1;
 
-    public boolean checkModifiers(List<String> arrList) {
+    public boolean checkModifiers(List<String> modifiers) {
         boolean result = CUP$parser$actions.checkFlag;
-        if (arrList.size() > MAX_MODIFIERS_NUMBER || arrList.size() <= MIN_MODIFIERS_NUMBER) {
+        if (modifiers.size() > MAX_MODIFIERS_NUMBER || modifiers.size() < MIN_MODIFIERS_NUMBER) {
             CUP$parser$actions.Err_War = "Error: almeno un modificatore/al massimo tre modificatori!\n";
             result = true;
         }
 
-        if (arrList.contains("private") && arrList.contains("public")) {
+        if (modifiers.contains("private") && modifiers.contains("public")) {
             CUP$parser$actions.Err_War = "Error: Modificatori uguali o dello stesso tipo!\n";
             result = true;
         }
@@ -27,7 +27,7 @@ public class CheckClass {
 
     public static String checkExpressionType(String leftType, String rightType) {
         if (!leftType.equals(rightType)) {
-            if (asList("INTEGER","DOUBLE").contains(leftType) && asList("INTEGER","DOUBLE").contains(rightType)) {
+            if (asList("INTEGER", "DOUBLE").contains(leftType) && asList("INTEGER", "DOUBLE").contains(rightType)) {
                 CUP$parser$actions.Err_War = "WARNING: tipi differenti! Si provvederà ad effettuare un cast per la risoluzione del problema!\n";
                 CUP$parser$actions.flagWarn = true;
                 return "DOUBLE";
@@ -41,30 +41,35 @@ public class CheckClass {
 
     /*METODO PER IL CONTROLLO DI TIPO IN UNA ASSEGNAZIONE*/
     public static String checkTypeA(String leftType, String rightType, String assignmentStatement) {
-        if (assignmentStatement.contains("new") && !leftType.equals(rightType)) {
+        if (leftType.equals(rightType)) {
+            return leftType;
+        }
+
+        if (assignmentStatement.contains("new")) {
             CUP$parser$actions.Err_War = "Error: non è possibile assegnare " + rightType + " a " + leftType + "!\n";
             CUP$parser$actions.checkFlag = true;
             return null;
         }
-        if (!leftType.equals(rightType)) {
-            if (leftType.equals("DOUBLE") && rightType.equals("INTEGER")) {
-                CUP$parser$actions.Err_War = "WARNING: tipi differenti! Si provederà ad effettuare" +
-                        " un cast per la risoluzione del problema!\n";
-                CUP$parser$actions.flagWarn = true;
-                return "DOUBLE";
-            } else if (leftType.equals("INTEGER") && rightType.equals("DOUBLE")) {
-                CUP$parser$actions.Err_War = "ERROR: assegnazione di tipi differenti! "
-                        + "Verrà effettuata un'approssimazione per difetto!\n";
-                CUP$parser$actions.checkFlag = true;
-                return "INTEGER";
-            } else if (leftType.equals("STRING") || rightType.equals("STRING")) {
-                CUP$parser$actions.Err_War = "ERROR: assegnazione di tipi differenti!\n";
-                CUP$parser$actions.checkFlag = true;
-                return "";
-            }
+
+        if (leftType.equals("DOUBLE") && rightType.equals("INTEGER")) {
+            CUP$parser$actions.Err_War = "WARNING: tipi differenti! Si provederà ad effettuare" +
+                    " un cast per la risoluzione del problema!\n";
+            CUP$parser$actions.flagWarn = true;
+            return "DOUBLE";
+        }
+
+        if (leftType.equals("INTEGER") && rightType.equals("DOUBLE")) {
+            CUP$parser$actions.Err_War = "ERROR: assegnazione di tipi differenti! "
+                    + "Verrà effettuata un'approssimazione per difetto!\n";
+            CUP$parser$actions.checkFlag = true;
+            return "INTEGER";
+        }
+        if (leftType.equals("STRING") || rightType.equals("STRING")) {
+            CUP$parser$actions.Err_War = "ERROR: assegnazione di tipi differenti!\n";
+            CUP$parser$actions.checkFlag = true;
             return "";
         }
-        return leftType;
+        return "";
     }
 
     /*METODO PER IL CONTROLLO DEL TIPO NELLE RELAZIONI <, >, <=, >=*/
