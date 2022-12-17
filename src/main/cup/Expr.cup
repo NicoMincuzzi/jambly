@@ -5,10 +5,11 @@ import com.lefc.jambly.domain.PlusPlusExpression;
 import com.lefc.jambly.model.Obj;
 import java_cup.runtime.Symbol;
 
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 action code{:
     String ArrActTemp = "";
@@ -952,22 +953,16 @@ array_access ::=
                                                          int I1,I2;
                                                          Record recE;
                                                          String indice;
-                                                         ArrayList listvalue = new ArrayList();
 
                                                          Record record = SymbolTable.retrieveVariableInsideScope(nome.testo);
 
-                                                         if(checkFlag){ 
-                                                                                                                                                                                                                                                                                         
+                                                         if(checkFlag){
                                                               parser.report_error(Err_War,nome);
                                                               checkFlag = false;
-                                                              String regRandom = "$s"+countReg;
 
-                                                              for(int i = 0; i < 10; i++){
-                                                                listvalue.add("0");
-                                                              }
-
-                                                              SymbolTable.getTable().put(nome.testo,new Record("INTEGER",listvalue,100,regRandom));
-                                                              record = SymbolTable.retrieveVariableInsideScope(nome.testo);
+                                                              List<String> listValue = Arrays.stream(new int[10]).mapToObj(it -> String.valueOf(it)).collect(Collectors.toList());
+                                                              record = new Record("INTEGER",listValue,100,"$s"+countReg);
+                                                              SymbolTable.getTable().put(nome.testo, record);
                                                               countReg++;
                                                          }
    
@@ -1073,13 +1068,11 @@ postfix_expression ::=
                              Record record = SymbolTable.retrieveVariableInsideScope(nome.testo);
 
                              if(checkFlag){
-                                                                                                                                                                                                                                  
                                 parser.report_error(Err_War,nome);
                                 checkFlag = false;   
 
-                                String regRandom = "$s"+countReg;                                
-                                SymbolTable.getTable().put(nome.testo,new Record("INTEGER",regRandom));
-                                record = SymbolTable.retrieveVariableInsideScope(nome.testo);
+                                record = new Record("INTEGER", "$s"+countReg);
+                                SymbolTable.getTable().put(nome.testo, record);
                                 countReg++;
                              }
   
@@ -1745,20 +1738,15 @@ left_hand_side ::=
                             }
                             Record record = SymbolTable.retrieveVariableInsideScope(nome.testo); 
 
-                            if(checkFlag){ 
-                                
+                            if(checkFlag){
                                 parser.report_error(Err_War,nome);
                                 checkFlag = false;                               
                                 
-                                String regRandom = "$s"+countReg;                                
-                                SymbolTable.getTable().put(nome.testo,new Record("INTEGER", regRandom));
-                                record = SymbolTable.retrieveVariableInsideScope(nome.testo);
+                                record = new Record("INTEGER", "$s"+countReg);
+                                SymbolTable.getTable().put(nome.testo, record);
                                 countReg++;
-
                             }
-                           
                             nome.tipo = record.getType();
-
                             RESULT = nome;
                            :}
 	|	array_access:arracc {:
