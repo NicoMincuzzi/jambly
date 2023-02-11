@@ -15,7 +15,6 @@ public class PrintText implements Comparable<PrintText> {
 
     @Override
     public int compareTo(PrintText o) {
-        //confronto tra ogg chiamante e l'ogg passato
         if (this.getPos() < o.getPos()) {
             return -1;  //ordinamento in base al n di riga in modo da averli come nel source
         }
@@ -47,16 +46,18 @@ public class PrintText implements Comparable<PrintText> {
     }
 
     public void textAndLine(int linea, char[] zzBuffer) {
-        StringBuilder load = new StringBuilder("");
         int start = 0;
         int point = 0;
 
         while (point != linea - 1) {
-            if (zzBuffer[start] == '\n')
+            if (zzBuffer[start] == '\n') {
                 point++;
+            }
             start++;
         }
         start++;
+
+        StringBuilder load = new StringBuilder();
         load.append(zzBuffer[start]);
         while (zzBuffer[start] != '\n') {
             load.append(zzBuffer[start]);
@@ -72,118 +73,118 @@ public class PrintText implements Comparable<PrintText> {
         int start = pos_attuale - 1;
         int end = pos_attuale;
         int line = linea;
-        boolean flag = false;
 
         StringBuilder load = new StringBuilder();
 
-        //controllo errore prima parola inizio programma
-        //errore prima stringa della prima parola nel caso in cui il codice è all'inizio
         if (end == 0) {
             while (zzBuffer[end] != '\n') {
-                load.append(zzBuffer[end]); //carica carattere per carattere essendo un vettore di char[]
+                load.append(zzBuffer[end]);
                 end++;
             }
-        } else {
-            //nel caso in cui l'err si sia verificato a metà e l'err è stato rilevato dopo
-            //controlla se c'è un tab o uno spazio vuoto
-            if (zzBuffer[start] == '\t' || zzBuffer[start] == ' ') {   //torno indietro assicurandomi di restare nel codice e di non sfornare a -1
-                while ((zzBuffer[start] == '\t' || zzBuffer[start] == ' ') && start - 1 != 0) { //diminuisco il valore di start
-                    start--;
-                }
-                //controllo errore inizio programma stessa riga
-                if (start - 1 == 0) {
-                    flag = true;
+            this.wrongString = load.toString();
+            this.pos = line;
+            return;
+        }
 
-                    while (zzBuffer[end] != '\n') {
-                        load.append(zzBuffer[end]);
-                        end++;
-                    }
-                } else {
-                    //errore all'interno della riga
-                    if (zzBuffer[start] != '\n' && zzBuffer[start] != '\r') {
-                        while (zzBuffer[start - 1] != '\n' && start != 1) {
-                            start--;
-                        }
-                        //leggi fino alla prossima riga dove una riga è \n .... \n
-                        while (zzBuffer[start] != '\n') {
-                            load.append(zzBuffer[start]);
-                            start++;
-                        }
-                    } else {
-                        //errore nella riga precedente
-                        if (zzBuffer[start] == '\n' || zzBuffer[start] == '\r') {
-                            start--;
-                            line--;
-                            //va indietro finchè non trova un carattere o se finisce il file
-                            while (asList('\t', ' ', '\n', '\r').contains(zzBuffer[start]) && start - 1 != 0) {
-                                if (zzBuffer[start] == '\n')
-                                    line--;
-                                start--;
-                            }
-                            //errore programma inizia diverse righe dopo
-                            if ((start - 1) == 0) {
-                                while (asList('\t', ' ', '\n', '\r').contains(zzBuffer[start])) {
-                                    start++;
-                                }
-                                while (zzBuffer[start] != '\n') {
-                                    load.append(zzBuffer[start]);
-                                    start++;
-                                }
-                            } else {
-                                //errore riga precedente
-                                load.append(zzBuffer[start]);
-                                start--;
-                                //carico la riga al contrario
-                                while (zzBuffer[start] != '\n') {
-                                    load.append(zzBuffer[start]);
-                                    start--;
-                                }
-                                load.reverse(); //qui la mostro nel giusto verso
-                            }
-                        }
-                    }
+        //nel caso in cui l'err si sia verificato a metà e l'err è stato rilevato dopo
+        //controlla se c'è un tab o uno spazio vuoto
+        boolean flag = false;
+        if (zzBuffer[start] == '\t' || zzBuffer[start] == ' ') {   //torno indietro assicurandomi di restare nel codice e di non sfornare a -1
+            while ((zzBuffer[start] == '\t' || zzBuffer[start] == ' ') && start - 1 != 0) { //diminuisco il valore di start
+                start--;
+            }
+            //controllo errore inizio programma stessa riga
+            if (start - 1 == 0) {
+                flag = true;
+
+                while (zzBuffer[end] != '\n') {
+                    load.append(zzBuffer[end]);
+                    end++;
                 }
             } else {
-                if (zzBuffer[start] == '\n' || zzBuffer[start] == '\r') {
-                    start--;
-                    line--;
-                    while (asList('\t', ' ', '\n', '\r').contains(zzBuffer[start]) && start - 1 != 0) {
-                        if (zzBuffer[start] == '\n')
-                            line--;
+                //errore all'interno della riga
+                if (zzBuffer[start] != '\n' && zzBuffer[start] != '\r') {
+                    while (zzBuffer[start - 1] != '\n' && start != 1) {
                         start--;
                     }
-
-                    if ((start - 1) == 0) {
-                        flag = true;
-                        while (asList('\t', ' ', '\n', '\r').contains(zzBuffer[start])) {
-                            start++;
-                        }
-                        while (zzBuffer[start] != '\n') {
-                            load.append(zzBuffer[start]);
-                            start++;
-                        }
-                    } else {
-                        while (zzBuffer[start] != '\n') {
-                            load.append(zzBuffer[start]);
-                            start--;
-                        }
-                        load.reverse();
-                    }
-                } else {
-                    while (zzBuffer[start - 1] != '\n')
-                        start--;
+                    //leggi fino alla prossima riga dove una riga è \n .... \n
                     while (zzBuffer[start] != '\n') {
                         load.append(zzBuffer[start]);
                         start++;
                     }
+                } else {
+                    //errore nella riga precedente
+                    if (zzBuffer[start] == '\n' || zzBuffer[start] == '\r') {
+                        start--;
+                        line--;
+                        //va indietro finchè non trova un carattere o se finisce il file
+                        while (asList('\t', ' ', '\n', '\r').contains(zzBuffer[start]) && start - 1 != 0) {
+                            if (zzBuffer[start] == '\n')
+                                line--;
+                            start--;
+                        }
+                        //errore programma inizia diverse righe dopo
+                        if ((start - 1) == 0) {
+                            while (asList('\t', ' ', '\n', '\r').contains(zzBuffer[start])) {
+                                start++;
+                            }
+                            while (zzBuffer[start] != '\n') {
+                                load.append(zzBuffer[start]);
+                                start++;
+                            }
+                        } else {
+                            //errore riga precedente
+                            load.append(zzBuffer[start]);
+                            start--;
+                            //carico la riga al contrario
+                            while (zzBuffer[start] != '\n') {
+                                load.append(zzBuffer[start]);
+                                start--;
+                            }
+                            load.reverse(); //qui la mostro nel giusto verso
+                        }
+                    }
                 }
             }
+            setString(load.toString().trim().replaceAll("\n", ""));
+            setPos((flag) ? linea : line);
+            return;
         }
 
+        if (zzBuffer[start] == '\n' || zzBuffer[start] == '\r') {
+            start--;
+            line--;
+            while (asList('\t', ' ', '\n', '\r').contains(zzBuffer[start]) && start - 1 != 0) {
+                if (zzBuffer[start] == '\n')
+                    line--;
+                start--;
+            }
+
+            if ((start - 1) == 0) {
+                flag = true;
+                while (asList('\t', ' ', '\n', '\r').contains(zzBuffer[start])) {
+                    start++;
+                }
+                while (zzBuffer[start] != '\n') {
+                    load.append(zzBuffer[start]);
+                    start++;
+                }
+            } else {
+                while (zzBuffer[start] != '\n') {
+                    load.append(zzBuffer[start]);
+                    start--;
+                }
+                load.reverse();
+            }
+        } else {
+            while (zzBuffer[start - 1] != '\n')
+                start--;
+            while (zzBuffer[start] != '\n') {
+                load.append(zzBuffer[start]);
+                start++;
+            }
+        }
         setString(load.toString().trim().replaceAll("\n", ""));
-        if (flag)
-            setPos(linea);
-        else
-            setPos(line);
+        setPos((flag) ? linea : line);
     }
 }

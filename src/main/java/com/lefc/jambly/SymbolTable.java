@@ -7,7 +7,6 @@ public class SymbolTable {
     private static final List<Map<String, Record>> listTable = new ArrayList<>();
     private static Map<String, Record> table;
 
-    /*METODO PER LA RESTITUZIONE DEL CORRENTE RECORD*/
     public static Record getCurrRec(String key) {
         return table.get(key);
     }
@@ -22,7 +21,6 @@ public class SymbolTable {
         return table;
     }
 
-    /*METODO CHE PERMETTE DI OTTENERE ARRAYLIST CONTENENTE TUTTE LE TABELLE*/
     public static List<Map<String, Record>> retrieveAll() {
         return listTable;
     }

@@ -63,65 +63,64 @@ action code{:
 
 
 parser code{:
+    public List<PrintText> error = new ArrayList<>();
+    int cont_errori = 0;
+    boolean fatal = false;
+    Scanner scan = (Scanner) getScanner();
 
-PrintText output = new PrintText();
-public List<PrintText> error = new ArrayList<>();
-int cont_errori = 0;
-boolean fatal = false;
-Scanner scan = (Scanner) getScanner();
+     //tutti i metodi successivi si appoggiano alla seconda report_error passando il mess e il tipo di ogg
+     //per stampare la linea di un determinato terminale o non terminale
+     public void report_error(String message, int line) {
+         cont_errori++;
+         PrintText output = new PrintText();
+         output.textAndLine(line, scan.getBuffer());
 
- //tutti i metodi successivi si appoggiano alla seconda report_error passando il mess e il tipo di ogg
- //per stampare la linea di un determinato terminale o non terminale
- public void report_error(String message, int line) {
-     cont_errori++;
-     output = scan.text(line);
+         output.setMessage(message);
+         error.add(output);
 
-     output.setMessage(message);
-     error.add(output);
+     }
 
- }
-
-@Override
-public void report_error(String message, Object info) {
-    cont_errori++;
-    try {
-        output = scan.text();
-        //il null serve per la syntax_error e per la fatal_error
-        if (info == null) {
-            if (!fatal) {
+    @Override
+    public void report_error(String message, Object info) {
+        cont_errori++;
+        try {
+            PrintText output = new PrintText();
+            output.textAndLine(scan.getCurrentPos(), scan.getLine(), scan.getBuffer());
+            //il null serve per la syntax_error e per la fatal_error
+            if (info == null) {
+                if (!fatal) {
+                    output.setMessage(message);
+                    error.add(output);
+                    return;
+                }
+                //caso in cui viene superata la fine del file
+                fatal = false;
                 output.setMessage(message);
+
+                if (output.getPos() >= scan.getPos_vir()) {
+                    output.setString("");
+                }
                 error.add(output);
                 return;
             }
-            //caso in cui viene superata la fine del file
-            fatal = false;
             output.setMessage(message);
-
-            if (output.getPos() >= scan.getPos_vir()) {
-                output.setString("");
-            }
             error.add(output);
-            return;
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        output.setMessage(message);
-        error.add(output);
-    } catch (Exception e) {
-        e.printStackTrace();
     }
-}
 
- @Override
- public void syntax_error(Symbol cur_token) {
-     report_error("ERRORE LESSICALE/SINTATTICO \n", null);
- }
+    @Override
+    public void syntax_error(Symbol cur_token) {
+        report_error("ERRORE LESSICALE/SINTATTICO \n", null);
+    }
 
-
- @Override
- public void report_fatal_error(String message, Object info) {
-    fatal = true;
-    report_error("FATAL ERROR: IMPOSSIBILE COMPLETARE L'ESECUZIONE, POICHE' E' STATA RAGGIUNTA LA FINE DEL FILE PREMATURAMENTE!", null);
-    CUP$parser$actions.FlagSyn = true;
- }
+    @Override
+    public void report_fatal_error(String message, Object info) {
+        fatal = true;
+        report_error("FATAL ERROR: IMPOSSIBILE COMPLETARE L'ESECUZIONE, POICHE' E' STATA RAGGIUNTA LA FINE DEL FILE PREMATURAMENTE!", null);
+        CUP$parser$actions.FlagSyn = true;
+    }
 :}
 
 
