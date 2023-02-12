@@ -13,6 +13,7 @@ public class InterpreterRunner {
     public static String TRANSLATION_RESULT = "";
     private Scanner scanner;
     private parser parser;
+    private ErrorParser errorParser;
 
     public String run(String file) {
         Scanner scanner = new Scanner(new ByteArrayInputStream(file.getBytes()));
@@ -27,7 +28,8 @@ public class InterpreterRunner {
             checkBrackets();
             sort(parser.error);
             remove();   //per errori al di fuori del source program
-            new ErrorParser(new SemanticErrorRepository()).print(this.parser.error, this.parser.cont_errori);
+            errorParser = new ErrorParser(new SemanticErrorRepository());
+            errorParser.print(this.parser.error, this.parser.cont_errori);
             result = buildResult();
         } catch (Exception e) {
             e.printStackTrace();
@@ -72,25 +74,14 @@ public class InterpreterRunner {
         }
     }
 
-    private String buildResult() throws IOException {
+    private String buildResult() {
         if (!new File(ERROR_FILE).exists()) {
             return TRANSLATION_RESULT + ("\nCompilazione avvenuta correttamente!" + " Non si sono verificati errori sintattici!");
         }
         if (CUP$parser$actions.FlagSyn || Support.getnumErr() > 5) {
-            return readFile(ERROR_FILE);
+            return errorParser.getResult();
         }
-        return readFile(ERROR_FILE) + TRANSLATION_RESULT;
+        return errorParser.getResult() + TRANSLATION_RESULT;
     }
 
-    private String readFile(String path) throws IOException {
-        BufferedReader b = new BufferedReader(new FileReader(path));
-        StringBuilder result = new StringBuilder();
-        while (true) {
-            String line = b.readLine();
-            if (line == null)
-                break;
-            result.append(line).append("\n");
-        }
-        return result.toString();
-    }
 }
