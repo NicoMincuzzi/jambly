@@ -47,107 +47,57 @@ public class PrintText implements Comparable<PrintText> {
 
     public void textAndLine(int linea, char[] zzBuffer) {
         int start = 0;
-        int point = 0;
+        int counter = 0;
 
-        while (point != linea - 1) {
+        while (counter != linea - 1) {
             if (zzBuffer[start] == '\n') {
-                point++;
+                counter++;
             }
             start++;
         }
-        start++;
 
-        StringBuilder load = new StringBuilder();
-        load.append(zzBuffer[start]);
-        while (zzBuffer[start] != '\n') {
-            load.append(zzBuffer[start]);
-            start++;
-        }
-        wrongString = load.toString().trim().replaceAll("\n", "");
+        StringBuilder load = new StringBuilder(String.valueOf(zzBuffer[start + 1]));
+        readCharUntilTheNextRow(zzBuffer, load, start);
+        wrongString = load.toString().trim();
         pos = linea;
     }
 
-    public void textAndLine(int pos_attuale, int linea, char[] zzBuffer) {
+    public void textAndLine(int currPosition, int linea, char[] zzBuffer) {
         //capisce che è avvenuto l'errore solo una volta superato e quindi verrà restituito il token sbagliato
         //per soddisfare la sintassi o il lessico
-        int start = pos_attuale - 1;
-        int end = pos_attuale;
-        int line = linea;
-
         StringBuilder load = new StringBuilder();
 
-        if (end == 0) {
-            while (zzBuffer[end] != '\n') {
-                load.append(zzBuffer[end]);
-                end++;
-            }
+        if (currPosition == 0) {
+            readCharUntilTheNextRow(zzBuffer, load, currPosition);
             this.wrongString = load.toString();
-            this.pos = line;
+            this.pos = linea;
             return;
         }
 
         //nel caso in cui l'err si sia verificato a metà e l'err è stato rilevato dopo
         //controlla se c'è un tab o uno spazio vuoto
-        boolean flag = false;
-        if (zzBuffer[start] == '\t' || zzBuffer[start] == ' ') {   //torno indietro assicurandomi di restare nel codice e di non sfornare a -1
-            while ((zzBuffer[start] == '\t' || zzBuffer[start] == ' ') && start - 1 != 0) { //diminuisco il valore di start
-                start--;
-            }
-            //controllo errore inizio programma stessa riga
-            if (start - 1 == 0) {
-                flag = true;
+        int start = currPosition - 1;
+        int line = linea;
+        if (asList('\t', ' ').contains(zzBuffer[start])) {   //torno indietro assicurandomi di restare nel codice e di non sforare a -1
 
-                while (zzBuffer[end] != '\n') {
-                    load.append(zzBuffer[end]);
-                    end++;
+            start = moveToLastValidChar(zzBuffer, start);
+
+            if (checkErrorInTheBeginingAndInSameRow(linea, zzBuffer, currPosition, load, start - 1)) return;
+
+            //errore all'interno della riga
+            if (zzBuffer[start] != '\n' && zzBuffer[start] != '\r') {
+                while (zzBuffer[start - 1] != '\n' && start != 1) {
+                    start--;
                 }
-            } else {
-                //errore all'interno della riga
-                if (zzBuffer[start] != '\n' && zzBuffer[start] != '\r') {
-                    while (zzBuffer[start - 1] != '\n' && start != 1) {
-                        start--;
-                    }
-                    //leggi fino alla prossima riga dove una riga è \n .... \n
-                    while (zzBuffer[start] != '\n') {
-                        load.append(zzBuffer[start]);
-                        start++;
-                    }
-                } else {
-                    //errore nella riga precedente
-                    if (zzBuffer[start] == '\n' || zzBuffer[start] == '\r') {
-                        start--;
-                        line--;
-                        //va indietro finchè non trova un carattere o se finisce il file
-                        while (asList('\t', ' ', '\n', '\r').contains(zzBuffer[start]) && start - 1 != 0) {
-                            if (zzBuffer[start] == '\n')
-                                line--;
-                            start--;
-                        }
-                        //errore programma inizia diverse righe dopo
-                        if ((start - 1) == 0) {
-                            while (asList('\t', ' ', '\n', '\r').contains(zzBuffer[start])) {
-                                start++;
-                            }
-                            while (zzBuffer[start] != '\n') {
-                                load.append(zzBuffer[start]);
-                                start++;
-                            }
-                        } else {
-                            //errore riga precedente
-                            load.append(zzBuffer[start]);
-                            start--;
-                            //carico la riga al contrario
-                            while (zzBuffer[start] != '\n') {
-                                load.append(zzBuffer[start]);
-                                start--;
-                            }
-                            load.reverse(); //qui la mostro nel giusto verso
-                        }
-                    }
-                }
+                readCharUntilTheNextRow(zzBuffer, load, start);
+                this.wrongString = load.toString().trim();
+                this.pos = line;
+                return;
             }
-            setString(load.toString().trim().replaceAll("\n", ""));
-            setPos((flag) ? linea : line);
+
+            line = checkErrorInPrevRow(zzBuffer, load, start, line);
+            this.wrongString = load.toString().trim();
+            this.pos = line;
             return;
         }
 
@@ -161,30 +111,89 @@ public class PrintText implements Comparable<PrintText> {
             }
 
             if ((start - 1) == 0) {
-                flag = true;
                 while (asList('\t', ' ', '\n', '\r').contains(zzBuffer[start])) {
                     start++;
                 }
-                while (zzBuffer[start] != '\n') {
-                    load.append(zzBuffer[start]);
-                    start++;
-                }
-            } else {
-                while (zzBuffer[start] != '\n') {
-                    load.append(zzBuffer[start]);
-                    start--;
-                }
-                load.reverse();
+                readCharUntilTheNextRow(zzBuffer, load, start);
+                this.wrongString = load.toString().trim();
+                this.pos = line;
+                return;
             }
-        } else {
-            while (zzBuffer[start - 1] != '\n')
-                start--;
             while (zzBuffer[start] != '\n') {
                 load.append(zzBuffer[start]);
+                start--;
+            }
+            load.reverse();
+
+            this.wrongString = load.toString().trim();
+            this.pos = line;
+            return;
+        }
+
+        while (zzBuffer[start - 1] != '\n')
+            start--;
+        readCharUntilTheNextRow(zzBuffer, load, start);
+        this.wrongString = load.toString().trim();
+        this.pos = line;
+    }
+
+    private static void readCharUntilTheNextRow(char[] zzBuffer, StringBuilder load, int start) {
+        //leggi fino alla prossima riga dove una riga è \n .... \n
+        while (zzBuffer[start] != '\n') {
+            load.append(zzBuffer[start]);
+            start++;
+        }
+    }
+
+    private static int moveToLastValidChar(char[] zzBuffer, int start) {
+        while (asList('\t', ' ').contains(zzBuffer[start]) && start - 1 != 0) {
+            start--;
+        }
+        return start;
+    }
+
+    private boolean checkErrorInTheBeginingAndInSameRow(int linea, char[] zzBuffer, int end, StringBuilder load, int start) {
+        if (start != 0) {
+            return false;
+        }
+        readCharUntilTheNextRow(zzBuffer, load, end);
+        this.wrongString = load.toString();
+        this.pos = linea;
+        return true;
+    }
+
+    private static int checkErrorInPrevRow(char[] zzBuffer, StringBuilder load, int start, int line) {
+        if (zzBuffer[start] != '\n' && zzBuffer[start] != '\r') {
+            return line;
+        }
+        start--;
+        line--;
+
+        //va indietro finchè non trova un carattere o se finisce il file
+        while (asList('\t', ' ', '\n', '\r').contains(zzBuffer[start]) && start - 1 != 0) {
+            if (zzBuffer[start] == '\n')
+                line--;
+            start--;
+        }
+
+        //errore programma inizia diverse righe dopo
+        if ((start - 1) == 0) {
+            while (asList('\t', ' ', '\n', '\r').contains(zzBuffer[start])) {
                 start++;
             }
+            readCharUntilTheNextRow(zzBuffer, load, start);
+            return line;
         }
-        setString(load.toString().trim().replaceAll("\n", ""));
-        setPos((flag) ? linea : line);
+
+        //errore riga precedente
+        load.append(zzBuffer[start]);
+        start--;
+        //carico la riga al contrario
+        while (zzBuffer[start] != '\n') {
+            load.append(zzBuffer[start]);
+            start--;
+        }
+        load.reverse(); //qui la mostro nel giusto verso
+        return line;
     }
 }
