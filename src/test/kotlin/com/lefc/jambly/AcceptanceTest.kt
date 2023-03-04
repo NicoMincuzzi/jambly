@@ -76,7 +76,7 @@ class AcceptanceTest {
         val interpreter = InterpreterRunner()
         val result = interpreter.run(file)
         val expected =
-            "ERRORI TROVATI: 0\n\n.data\n\nlavoro .WORD 0d\ni .WORD ?\nj .WORD 1d\ndim EQU 7\nV .WORD 22, 5, 7, 11, 2, 33, 9\n\n.code\n\nMOVE lavoro, \$s0\nMOVE i, \$s1\nMOVE j, \$s2\nMOVE dim, \$s3\nMOVE V, \$s4\n\n\n\n\nADDI \$s1, \$zero, 0\nCICLO3:  SLTI \$t0, \$s1, 7\nBEQ \$t0, \$zero, ESCI3\n\tADDI \$s2, \$s1, 1\nCICLO2:  SLTI \$t1, \$s2, 7\nBEQ \$t1, \$zero, ESCI2\n\tMULT \$t3, \$s1, 4\nADD \$t3, \$t3, \$s4\nLW \$t2, 0(\$t3)\nMULT \$t5, \$s2, 4\nADD \$t5, \$t5, \$s4\nLW \$t4, 0(\$t5)\nSLT \$t6, \$t2, \$t4\nBEQ \$t6, \$zero, ESCI1\nADD \$s0, \$zero, \$t2\nSW \$t4 0(\$t2)\nSW \$s0 0(\$t4)\nESCI1:\n\n\tADDI \$s2, \$s2, 1\nCICLO2\nESCI2:\n\n\tADDI \$s1, \$s1, 1\nCICLO3\nESCI3:\n\n\nend\n"
+            "\n.data\n\nlavoro .WORD 0d\ni .WORD ?\nj .WORD 1d\ndim EQU 7\nV .WORD 22, 5, 7, 11, 2, 33, 9\n\n.code\n\nMOVE lavoro, \$s0\nMOVE i, \$s1\nMOVE j, \$s2\nMOVE dim, \$s3\nMOVE V, \$s4\n\n\n\n\nADDI \$s1, \$zero, 0\nCICLO3:  SLTI \$t0, \$s1, 7\nBEQ \$t0, \$zero, ESCI3\n\tADDI \$s2, \$s1, 1\nCICLO2:  SLTI \$t1, \$s2, 7\nBEQ \$t1, \$zero, ESCI2\n\tMULT \$t3, \$s1, 4\nADD \$t3, \$t3, \$s4\nLW \$t2, 0(\$t3)\nMULT \$t5, \$s2, 4\nADD \$t5, \$t5, \$s4\nLW \$t4, 0(\$t5)\nSLT \$t6, \$t2, \$t4\nBEQ \$t6, \$zero, ESCI1\nADD \$s0, \$zero, \$t2\nSW \$t4 0(\$t2)\nSW \$s0 0(\$t4)\nESCI1:\n\n\tADDI \$s2, \$s2, 1\nCICLO2\nESCI2:\n\n\tADDI \$s1, \$s1, 1\nCICLO3\nESCI3:\n\n\nend\n\nCompilazione avvenuta correttamente! Non si sono verificati errori sintattici!"
         assertThat(result, Matchers.`is`(expected))
     }
 

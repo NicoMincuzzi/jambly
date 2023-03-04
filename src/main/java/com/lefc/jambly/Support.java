@@ -2,12 +2,11 @@ package com.lefc.jambly;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 public class Support {
-
     private static List<String> listMod;
-    private static int numErr;
 
     public static List<String> getArrList() {
         return listMod;
@@ -15,7 +14,7 @@ public class Support {
 
     /*Funzione che permette di dividere parole separate da spazi*/
     public static void sepWordWS(String s) {
-        listMod = Arrays.stream(s.split(" ")).collect(Collectors.toList());
+        listMod = Arrays.stream(s.split(" ")).collect(toList());
     }
 
     public static String getVar(String varad) {
@@ -35,13 +34,5 @@ public class Support {
                 break;
         }
         return String.valueOf(0);
-    }
-
-    public static void countExit(int errorCount) {
-        numErr = errorCount;
-    }
-
-    public static int getnumErr() {
-        return numErr;
     }
 }

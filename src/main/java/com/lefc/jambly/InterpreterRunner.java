@@ -1,15 +1,12 @@
 package com.lefc.jambly;
 
-import com.lefc.jambly.repository.SemanticErrorRepository;
-
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.util.Iterator;
 
 import static java.util.Collections.sort;
 
 public class InterpreterRunner {
-
-    public static final String ERROR_FILE = "FileErr.txt";
     public static String TRANSLATION_RESULT = "";
     private Scanner scanner;
     private parser parser;
@@ -28,15 +25,13 @@ public class InterpreterRunner {
             checkBrackets();
             sort(parser.error);
             remove();   //per errori al di fuori del source program
-            errorParser = new ErrorParser(new SemanticErrorRepository());
+            errorParser = new ErrorParser();
             errorParser.print(this.parser.error, this.parser.cont_errori);
-            result = buildResult();
+            result = buildResult(this.parser.cont_errori);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             TRANSLATION_RESULT = "";
-            File f = new File(ERROR_FILE);
-            f.delete();
             CUP$parser$actions.countReg = 0;
             CUP$parser$actions.countRegFP = 0;
             CUP$parser$actions.countRTemp = 0;
@@ -54,8 +49,7 @@ public class InterpreterRunner {
         PrintText printText = new PrintText();
         if (numberOfBrackets > 0) {
             printText.setString("Parentesi in difetto");
-            int i = (scanner.get_close_par() != 0) ? scanner.get_close_par() : scanner.get_open_par();
-            printText.setPos(i);
+            printText.setPos((scanner.get_close_par() != 0) ? scanner.get_close_par() : scanner.get_open_par());
         } else {
             printText.setString("Parentesi in eccesso");
             printText.setPos(scanner.get_open_par());
@@ -74,11 +68,11 @@ public class InterpreterRunner {
         }
     }
 
-    private String buildResult() {
-        if (!new File(ERROR_FILE).exists()) {
+    private String buildResult(int errorCounter) {
+        if (errorCounter == 0) {
             return TRANSLATION_RESULT + ("\nCompilazione avvenuta correttamente!" + " Non si sono verificati errori sintattici!");
         }
-        if (CUP$parser$actions.FlagSyn || Support.getnumErr() > 5) {
+        if (CUP$parser$actions.FlagSyn || errorCounter > 5) {
             return errorParser.getResult();
         }
         return errorParser.getResult() + TRANSLATION_RESULT;
