@@ -1,7 +1,6 @@
 package com.lefc.jambly;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.util.Iterator;
 
 import static java.util.Collections.sort;
@@ -10,7 +9,6 @@ public class InterpreterRunner {
     public static String TRANSLATION_RESULT = "";
     private Scanner scanner;
     private parser parser;
-    private ErrorParser errorParser;
 
     public String run(String file) {
         Scanner scanner = new Scanner(new ByteArrayInputStream(file.getBytes()));
@@ -25,9 +23,8 @@ public class InterpreterRunner {
             checkBrackets();
             sort(parser.error);
             remove();   //per errori al di fuori del source program
-            errorParser = new ErrorParser();
-            errorParser.print(this.parser.error, this.parser.cont_errori);
-            result = buildResult(this.parser.cont_errori);
+
+            result = buildResult(this.parser.cont_errori, new ErrorFormatter());
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -68,14 +65,16 @@ public class InterpreterRunner {
         }
     }
 
-    private String buildResult(int errorCounter) {
+    private String buildResult(int errorCounter, ErrorFormatter errorFormatter) {
+        String result = errorFormatter.print(this.parser.error, errorCounter);
+
         if (errorCounter == 0) {
-            return TRANSLATION_RESULT + ("\nCompilazione avvenuta correttamente!" + " Non si sono verificati errori sintattici!");
+            return TRANSLATION_RESULT + "\nCompilazione avvenuta correttamente! Non si sono verificati errori sintattici!";
         }
-        if (CUP$parser$actions.FlagSyn || errorCounter > 5) {
-            return errorParser.getResult();
+        if (!CUP$parser$actions.FlagSyn && errorCounter <= 5) {
+            return result + TRANSLATION_RESULT;
         }
-        return errorParser.getResult() + TRANSLATION_RESULT;
+        return result;
     }
 
 }
