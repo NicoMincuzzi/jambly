@@ -1,5 +1,7 @@
 package com.lefc.jambly;
 
+import com.lefc.jambly.domain.Bracket;
+
 import java.io.ByteArrayInputStream;
 import java.util.Iterator;
 
@@ -15,14 +17,20 @@ public class InterpreterRunner {
         this.scanner = scanner;
         parser parser = new parser(scanner);
         this.parser = parser;
-        new CUP$parser$actions(parser);
+        //TODO use the instance
+        CUP$parser$actions cup$parser$actions = new CUP$parser$actions(parser);
 
         String result = null;
         try {
             parser.parse();
-            checkBrackets();
+            Bracket bracket = new Bracket(scanner);
+            if(!bracket.isValid()){
+                PrintText printText = bracket.buildError();
+                parser.error.add(printText);
+            }
+
             sort(parser.error);
-            remove();   //per errori al di fuori del source program
+            removeErrorsOutsideTheSourceProgram();
 
             result = buildResult(this.parser.cont_errori, new ErrorFormatter());
         } catch (Exception e) {
@@ -37,29 +45,12 @@ public class InterpreterRunner {
         return result;
     }
 
-    private void checkBrackets() {
-        int numberOfBrackets = scanner.countBrace2;
-        if (numberOfBrackets == 0) {
-            return;
-        }
-
-        PrintText printText = new PrintText();
-        if (numberOfBrackets > 0) {
-            printText.setString("Parentesi in difetto");
-            printText.setPos((scanner.get_close_par() != 0) ? scanner.get_close_par() : scanner.get_open_par());
-        } else {
-            printText.setString("Parentesi in eccesso");
-            printText.setPos(scanner.get_open_par());
-        }
-        parser.error.add(printText);
-    }
-
-    private void remove() {
-        int pos = scanner.getPos_vir();
-        Iterator<PrintText> I = parser.error.iterator();
-        while (I.hasNext()) {
-            if (I.next().getPos() >= pos) {
-                I.remove();
+    private void removeErrorsOutsideTheSourceProgram() {
+        int posLastSemicolon = scanner.getPosLastSemicolon();
+        Iterator<PrintText> printTextIterator = parser.error.iterator();
+        while (printTextIterator.hasNext()) {
+            if (printTextIterator.next().getPos() >= posLastSemicolon) {
+                printTextIterator.remove();
                 return;
             }
         }

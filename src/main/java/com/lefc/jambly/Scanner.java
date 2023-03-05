@@ -538,25 +538,22 @@ public final class Scanner implements java_cup.runtime.Scanner {
      return zzBuffer;
    }
 
-public int countBrace2=0;  
-public int pos_par_open=0;  //posizione dell'ultima parentesi graffa aperta
-public int pos_par_close=0;  //posizione dell'ultima parentesi graffa chiusa
-public int pos_vir=0;        //posizione dell'ultimo ";"
-public int get_open_par()
-{
-   return pos_par_open;
-}
-public int get_close_par()
-{
-    return pos_par_close;
+    public int bracketCounter = 0;
+    public int pos_par_open=0;  //posizione dell'ultima parentesi graffa aperta
+    public int pos_par_close=0;  //posizione dell'ultima parentesi graffa chiusa
+    private int posLastSemicolon = 0;
 
-}
-public int getPos_vir()
-{
+    public int get_open_par() {
+       return pos_par_open;
+    }
 
-  return pos_vir;
-}  
- 
+    public int get_close_par() {
+        return pos_par_close;
+    }
+
+    public int getPosLastSemicolon() {
+      return posLastSemicolon;
+    }
 
 
   /**
@@ -980,7 +977,7 @@ public int getPos_vir()
           }
         case 89: break;
         case 13: 
-          { countBrace2++;
+          { bracketCounter++;
                                   
                                   pos_par_open=yyline+1;
                                   
@@ -988,7 +985,7 @@ public int getPos_vir()
           }
         case 90: break;
         case 14: 
-          { countBrace2--;  
+          { bracketCounter--;  
                                                                      
                                      pos_par_close=yyline+1; 
                                     return sym(RBRACE);
@@ -1003,7 +1000,7 @@ public int getPos_vir()
           }
         case 93: break;
         case 17: 
-          { pos_vir=yyline+1; return sym(PUNTO_E_VIRGOLA);
+          { posLastSemicolon=yyline+1; return sym(PUNTO_E_VIRGOLA);
           }
         case 94: break;
         case 18: 
